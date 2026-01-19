@@ -9,6 +9,7 @@ const CONFIG = {
   port: 3000,
   mqtt: {
     cerboGx: 'mqtt://192.168.1.210',
+    cerboSerial: 'c0619ab4be8e',  // Cerbo GX portal ID
     keepaliveInterval: 25000  // 25 seconds
   },
   influx: {
@@ -54,13 +55,14 @@ cerboClient.on('connect', () => {
   // Subscribe to ESP32 sensor data
   cerboClient.subscribe('home/#');
 
-  // Send initial keepalive
-  cerboClient.publish('R/+/keepalive', '');
+  // Send initial keepalive (must use actual serial, not wildcard)
+  const keepaliveTopic = `R/${CONFIG.mqtt.cerboSerial}/keepalive`;
+  cerboClient.publish(keepaliveTopic, '');
   console.log('✓ Sent initial keepalive to Cerbo GX');
 
   // Send keepalive every 25 seconds
   setInterval(() => {
-    cerboClient.publish('R/+/keepalive', '');
+    cerboClient.publish(keepaliveTopic, '');
   }, CONFIG.mqtt.keepaliveInterval);
 });
 
