@@ -16,7 +16,7 @@ const CONFIG = {
     url: 'http://localhost:8086',
     token: 'uo4-ieF7EucCPn_9kkTzb7FaCda6u9-a8M9PuGwnBy3QtRbhnHWqLspEPTQVIm9DkLdrwf8RXoMZsmHxsOKEew==',
     org: 'casa-davinci',
-    bucket: 'energy_data'
+    bucket: 'energy-data'
   }
 };
 
