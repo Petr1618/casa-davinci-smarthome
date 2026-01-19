@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Casa DaVinci</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;background:#1a1a2e;min-height:100vh;color:#fff}.header{padding:20px;display:flex;justify-content:space-between;border-bottom:1px solid #333}.logo{font-size:24px;color:#00d4ff}.status-dot{width:10px;height:10px;border-radius:50%;background:#f44;display:inline-block}.status-dot.connected{background:#0f8}.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;padding:20px}.card{background:#222;border-radius:15px;padding:20px}.card-title{font-size:12px;color:#888;margin-bottom:15px}.card-value{font-size:42px;font-weight:bold}.card-unit{font-size:16px;color:#666}.temp{color:#ff8c00}.humid{color:#00d4ff}.sub{font-size:14px;color:#666;margin-top:10px}.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.phase{background:#1a1a2e;border-radius:10px;padding:12px;text-align:center}.phase-label{font-size:11px;color:#888;margin-bottom:5px}.phase-value{font-size:20px;font-weight:bold}.phase-sub{font-size:11px;color:#666;margin-top:5px}.export{color:#0f8}.import{color:#f80}
+</style>
+</head>
+<body>
+<div class="header"><div class="logo">Casa DaVinci</div><div><span id="status-text">Connecting</span> <span class="status-dot" id="dot"></span></div></div>
+<div class="dashboard">
+<div class="card"><div class="card-title">BATTERY</div><div class="card-value"><span id="bat">--</span><span class="card-unit">%</span></div><div class="sub">Voltage: <span id="batv">--</span>V | Power: <span id="batp">--</span>W</div></div>
+<div class="card"><div class="card-title">SOLAR TOTAL</div><div class="card-value"><span id="solar">--</span><span class="card-unit">W</span></div><div class="sub">Roof: <span id="solar1">--</span>W | Terrace: <span id="solar2">--</span>W</div></div>
+<div class="card"><div class="card-title">GRID</div><div class="card-value"><span id="grid">--</span><span class="card-unit">W</span></div><div class="sub"><span id="grid-dir">--</span> | <span id="gfreq">--</span> Hz</div>
+<div class="phase-grid">
+<div class="phase"><div class="phase-label">L1</div><div class="phase-value"><span id="gl1p">--</span>W</div><div class="phase-sub"><span id="gl1v">--</span>V</div></div>
+<div class="phase"><div class="phase-label">L2</div><div class="phase-value"><span id="gl2p">--</span>W</div><div class="phase-sub"><span id="gl2v">--</span>V</div></div>
+<div class="phase"><div class="phase-label">L3</div><div class="phase-value"><span id="gl3p">--</span>W</div><div class="phase-sub"><span id="gl3v">--</span>V</div></div>
+</div></div>
+<div class="card"><div class="card-title">ESSENTIAL LOADS</div><div class="card-value"><span id="acout">--</span><span class="card-unit">W</span></div><div class="sub">Frequency: <span id="freq">--</span> Hz</div>
+<div class="phase-grid">
+<div class="phase"><div class="phase-label">L1</div><div class="phase-value"><span id="l1p">--</span>W</div><div class="phase-sub"><span id="l1v">--</span>V</div></div>
+<div class="phase"><div class="phase-label">L2</div><div class="phase-value"><span id="l2p">--</span>W</div><div class="phase-sub"><span id="l2v">--</span>V</div></div>
+<div class="phase"><div class="phase-label">L3</div><div class="phase-value"><span id="l3p">--</span>W</div><div class="phase-sub"><span id="l3v">--</span>V</div></div>
+</div></div>
+<div class="card"><div class="card-title">LIVING ROOM</div><div><span class="card-value temp"><span id="temp">--</span>°</span> <span class="card-value humid"><span id="hum">--</span>%</span></div></div>
+<div class="card"><div class="card-title">BATTERY TEMP</div><div class="card-value temp"><span id="batt">--</span><span class="card-unit">°C</span></div></div>
+</div>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+let s1=0,s2=0;
+const socket=io();
+socket.on('connect',()=>{document.getElementById('dot').classList.add('connected');document.getElementById('status-text').textContent='Connected';});
+socket.on('disconnect',()=>{document.getElementById('dot').classList.remove('connected');document.getElementById('status-text').textContent='Disconnected';});
+socket.on('initial-data',d=>{Object.entries(d.victron).forEach(([t,v])=>pv(t,v));if(d.sensors.living_room){document.getElementById('temp').textContent=d.sensors.living_room.temperature?.toFixed(1)||'--';document.getElementById('hum').textContent=d.sensors.living_room.humidity?.toFixed(1)||'--';}});
+socket.on('victron-data',d=>pv(d.topic,d.value));
+socket.on('sensor-data',d=>{if(d.location==='living_room'){if(d.temperature)document.getElementById('temp').textContent=d.temperature.toFixed(1);if(d.humidity)document.getElementById('hum').textContent=d.humidity.toFixed(1);}});
+function pv(t,v){
+if(t.includes('/battery/512/Soc'))document.getElementById('bat').textContent=Math.round(v);
+if(t.includes('/battery/512/Dc/0/Voltage'))document.getElementById('batv').textContent=v.toFixed(1);
+if(t.includes('/battery/512/Dc/0/Power'))document.getElementById('batp').textContent=Math.round(v);
+if(t.includes('/battery/512/Dc/0/Temperature'))document.getElementById('batt').textContent=v.toFixed(1);
+if(t.includes('/grid/30/Ac/Power')){let g=Math.round(v);document.getElementById('grid').textContent=Math.abs(g);document.getElementById('grid-dir').textContent=g>=0?'Importing':'Exporting';}
+if(t.includes('/grid/30/Ac/Frequency'))document.getElementById('gfreq').textContent=v.toFixed(2);
+if(t.includes('/grid/30/Ac/L1/Power'))document.getElementById('gl1p').textContent=Math.round(v);
+if(t.includes('/grid/30/Ac/L2/Power'))document.getElementById('gl2p').textContent=Math.round(v);
+if(t.includes('/grid/30/Ac/L3/Power'))document.getElementById('gl3p').textContent=Math.round(v);
+if(t.includes('/grid/30/Ac/L1/Voltage'))document.getElementById('gl1v').textContent=v.toFixed(1);
+if(t.includes('/grid/30/Ac/L2/Voltage'))document.getElementById('gl2v').textContent=v.toFixed(1);
+if(t.includes('/grid/30/Ac/L3/Voltage'))document.getElementById('gl3v').textContent=v.toFixed(1);
+if(t.includes('/solarcharger/278/Yield/Power')){s1=v;document.getElementById('solar1').textContent=Math.round(v);document.getElementById('solar').textContent=Math.round(s1+s2);}
+if(t.includes('/solarcharger/279/Yield/Power')){s2=v;document.getElementById('solar2').textContent=Math.round(v);document.getElementById('solar').textContent=Math.round(s1+s2);}
+if(t.includes('/vebus/276/Ac/Out/P')&&!t.includes('Nominal'))document.getElementById('acout').textContent=Math.round(v);
+if(t.includes('/vebus/276/Ac/Out/L1/P'))document.getElementById('l1p').textContent=Math.round(v);
+if(t.includes('/vebus/276/Ac/Out/L2/P'))document.getElementById('l2p').textContent=Math.round(v);
+if(t.includes('/vebus/276/Ac/Out/L3/P'))document.getElementById('l3p').textContent=Math.round(v);
+if(t.includes('/vebus/276/Ac/Out/L1/V'))document.getElementById('l1v').textContent=v.toFixed(1);
+if(t.includes('/vebus/276/Ac/Out/L2/V'))document.getElementById('l2v').textContent=v.toFixed(1);
+if(t.includes('/vebus/276/Ac/Out/L3/V'))document.getElementById('l3v').textContent=v.toFixed(1);
+if(t.includes('/vebus/276/Ac/Out/L1/F'))document.getElementById('freq').textContent=v.toFixed(2);
+}
+</script>
+</body>
+</html>

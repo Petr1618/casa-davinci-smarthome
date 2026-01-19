@@ -1,0 +1,215 @@
+================================================================================
+                    ESP32 TEMPERATURE & HUMIDITY SENSOR
+                         DOCUMENTATION v1.0
+================================================================================
+
+PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+This document describes the ESP32-based temperature and humidity sensor system
+designed for home monitoring. The sensor connects to the existing Victron Energy
+Cerbo GX MQTT broker, enabling seamless integration with the home energy
+monitoring infrastructure.
+
+HARDWARE COMPONENTS
+--------------------------------------------------------------------------------
+- ESP32 DevKit V1 (30-pin version)
+- AM2302 (DHT22) Temperature & Humidity Sensor
+- SSD1306 OLED Display (128x64 pixels, I2C interface)
+- Micro USB cable for power
+
+WIRING DIAGRAM
+--------------------------------------------------------------------------------
+
+    ESP32 DevKit V1                 AM2302 Sensor
+    ┌─────────────┐                ┌─────────────┐
+    │             │                │  +  DATA -  │
+    │         3V3 ├────────────────┤  VCC        │
+    │             │                │             │
+    │        D14  ├────────────────┤  DATA       │
+    │             │                │             │
+    │         GND ├────────────────┤  GND        │
+    │             │                └─────────────┘
+    │             │
+    │             │                 SSD1306 OLED
+    │             │                ┌─────────────┐
+    │         3V3 ├────────────────┤  VCC        │
+    │             │                │             │
+    │         GND ├────────────────┤  GND        │
+    │             │                │             │
+    │         D21 ├────────────────┤  SDA        │
+    │             │                │             │
+    │         D22 ├────────────────┤  SCL        │
+    └─────────────┘                └─────────────┘
+
+PIN CONFIGURATION
+--------------------------------------------------------------------------------
+    GPIO 14  - DHT22/AM2302 Data Pin
+    GPIO 21  - I2C SDA (OLED Display)
+    GPIO 22  - I2C SCL (OLED Display)
+    3.3V     - Power supply for sensor and display
+    GND      - Common ground
+
+MQTT BROKER CONNECTION
+--------------------------------------------------------------------------------
+The ESP32 connects to the Victron Cerbo GX MQTT broker:
+
+    Broker Address:  192.168.1.210
+    Port:            1883
+    Protocol:        MQTT v3.1.1
+    Authentication:  None (local network)
+
+The Cerbo GX acts as the central MQTT broker for the entire home automation
+system, handling both Victron energy data and custom sensor data.
+
+MQTT TOPIC STRUCTURE
+--------------------------------------------------------------------------------
+The sensor publishes to the following topics:
+
+    home/living_room/sensor
+        Full JSON payload with all sensor data
+        Example: {"device":"esp32-sensor-01","location":"living_room",
+                  "temperature":23.5,"humidity":58.2,"rssi":-45}
+
+    home/living_room/temperature
+        Temperature value only (Celsius)
+        Example: 23.5
+
+    home/living_room/humidity
+        Humidity value only (Percentage)
+        Example: 58.2
+
+The sensor subscribes to:
+
+    home/living_room/command
+        For receiving remote commands (future expansion)
+
+DATA TRANSMISSION INTERVAL
+--------------------------------------------------------------------------------
+Sensor readings are transmitted every 30 seconds. This interval balances
+real-time monitoring needs with network efficiency and sensor longevity.
+
+SYSTEM OPERATION FLOW
+--------------------------------------------------------------------------------
+
+    1. STARTUP
+       ├── Initialize OLED display
+       ├── Display startup message
+       └── Scan for available WiFi networks
+
+    2. WIFI CONNECTION
+       ├── Connect to configured network
+       ├── Display connection status
+       └── Show IP address when connected
+
+    3. MQTT CONNECTION
+       ├── Connect to Cerbo GX broker (192.168.1.210)
+       ├── Subscribe to command topic
+       └── Display MQTT status
+
+    4. MAIN LOOP (repeats every 30 seconds)
+       ├── Check WiFi connection (reconnect if lost)
+       ├── Check MQTT connection (reconnect if lost)
+       ├── Read temperature from AM2302
+       ├── Read humidity from AM2302
+       ├── Publish data to MQTT topics
+       └── Update OLED display with current readings
+
+DISPLAY INFORMATION
+--------------------------------------------------------------------------------
+The OLED display shows real-time information:
+
+    ┌──────────────────────┐
+    │ -- HOME SENSOR --    │
+    │                      │
+    │ 23.5 C               │  <- Temperature (large font)
+    │                      │
+    │ 58.2 %               │  <- Humidity (large font)
+    │                      │
+    │ WiFi:-45dB MQTT:OK   │  <- Status bar
+    └──────────────────────┘
+
+ERROR HANDLING
+--------------------------------------------------------------------------------
+The system handles common errors automatically:
+
+    - WiFi Disconnection:  Automatic reconnection with status display
+    - MQTT Disconnection:  Automatic reconnection with retry every 5 seconds
+    - Sensor Read Failure: Error displayed, skips transmission, retries next cycle
+    - Initial WiFi Fail:   Rescans networks, displays available options
+
+INTEGRATION WITH VICTRON CERBO GX
+--------------------------------------------------------------------------------
+The Cerbo GX serves dual purposes:
+
+    1. Energy Management System
+       - Monitors Victron MultiPlus-II inverter
+       - Tracks SEPLOS battery state of charge
+       - Records solar production from MPPT chargers
+       - Manages grid interaction
+
+    2. Home Automation MQTT Broker
+       - Receives ESP32 sensor data
+       - Central hub for all MQTT communications
+       - Enables data aggregation for dashboards
+
+Data from both systems can be visualized together in the home energy dashboard,
+providing a complete picture of energy usage and environmental conditions.
+
+REQUIRED ARDUINO LIBRARIES
+--------------------------------------------------------------------------------
+Install via Arduino IDE (Sketch → Include Library → Manage Libraries):
+
+    - WiFi (built-in)
+    - PubSubClient by Nick O'Leary
+    - DHT sensor library by Adafruit
+    - Adafruit GFX Library
+    - Adafruit SSD1306
+
+CONFIGURATION PARAMETERS
+--------------------------------------------------------------------------------
+Modify these values in the code before uploading:
+
+    const char* ssid          = "YOUR_WIFI_SSID";
+    const char* password      = "YOUR_WIFI_PASSWORD";
+    const char* mqtt_server   = "192.168.1.210";
+    const int mqtt_port       = 1883;
+    #define DHTPIN              14
+    #define DHTTYPE             DHT22
+    #define DEVICE_NAME         "esp32-sensor-01"
+    #define LOCATION            "living_room"
+
+MONITORING MQTT DATA
+--------------------------------------------------------------------------------
+To verify sensor data is being received, use terminal command:
+
+    mosquitto_sub -h 192.168.1.210 -p 1883 -t "home/living_room/#" -v
+
+Or install MQTT Explorer application for graphical interface.
+
+FUTURE EXPANSION
+--------------------------------------------------------------------------------
+The system is designed for easy expansion:
+
+    - Add more sensors (different LOCATION values)
+    - Implement remote commands via MQTT
+    - Integrate with home energy dashboard
+    - Add additional sensor types (motion, light, air quality)
+
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+Problem: Sensor read failure
+Solution: Check wiring, verify GPIO pin number, ensure 3.3V power
+
+Problem: WiFi won't connect
+Solution: Check SSID spelling, verify password, check signal strength
+
+Problem: MQTT won't connect
+Solution: Verify Cerbo GX IP address, ensure MQTT is enabled on Cerbo GX
+
+Problem: Display not working
+Solution: Check I2C wiring (SDA=21, SCL=22), verify 0x3C address
+
+================================================================================
+Document created: January 2026
+Author: Claude AI for Petr's Home Energy Dashboard Project
+================================================================================
