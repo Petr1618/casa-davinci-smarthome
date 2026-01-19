@@ -20,6 +20,27 @@ const CONFIG = {
   }
 };
 
+// Essential metrics to store in InfluxDB (all other data still available real-time)
+const ESSENTIAL_METRICS = [
+  // Battery
+  '/battery/512/Soc',
+  '/battery/512/Dc/0/Power',
+  '/battery/512/Dc/0/Voltage',
+  '/battery/512/Dc/0/Temperature',
+  // Solar chargers
+  '/solarcharger/278/Yield/Power',
+  '/solarcharger/279/Yield/Power',
+  '/solarcharger/278/Pv/V',
+  '/solarcharger/279/Pv/V',
+  '/solarcharger/278/History/Daily/0/Yield',
+  '/solarcharger/279/History/Daily/0/Yield',
+  // Grid
+  '/grid/30/Ac/Power',
+  // Inverter
+  '/vebus/276/Ac/Out/P',
+  '/vebus/276/State'
+];
+
 // Initialize Express & Socket.io
 const app = express();
 const server = http.createServer(app);
@@ -84,12 +105,16 @@ cerboClient.on('message', (topic, message) => {
       // Emit to connected web clients
       io.emit('victron-data', { topic, value: data.value });
 
-      // Store in InfluxDB
+      // Store in InfluxDB (only essential metrics + all alarms)
       if (typeof data.value === 'number') {
-        const point = new Point('victron')
-          .tag('topic', topic)
-          .floatField('value', data.value);
-        writeApi.writePoint(point);
+        const isEssential = ESSENTIAL_METRICS.some(metric => topic.endsWith(metric));
+        const isAlarm = topic.includes('/Alarms/');
+        if (isEssential || isAlarm) {
+          const point = new Point('victron')
+            .tag('topic', topic)
+            .floatField('value', data.value);
+          writeApi.writePoint(point);
+        }
       }
     } catch (e) {
       // Non-JSON message, ignore
@@ -102,20 +127,23 @@ cerboClient.on('message', (topic, message) => {
       const data = JSON.parse(msgStr);
       const location = topic.split('/')[1];
 
-      // Store latest value
-      latestData.sensors[location] = data;
+      // Only process complete readings (both temperature and humidity present)
+      if (typeof data.temperature === 'number' && typeof data.humidity === 'number') {
+        // Store latest value
+        latestData.sensors[location] = data;
 
-      // Emit to web clients
-      io.emit('sensor-data', { topic, location, ...data });
+        // Emit to web clients
+        io.emit('sensor-data', { topic, location, ...data });
 
-      console.log(`Sensor [${location}]: ${data.temperature}°C, ${data.humidity}%`);
+        console.log(`Sensor [${location}]: ${data.temperature}°C, ${data.humidity}%`);
 
-      // Store in InfluxDB
-      const point = new Point('sensor')
-        .tag('location', location)
-        .floatField('temperature', data.temperature)
-        .floatField('humidity', data.humidity);
-      writeApi.writePoint(point);
+        // Store in InfluxDB
+        const point = new Point('sensor')
+          .tag('location', location)
+          .floatField('temperature', data.temperature)
+          .floatField('humidity', data.humidity);
+        writeApi.writePoint(point);
+      }
 
     } catch (e) {
       // Handle non-JSON sensor data (individual temperature/humidity topics)
