@@ -33,8 +33,8 @@ const influxDB = new InfluxDB({
 });
 const writeApi = influxDB.getWriteApi(CONFIG.influx.org, CONFIG.influx.bucket);
 
-// Serve static files
-app.use(express.static('public'));
+// Serve static files from frontend folder
+app.use(express.static('../frontend'));
 
 // Store latest values for new client connections
 const latestData = {
