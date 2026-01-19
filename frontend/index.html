@@ -1,65 +1,703 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Casa DaVinci</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;background:#1a1a2e;min-height:100vh;color:#fff}.header{padding:20px;display:flex;justify-content:space-between;border-bottom:1px solid #333}.logo{font-size:24px;color:#00d4ff}.status-dot{width:10px;height:10px;border-radius:50%;background:#f44;display:inline-block}.status-dot.connected{background:#0f8}.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;padding:20px}.card{background:#222;border-radius:15px;padding:20px}.card-title{font-size:12px;color:#888;margin-bottom:15px}.card-value{font-size:42px;font-weight:bold}.card-unit{font-size:16px;color:#666}.temp{color:#ff8c00}.humid{color:#00d4ff}.sub{font-size:14px;color:#666;margin-top:10px}.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.phase{background:#1a1a2e;border-radius:10px;padding:12px;text-align:center}.phase-label{font-size:11px;color:#888;margin-bottom:5px}.phase-value{font-size:20px;font-weight:bold}.phase-sub{font-size:11px;color:#666;margin-top:5px}.export{color:#0f8}.import{color:#f80}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casa DaVinci</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gotham:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0d0d0d;
+      --bg-house: #1a1a1a;
+      --bg-house-dark: #141414;
+      --energy-green: #00d959;
+      --energy-green-glow: rgba(0, 217, 89, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-dim: #555555;
+      --window-glow: rgba(255, 230, 180, 0.8);
+      --solar-panel: #1e3a2a;
+      --solar-panel-line: #2a5a3a;
+      --battery-body: #e8e8e8;
+      --battery-dark: #d0d0d0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      min-height: 100vh;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4444;
+      transition: background 0.3s;
+    }
+
+    .status-dot.connected {
+      background: var(--energy-green);
+      box-shadow: 0 0 10px var(--energy-green-glow);
+    }
+
+    /* Main visualization container */
+    .visualization {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SVG House */
+    .house-svg {
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+    }
+
+    /* Energy metrics */
+    .metric {
+      position: absolute;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .metric-value .unit {
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* Metric positions */
+    .metric-solar {
+      top: 12%;
+      left: 22%;
+    }
+
+    .metric-home {
+      top: 12%;
+      right: 18%;
+    }
+
+    .metric-battery {
+      bottom: 22%;
+      left: 18%;
+    }
+
+    .metric-grid {
+      bottom: 22%;
+      right: 18%;
+    }
+
+    /* Animated energy flow */
+    .energy-flow {
+      stroke: var(--energy-green);
+      stroke-width: 3;
+      fill: none;
+      filter: drop-shadow(0 0 6px var(--energy-green-glow));
+    }
+
+    .energy-flow.active {
+      stroke-dasharray: 8 12;
+      animation: flowEnergy 0.8s linear infinite;
+    }
+
+    .energy-flow.reverse {
+      animation: flowEnergyReverse 0.8s linear infinite;
+    }
+
+    .energy-flow.inactive {
+      stroke: var(--text-dim);
+      stroke-width: 2;
+      filter: none;
+      stroke-dasharray: none;
+    }
+
+    @keyframes flowEnergy {
+      0% { stroke-dashoffset: 20; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes flowEnergyReverse {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 20; }
+    }
+
+    /* Energy flow dots */
+    .flow-dot {
+      fill: var(--energy-green);
+      filter: drop-shadow(0 0 4px var(--energy-green));
+    }
+
+    .flow-dot.active {
+      animation: pulseDot 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.6; r: 4; }
+      50% { opacity: 1; r: 6; }
+    }
+
+    /* Junction circle */
+    .junction {
+      fill: var(--bg-primary);
+      stroke: var(--energy-green);
+      stroke-width: 2;
+    }
+
+    .junction.active {
+      filter: drop-shadow(0 0 8px var(--energy-green-glow));
+    }
+
+    /* Sensor card */
+    .sensor-card {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      background: rgba(30, 30, 30, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px 25px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sensor-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .sensor-values {
+      display: flex;
+      gap: 30px;
+    }
+
+    .sensor-item {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .sensor-value {
+      font-size: 32px;
+      font-weight: 300;
+    }
+
+    .sensor-value.temp {
+      color: #ff9500;
+    }
+
+    .sensor-value.humid {
+      color: #00b4d8;
+    }
+
+    .sensor-unit {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    /* Grid direction indicator */
+    .grid-direction {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .grid-direction.importing {
+      background: rgba(255, 100, 50, 0.2);
+      color: #ff8844;
+    }
+
+    .grid-direction.exporting {
+      background: rgba(0, 217, 89, 0.2);
+      color: var(--energy-green);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .metric-value {
+        font-size: 22px;
+      }
+      .metric-value .unit {
+        font-size: 14px;
+      }
+      .metric-label {
+        font-size: 9px;
+      }
+      .metric-solar { top: 15%; left: 15%; }
+      .metric-home { top: 15%; right: 10%; }
+      .metric-battery { bottom: 25%; left: 10%; }
+      .metric-grid { bottom: 25%; right: 10%; }
+      .sensor-card {
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="header"><div class="logo">Casa DaVinci</div><div><span id="status-text">Connecting</span> <span class="status-dot" id="dot"></span></div></div>
-<div class="dashboard">
-<div class="card"><div class="card-title">BATTERY</div><div class="card-value"><span id="bat">--</span><span class="card-unit">%</span></div><div class="sub">Voltage: <span id="batv">--</span>V | Power: <span id="batp">--</span>W</div></div>
-<div class="card"><div class="card-title">SOLAR TOTAL</div><div class="card-value"><span id="solar">--</span><span class="card-unit">W</span></div><div class="sub">Roof: <span id="solar1">--</span>W | Terrace: <span id="solar2">--</span>W</div></div>
-<div class="card"><div class="card-title">GRID</div><div class="card-value"><span id="grid">--</span><span class="card-unit">W</span></div><div class="sub"><span id="grid-dir">--</span> | <span id="gfreq">--</span> Hz</div>
-<div class="phase-grid">
-<div class="phase"><div class="phase-label">L1</div><div class="phase-value"><span id="gl1p">--</span>W</div><div class="phase-sub"><span id="gl1v">--</span>V</div></div>
-<div class="phase"><div class="phase-label">L2</div><div class="phase-value"><span id="gl2p">--</span>W</div><div class="phase-sub"><span id="gl2v">--</span>V</div></div>
-<div class="phase"><div class="phase-label">L3</div><div class="phase-value"><span id="gl3p">--</span>W</div><div class="phase-sub"><span id="gl3v">--</span>V</div></div>
-</div></div>
-<div class="card"><div class="card-title">ESSENTIAL LOADS</div><div class="card-value"><span id="acout">--</span><span class="card-unit">W</span></div><div class="sub">Frequency: <span id="freq">--</span> Hz</div>
-<div class="phase-grid">
-<div class="phase"><div class="phase-label">L1</div><div class="phase-value"><span id="l1p">--</span>W</div><div class="phase-sub"><span id="l1v">--</span>V</div></div>
-<div class="phase"><div class="phase-label">L2</div><div class="phase-value"><span id="l2p">--</span>W</div><div class="phase-sub"><span id="l2v">--</span>V</div></div>
-<div class="phase"><div class="phase-label">L3</div><div class="phase-value"><span id="l3p">--</span>W</div><div class="phase-sub"><span id="l3v">--</span>V</div></div>
-</div></div>
-<div class="card"><div class="card-title">LIVING ROOM</div><div><span class="card-value temp"><span id="temp">--</span>°</span> <span class="card-value humid"><span id="hum">--</span>%</span></div></div>
-<div class="card"><div class="card-title">BATTERY TEMP</div><div class="card-value temp"><span id="batt">--</span><span class="card-unit">°C</span></div></div>
-</div>
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-<script>
-let s1=0,s2=0;
-const socket=io();
-socket.on('connect',()=>{document.getElementById('dot').classList.add('connected');document.getElementById('status-text').textContent='Connected';});
-socket.on('disconnect',()=>{document.getElementById('dot').classList.remove('connected');document.getElementById('status-text').textContent='Disconnected';});
-socket.on('initial-data',d=>{Object.entries(d.victron).forEach(([t,v])=>pv(t,v));if(d.sensors.living_room){document.getElementById('temp').textContent=d.sensors.living_room.temperature?.toFixed(1)||'--';document.getElementById('hum').textContent=d.sensors.living_room.humidity?.toFixed(1)||'--';}});
-socket.on('victron-data',d=>pv(d.topic,d.value));
-socket.on('sensor-data',d=>{if(d.location==='living_room'){if(d.temperature)document.getElementById('temp').textContent=d.temperature.toFixed(1);if(d.humidity)document.getElementById('hum').textContent=d.humidity.toFixed(1);}});
-function pv(t,v){
-if(t.includes('/battery/512/Soc'))document.getElementById('bat').textContent=Math.round(v);
-if(t.includes('/battery/512/Dc/0/Voltage'))document.getElementById('batv').textContent=v.toFixed(1);
-if(t.includes('/battery/512/Dc/0/Power'))document.getElementById('batp').textContent=Math.round(v);
-if(t.includes('/battery/512/Dc/0/Temperature'))document.getElementById('batt').textContent=v.toFixed(1);
-if(t.includes('/grid/30/Ac/Power')){let g=Math.round(v);document.getElementById('grid').textContent=Math.abs(g);document.getElementById('grid-dir').textContent=g>=0?'Importing':'Exporting';}
-if(t.includes('/grid/30/Ac/Frequency'))document.getElementById('gfreq').textContent=v.toFixed(2);
-if(t.includes('/grid/30/Ac/L1/Power'))document.getElementById('gl1p').textContent=Math.round(v);
-if(t.includes('/grid/30/Ac/L2/Power'))document.getElementById('gl2p').textContent=Math.round(v);
-if(t.includes('/grid/30/Ac/L3/Power'))document.getElementById('gl3p').textContent=Math.round(v);
-if(t.includes('/grid/30/Ac/L1/Voltage'))document.getElementById('gl1v').textContent=v.toFixed(1);
-if(t.includes('/grid/30/Ac/L2/Voltage'))document.getElementById('gl2v').textContent=v.toFixed(1);
-if(t.includes('/grid/30/Ac/L3/Voltage'))document.getElementById('gl3v').textContent=v.toFixed(1);
-if(t.includes('/solarcharger/278/Yield/Power')){s1=v;document.getElementById('solar1').textContent=Math.round(v);document.getElementById('solar').textContent=Math.round(s1+s2);}
-if(t.includes('/solarcharger/279/Yield/Power')){s2=v;document.getElementById('solar2').textContent=Math.round(v);document.getElementById('solar').textContent=Math.round(s1+s2);}
-if(t.includes('/vebus/276/Ac/Out/P')&&!t.includes('Nominal'))document.getElementById('acout').textContent=Math.round(v);
-if(t.includes('/vebus/276/Ac/Out/L1/P'))document.getElementById('l1p').textContent=Math.round(v);
-if(t.includes('/vebus/276/Ac/Out/L2/P'))document.getElementById('l2p').textContent=Math.round(v);
-if(t.includes('/vebus/276/Ac/Out/L3/P'))document.getElementById('l3p').textContent=Math.round(v);
-if(t.includes('/vebus/276/Ac/Out/L1/V'))document.getElementById('l1v').textContent=v.toFixed(1);
-if(t.includes('/vebus/276/Ac/Out/L2/V'))document.getElementById('l2v').textContent=v.toFixed(1);
-if(t.includes('/vebus/276/Ac/Out/L3/V'))document.getElementById('l3v').textContent=v.toFixed(1);
-if(t.includes('/vebus/276/Ac/Out/L1/F'))document.getElementById('freq').textContent=v.toFixed(2);
-}
-</script>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">Casa DaVinci</div>
+    <div class="status">
+      <span id="status-text">Connecting</span>
+      <span class="status-dot" id="dot"></span>
+    </div>
+  </div>
+
+  <!-- Main Visualization -->
+  <div class="visualization">
+    <!-- Energy Metrics -->
+    <div class="metric metric-solar">
+      <div class="metric-value"><span id="solar">0</span> <span class="unit">kW</span></div>
+      <div class="metric-label">Solar</div>
+    </div>
+
+    <div class="metric metric-home">
+      <div class="metric-value"><span id="home">0</span> <span class="unit">kW</span></div>
+      <div class="metric-label">Home</div>
+    </div>
+
+    <div class="metric metric-battery">
+      <div class="metric-value"><span id="battery-power">0</span> <span class="unit">kW</span></div>
+      <div class="metric-label">Powerwall</div>
+      <div class="metric-sub"><span id="battery-soc">--</span>%</div>
+    </div>
+
+    <div class="metric metric-grid">
+      <div class="metric-value"><span id="grid">0</span> <span class="unit">kW</span></div>
+      <div class="metric-label">Grid</div>
+      <div class="grid-direction" id="grid-direction">--</div>
+    </div>
+
+    <!-- SVG House Visualization -->
+    <svg class="house-svg" viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Gradients -->
+        <linearGradient id="houseGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#252525"/>
+          <stop offset="100%" style="stop-color:#1a1a1a"/>
+        </linearGradient>
+
+        <linearGradient id="roofGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#2a2a2a"/>
+          <stop offset="100%" style="stop-color:#1f1f1f"/>
+        </linearGradient>
+
+        <linearGradient id="solarGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#1a3528"/>
+          <stop offset="100%" style="stop-color:#142820"/>
+        </linearGradient>
+
+        <linearGradient id="batteryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#f0f0f0"/>
+          <stop offset="100%" style="stop-color:#d8d8d8"/>
+        </linearGradient>
+
+        <filter id="windowGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <filter id="greenGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Energy Flow Paths -->
+      <g id="energy-flows">
+        <!-- Solar to Junction -->
+        <path id="flow-solar" class="energy-flow active" d="M 280 140 L 350 200"/>
+
+        <!-- Junction to Home -->
+        <path id="flow-home" class="energy-flow active" d="M 350 200 L 420 140"/>
+
+        <!-- Junction to Battery -->
+        <path id="flow-battery" class="energy-flow active" d="M 350 200 L 350 280 L 200 350"/>
+
+        <!-- Grid to Junction -->
+        <path id="flow-grid" class="energy-flow inactive" d="M 500 350 L 450 280 L 350 200"/>
+      </g>
+
+      <!-- Junction Point -->
+      <circle class="junction active" cx="350" cy="200" r="8" filter="url(#greenGlow)"/>
+
+      <!-- House Base -->
+      <g id="house">
+        <!-- Main house body -->
+        <rect x="250" y="250" width="200" height="150" fill="url(#houseGradient)" rx="2"/>
+
+        <!-- Garage extension -->
+        <rect x="180" y="280" width="70" height="120" fill="url(#houseGradient)" rx="2"/>
+
+        <!-- Main roof -->
+        <polygon points="230,250 350,160 470,250" fill="url(#roofGradient)"/>
+
+        <!-- Garage roof -->
+        <polygon points="160,280 215,230 270,280" fill="url(#roofGradient)"/>
+
+        <!-- Solar Panels on main roof -->
+        <g id="solar-panels">
+          <!-- Left panel array -->
+          <g transform="rotate(-25, 290, 210)">
+            <rect x="255" y="185" width="70" height="50" fill="url(#solarGradient)" rx="1"/>
+            <!-- Panel grid lines -->
+            <line x1="255" y1="197" x2="325" y2="197" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="255" y1="210" x2="325" y2="210" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="255" y1="222" x2="325" y2="222" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="278" y1="185" x2="278" y2="235" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="302" y1="185" x2="302" y2="235" stroke="#2a5a3a" stroke-width="0.5"/>
+          </g>
+
+          <!-- Right panel array -->
+          <g transform="rotate(25, 410, 210)">
+            <rect x="375" y="185" width="70" height="50" fill="url(#solarGradient)" rx="1"/>
+            <!-- Panel grid lines -->
+            <line x1="375" y1="197" x2="445" y2="197" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="375" y1="210" x2="445" y2="210" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="375" y1="222" x2="445" y2="222" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="398" y1="185" x2="398" y2="235" stroke="#2a5a3a" stroke-width="0.5"/>
+            <line x1="422" y1="185" x2="422" y2="235" stroke="#2a5a3a" stroke-width="0.5"/>
+          </g>
+        </g>
+
+        <!-- Windows with glow -->
+        <g filter="url(#windowGlow)">
+          <!-- Upper windows -->
+          <rect x="290" y="275" width="30" height="35" fill="var(--window-glow)" rx="1"/>
+          <rect x="380" y="275" width="30" height="35" fill="var(--window-glow)" rx="1"/>
+
+          <!-- Lower windows -->
+          <rect x="290" y="330" width="30" height="45" fill="var(--window-glow)" rx="1"/>
+          <rect x="380" y="330" width="30" height="45" fill="var(--window-glow)" rx="1"/>
+
+          <!-- Garage window -->
+          <rect x="195" y="310" width="40" height="25" fill="rgba(255, 230, 180, 0.4)" rx="1"/>
+        </g>
+
+        <!-- Door -->
+        <rect x="335" y="340" width="30" height="60" fill="#1a1a1a" rx="1"/>
+        <circle cx="360" cy="375" r="2" fill="#444"/>
+      </g>
+
+      <!-- Battery Unit (Powerwall style) -->
+      <g id="battery-unit" transform="translate(140, 320)">
+        <!-- Battery body -->
+        <rect x="0" y="0" width="45" height="80" fill="url(#batteryGradient)" rx="3"/>
+
+        <!-- Tesla-style front panel -->
+        <rect x="5" y="5" width="35" height="70" fill="#fafafa" rx="2"/>
+
+        <!-- Status LED -->
+        <circle id="battery-led" cx="22" cy="15" r="3" fill="var(--energy-green)"/>
+
+        <!-- Powerwall logo area -->
+        <rect x="10" y="30" width="25" height="2" fill="#e0e0e0"/>
+        <rect x="10" y="35" width="25" height="2" fill="#e0e0e0"/>
+        <rect x="10" y="40" width="25" height="2" fill="#e0e0e0"/>
+
+        <!-- Battery percentage bar -->
+        <rect x="10" y="55" width="25" height="15" fill="#e8e8e8" rx="1"/>
+        <rect id="battery-fill" x="10" y="55" width="25" height="15" fill="var(--energy-green)" rx="1" opacity="0.8"/>
+      </g>
+
+      <!-- Grid Icon -->
+      <g id="grid-icon" transform="translate(490, 320)">
+        <!-- Transmission tower simplified -->
+        <line x1="25" y1="0" x2="25" y2="80" stroke="#444" stroke-width="3"/>
+        <line x1="10" y1="15" x2="40" y2="15" stroke="#444" stroke-width="2"/>
+        <line x1="5" y1="35" x2="45" y2="35" stroke="#444" stroke-width="2"/>
+        <line x1="0" y1="55" x2="50" y2="55" stroke="#444" stroke-width="2"/>
+
+        <!-- Power lines -->
+        <line x1="0" y1="15" x2="10" y2="15" stroke="#555" stroke-width="1"/>
+        <line x1="40" y1="15" x2="60" y2="15" stroke="#555" stroke-width="1"/>
+        <line x1="0" y1="35" x2="5" y2="35" stroke="#555" stroke-width="1"/>
+        <line x1="45" y1="35" x2="60" y2="35" stroke="#555" stroke-width="1"/>
+      </g>
+
+      <!-- Ground line -->
+      <line x1="100" y1="400" x2="600" y2="400" stroke="#1f1f1f" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- Sensor Card -->
+  <div class="sensor-card">
+    <div class="sensor-title">Living Room</div>
+    <div class="sensor-values">
+      <div class="sensor-item">
+        <span class="sensor-value temp" id="temp">--</span>
+        <span class="sensor-unit">°C</span>
+      </div>
+      <div class="sensor-item">
+        <span class="sensor-value humid" id="hum">--</span>
+        <span class="sensor-unit">%</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    // State
+    let solarPower1 = 0, solarPower2 = 0;
+    let batteryPower = 0, batterySoc = 0;
+    let gridPower = 0;
+    let homePower = 0;
+
+    // Socket connection
+    const socket = io();
+
+    socket.on('connect', () => {
+      document.getElementById('dot').classList.add('connected');
+      document.getElementById('status-text').textContent = 'Connected';
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('dot').classList.remove('connected');
+      document.getElementById('status-text').textContent = 'Disconnected';
+    });
+
+    socket.on('initial-data', (data) => {
+      Object.entries(data.victron).forEach(([topic, value]) => processVictronData(topic, value));
+      if (data.sensors.living_room) {
+        document.getElementById('temp').textContent = data.sensors.living_room.temperature?.toFixed(1) || '--';
+        document.getElementById('hum').textContent = data.sensors.living_room.humidity?.toFixed(0) || '--';
+      }
+    });
+
+    socket.on('victron-data', (data) => processVictronData(data.topic, data.value));
+
+    socket.on('sensor-data', (data) => {
+      if (data.location === 'living_room') {
+        if (data.temperature) document.getElementById('temp').textContent = data.temperature.toFixed(1);
+        if (data.humidity) document.getElementById('hum').textContent = data.humidity.toFixed(0);
+      }
+    });
+
+    function processVictronData(topic, value) {
+      // Battery
+      if (topic.includes('/battery/512/Soc')) {
+        batterySoc = value;
+        document.getElementById('battery-soc').textContent = Math.round(value);
+        updateBatteryVisual(value);
+      }
+      if (topic.includes('/battery/512/Dc/0/Power')) {
+        batteryPower = value;
+        document.getElementById('battery-power').textContent = (Math.abs(value) / 1000).toFixed(1);
+        updateEnergyFlows();
+      }
+
+      // Solar
+      if (topic.includes('/solarcharger/278/Yield/Power')) {
+        solarPower1 = value;
+        updateSolarDisplay();
+      }
+      if (topic.includes('/solarcharger/279/Yield/Power')) {
+        solarPower2 = value;
+        updateSolarDisplay();
+      }
+
+      // Grid
+      if (topic.includes('/grid/30/Ac/Power')) {
+        gridPower = value;
+        document.getElementById('grid').textContent = (Math.abs(value) / 1000).toFixed(1);
+
+        const dirEl = document.getElementById('grid-direction');
+        if (value > 50) {
+          dirEl.textContent = 'Importing';
+          dirEl.className = 'grid-direction importing';
+        } else if (value < -50) {
+          dirEl.textContent = 'Exporting';
+          dirEl.className = 'grid-direction exporting';
+        } else {
+          dirEl.textContent = 'Idle';
+          dirEl.className = 'grid-direction';
+        }
+        updateEnergyFlows();
+      }
+
+      // Home (AC Output / Essential Loads)
+      if (topic.includes('/vebus/276/Ac/Out/P') && !topic.includes('Nominal')) {
+        homePower = value;
+        document.getElementById('home').textContent = (value / 1000).toFixed(1);
+        updateEnergyFlows();
+      }
+    }
+
+    function updateSolarDisplay() {
+      const totalSolar = solarPower1 + solarPower2;
+      document.getElementById('solar').textContent = (totalSolar / 1000).toFixed(1);
+      updateEnergyFlows();
+    }
+
+    function updateBatteryVisual(soc) {
+      const fillEl = document.getElementById('battery-fill');
+      const ledEl = document.getElementById('battery-led');
+
+      // Update fill height based on SOC
+      const fillHeight = (soc / 100) * 15;
+      fillEl.setAttribute('height', fillHeight);
+      fillEl.setAttribute('y', 55 + (15 - fillHeight));
+
+      // LED color based on SOC
+      if (soc > 20) {
+        ledEl.setAttribute('fill', 'var(--energy-green)');
+      } else {
+        ledEl.setAttribute('fill', '#ff4444');
+      }
+    }
+
+    function updateEnergyFlows() {
+      const totalSolar = solarPower1 + solarPower2;
+
+      // Solar flow - active if generating
+      const flowSolar = document.getElementById('flow-solar');
+      if (totalSolar > 50) {
+        flowSolar.classList.add('active');
+        flowSolar.classList.remove('inactive', 'reverse');
+      } else {
+        flowSolar.classList.add('inactive');
+        flowSolar.classList.remove('active', 'reverse');
+      }
+
+      // Home flow - active if consuming
+      const flowHome = document.getElementById('flow-home');
+      if (homePower > 50) {
+        flowHome.classList.add('active');
+        flowHome.classList.remove('inactive', 'reverse');
+      } else {
+        flowHome.classList.add('inactive');
+        flowHome.classList.remove('active', 'reverse');
+      }
+
+      // Battery flow - direction depends on charging/discharging
+      const flowBattery = document.getElementById('flow-battery');
+      if (Math.abs(batteryPower) > 50) {
+        flowBattery.classList.remove('inactive');
+        if (batteryPower > 0) {
+          // Discharging - flow from battery
+          flowBattery.classList.add('active');
+          flowBattery.classList.remove('reverse');
+        } else {
+          // Charging - flow to battery
+          flowBattery.classList.add('active', 'reverse');
+        }
+      } else {
+        flowBattery.classList.add('inactive');
+        flowBattery.classList.remove('active', 'reverse');
+      }
+
+      // Grid flow
+      const flowGrid = document.getElementById('flow-grid');
+      if (Math.abs(gridPower) > 50) {
+        flowGrid.classList.remove('inactive');
+        if (gridPower > 0) {
+          // Importing from grid
+          flowGrid.classList.add('active');
+          flowGrid.classList.remove('reverse');
+        } else {
+          // Exporting to grid
+          flowGrid.classList.add('active', 'reverse');
+        }
+      } else {
+        flowGrid.classList.add('inactive');
+        flowGrid.classList.remove('active', 'reverse');
+      }
+
+      // Update junction glow
+      const junction = document.querySelector('.junction');
+      if (totalSolar > 50 || Math.abs(batteryPower) > 50 || Math.abs(gridPower) > 50) {
+        junction.classList.add('active');
+      } else {
+        junction.classList.remove('active');
+      }
+    }
+
+    // Initialize with zeros
+    updateBatteryVisual(0);
+  </script>
 </body>
 </html>
