@@ -1,0 +1,375 @@
+{
+  "id": 4,
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "afapx86z0543ke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 80
+          },
+          "unit": "kWh"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "displayMode": "hidden"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"energy-data-longterm\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"daily_summary\")\n  |> filter(fn: (r) => r._field == \"solar_kwh\")\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Solar Production",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "afapx86z0543ke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 80
+          },
+          "unit": "kWh"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "hidden"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"energy-data-longterm\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"daily_summary\")\n  |> filter(fn: (r) => r._field == \"consumption_kwh\")\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Home Consumption",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "afapx86z0543ke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 80
+          },
+          "unit": "kWh"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid_import_kwh"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Import"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid_export_kwh"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Export"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"energy-data-longterm\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"daily_summary\")\n  |> filter(fn: (r) => r._field == \"grid_import_kwh\" or r._field == \"grid_export_kwh\")\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Grid Import / Export",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "afapx86z0543ke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "always"
+          },
+          "max": 100,
+          "min": 0,
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "battery_soc_min"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Min"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "battery_soc_max"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Max"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "battery_soc_avg"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"energy-data-longterm\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"daily_summary\")\n  |> filter(fn: (r) => r._field == \"battery_soc_min\" or r._field == \"battery_soc_max\" or r._field == \"battery_soc_avg\")\n  |> aggregateWindow(every: 1d, fn: last, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Battery SOC Range",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "afapx86z0543ke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kWh"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "solar_kwh"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Solar Produced"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "consumption_kwh"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Consumed"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid_import_kwh"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Grid Import"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "grid_export_kwh"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Grid Export"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"energy-data-longterm\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"daily_summary\")\n  |> filter(fn: (r) => r._field == \"solar_kwh\" or r._field == \"consumption_kwh\" or r._field == \"grid_import_kwh\" or r._field == \"grid_export_kwh\")\n  |> group(columns: [\"_field\"])\n  |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Energy Summary",
+      "type": "stat"
+    }
+  ],
+  "refresh": "",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Casa DaVinci - Long Term Trends",
+  "uid": "energy-longterm",
+  "version": 1
+}

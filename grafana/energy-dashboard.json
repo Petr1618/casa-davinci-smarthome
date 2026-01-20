@@ -686,6 +686,185 @@
       ],
       "title": "Battery Power",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bfao441ej21ogd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "disk_used_pct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Disk Used"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 70
+                    },
+                    {
+                      "color": "red",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "disk_avail_gb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Disk Free"
+              },
+              {
+                "id": "unit",
+                "value": "decgbytes"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "influx_size_mb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "InfluxDB Size"
+              },
+              {
+                "id": "unit",
+                "value": "decmbytes"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mem_used_pct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "RAM Used"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 70
+                    },
+                    {
+                      "color": "red",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mem_avail_mb"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "RAM Free"
+              },
+              {
+                "id": "unit",
+                "value": "decmbytes"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"energy-data\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"system\")\n  |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "System Storage",
+      "type": "stat"
     }
   ],
   "refresh": "5s",
@@ -696,5 +875,5 @@
   "timezone": "browser",
   "title": "Casa DaVinci Energy",
   "uid": "energy-monitor",
-  "version": 15
+  "version": 18
 }
