@@ -73,6 +73,47 @@
       background: var(--battery-color);
     }
 
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      background: rgba(30, 30, 30, 0.6);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     /* Main Layout */
     .main-layout {
       min-height: 100vh;
@@ -386,17 +427,304 @@
         width: 260px;
       }
     }
+
+    /* ========== Solar Tab Styles ========== */
+    .solar-layout {
+      padding: 80px 40px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .solar-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--solar-color);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .solar-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .solar-diagram {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+
+    .solar-svg {
+      width: 100%;
+      height: auto;
+      max-height: 580px;
+    }
+
+    /* Panel styles */
+    .solar-panel {
+      fill: rgba(245, 197, 66, 0.15);
+      stroke: var(--solar-color);
+      stroke-width: 1.5;
+      transition: fill 0.3s;
+    }
+
+    .solar-panel.active {
+      fill: rgba(245, 197, 66, 0.4);
+      filter: drop-shadow(0 0 8px rgba(245, 197, 66, 0.5));
+    }
+
+    .string-label {
+      fill: var(--solar-color);
+      font-size: 14px;
+      font-weight: 600;
+      text-anchor: middle;
+    }
+
+    .string-sublabel {
+      fill: var(--text-secondary);
+      font-size: 11px;
+      text-anchor: middle;
+    }
+
+    /* MPPT box styles */
+    .mppt-rect {
+      fill: rgba(30, 30, 30, 0.9);
+      stroke: var(--solar-color);
+      stroke-width: 2;
+    }
+
+    .mppt-title {
+      fill: var(--solar-color);
+      font-size: 14px;
+      font-weight: 600;
+      text-anchor: middle;
+    }
+
+    .mppt-model {
+      fill: var(--text-secondary);
+      font-size: 10px;
+      text-anchor: middle;
+    }
+
+    .mppt-divider {
+      stroke: var(--border-color);
+      stroke-width: 1;
+    }
+
+    .mppt-label {
+      fill: var(--text-secondary);
+      font-size: 11px;
+    }
+
+    .mppt-value {
+      fill: var(--text-primary);
+      font-size: 12px;
+      font-weight: 500;
+      text-anchor: end;
+    }
+
+    /* Flow lines */
+    .solar-flow-line {
+      fill: none;
+      stroke: var(--solar-color);
+      stroke-width: 2;
+      stroke-dasharray: 8, 4;
+      opacity: 0.3;
+      transition: opacity 0.3s;
+    }
+
+    .solar-flow-line.active {
+      opacity: 1;
+      animation: flowDash 1s linear infinite;
+    }
+
+    .solar-flow-line.combined {
+      stroke: var(--battery-color);
+    }
+
+    @keyframes flowDash {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .solar-flow-dot {
+      fill: var(--solar-color);
+      opacity: 0;
+      filter: drop-shadow(0 0 4px var(--solar-color));
+    }
+
+    .solar-flow-dot.active {
+      opacity: 1;
+    }
+
+    /* Battery indicator */
+    .battery-rect {
+      fill: rgba(30, 30, 30, 0.9);
+      stroke: var(--battery-color);
+      stroke-width: 2;
+    }
+
+    .battery-terminal {
+      fill: var(--battery-color);
+    }
+
+    .battery-label {
+      fill: var(--text-secondary);
+      font-size: 11px;
+      text-anchor: middle;
+    }
+
+    .battery-value {
+      fill: var(--battery-color);
+      font-size: 14px;
+      font-weight: 500;
+      text-anchor: middle;
+    }
+
+    /* Solar detail cards */
+    .solar-cards {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .solar-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px 20px;
+      border: 1px solid var(--border-color);
+      min-width: 280px;
+      flex: 1;
+      max-width: 350px;
+    }
+
+    .solar-card-total {
+      border-color: var(--solar-color);
+      background: rgba(245, 197, 66, 0.05);
+    }
+
+    .solar-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .solar-card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(245, 197, 66, 0.15);
+      color: var(--solar-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .solar-card-icon.total {
+      background: var(--solar-color);
+      color: #000;
+    }
+
+    .solar-card-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .solar-card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .solar-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .solar-stat-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .solar-stat-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .solar-stat-value.solar {
+      color: var(--solar-color);
+    }
+
+    .solar-stat-value.positive {
+      color: var(--battery-color);
+    }
+
+    /* Placeholder content for coming soon tabs */
+    .placeholder-content {
+      padding: 100px 40px;
+      text-align: center;
+    }
+
+    .placeholder-content h2 {
+      font-size: 24px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .placeholder-content p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    /* Responsive for solar tab */
+    @media (max-width: 900px) {
+      .solar-layout {
+        padding: 80px 20px 20px;
+      }
+      .solar-cards {
+        flex-direction: column;
+        align-items: center;
+      }
+      .solar-card {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="logo">Casa DaVinci</div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="solar">Solar</button>
+      <button class="tab-btn" data-tab="inverter">Inverter</button>
+      <button class="tab-btn" data-tab="battery">Battery</button>
+    </nav>
     <div class="status">
       <span id="status-text">Connecting</span>
       <span class="status-dot" id="dot"></span>
     </div>
   </div>
 
+  <!-- Overview Tab -->
+  <div class="tab-content active" id="tab-overview">
   <div class="main-layout">
     <div class="top-section">
       <!-- Left Column: Solar & Grid -->
@@ -668,6 +996,220 @@
       </div>
     </div>
   </div>
+  </div><!-- End Overview Tab -->
+
+  <!-- Solar Tab -->
+  <div class="tab-content" id="tab-solar">
+    <div class="solar-layout">
+      <h2 class="solar-title">Solar System Overview</h2>
+      <p class="solar-subtitle">2 Strings | 16 Panels | 7.4 kWp Total</p>
+
+      <div class="solar-diagram">
+        <svg class="solar-svg" viewBox="0 0 900 600">
+          <!-- String 1: Roof (10 panels in 2 rows of 5) -->
+          <g class="string-group" id="string1-group">
+            <text x="225" y="30" class="string-label">STRING 1: ROOF</text>
+            <text x="225" y="50" class="string-sublabel">10 Panels | 4.8 kWp | SmartSolar 250/85</text>
+
+            <!-- Row 1: 5 panels -->
+            <g class="panel-row">
+              <rect class="solar-panel" x="50" y="70" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="120" y="70" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="190" y="70" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="260" y="70" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="330" y="70" width="60" height="40" rx="3"/>
+            </g>
+            <!-- Row 2: 5 panels -->
+            <g class="panel-row">
+              <rect class="solar-panel" x="50" y="120" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="120" y="120" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="190" y="120" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="260" y="120" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="330" y="120" width="60" height="40" rx="3"/>
+            </g>
+
+            <!-- Flow line from panels to MPPT -->
+            <path id="solar-flow-1" class="solar-flow-line" d="M 225 165 L 225 220"/>
+            <circle id="solar-dot-1" class="solar-flow-dot" r="4" cx="225" cy="165"/>
+
+            <!-- MPPT 278 Box -->
+            <g class="mppt-box" transform="translate(125, 230)">
+              <rect class="mppt-rect" x="0" y="0" width="200" height="120" rx="8"/>
+              <text class="mppt-title" x="100" y="25">MPPT 278</text>
+              <text class="mppt-model" x="100" y="42">SmartSolar 250/85</text>
+              <line class="mppt-divider" x1="10" y1="52" x2="190" y2="52"/>
+              <text class="mppt-label" x="15" y="72">Power</text>
+              <text class="mppt-value" id="mppt1-power" x="185" y="72">-- W</text>
+              <text class="mppt-label" x="15" y="90">PV Voltage</text>
+              <text class="mppt-value" id="mppt1-voltage" x="185" y="90">-- V</text>
+              <text class="mppt-label" x="15" y="108">Today</text>
+              <text class="mppt-value" id="mppt1-yield" x="185" y="108">-- kWh</text>
+            </g>
+          </g>
+
+          <!-- String 2: Terrace (6 panels in 2 rows of 3) -->
+          <g class="string-group" id="string2-group">
+            <text x="675" y="30" class="string-label">STRING 2: TERRACE</text>
+            <text x="675" y="50" class="string-sublabel">6 Panels | 2.6 kWp | SmartSolar 150/45</text>
+
+            <!-- Row 1: 3 panels -->
+            <g class="panel-row">
+              <rect class="solar-panel" x="570" y="70" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="640" y="70" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="710" y="70" width="60" height="40" rx="3"/>
+            </g>
+            <!-- Row 2: 3 panels -->
+            <g class="panel-row">
+              <rect class="solar-panel" x="570" y="120" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="640" y="120" width="60" height="40" rx="3"/>
+              <rect class="solar-panel" x="710" y="120" width="60" height="40" rx="3"/>
+            </g>
+
+            <!-- Flow line from panels to MPPT -->
+            <path id="solar-flow-2" class="solar-flow-line" d="M 675 165 L 675 220"/>
+            <circle id="solar-dot-2" class="solar-flow-dot" r="4" cx="675" cy="165"/>
+
+            <!-- MPPT 279 Box -->
+            <g class="mppt-box" transform="translate(575, 230)">
+              <rect class="mppt-rect" x="0" y="0" width="200" height="120" rx="8"/>
+              <text class="mppt-title" x="100" y="25">MPPT 279</text>
+              <text class="mppt-model" x="100" y="42">SmartSolar 150/45</text>
+              <line class="mppt-divider" x1="10" y1="52" x2="190" y2="52"/>
+              <text class="mppt-label" x="15" y="72">Power</text>
+              <text class="mppt-value" id="mppt2-power" x="185" y="72">-- W</text>
+              <text class="mppt-label" x="15" y="90">PV Voltage</text>
+              <text class="mppt-value" id="mppt2-voltage" x="185" y="90">-- V</text>
+              <text class="mppt-label" x="15" y="108">Today</text>
+              <text class="mppt-value" id="mppt2-yield" x="185" y="108">-- kWh</text>
+            </g>
+          </g>
+
+          <!-- Combined flow to battery -->
+          <path id="solar-flow-combined" class="solar-flow-line combined" d="M 225 350 L 225 420 L 450 420 L 675 420 L 675 350"/>
+          <path id="solar-flow-to-battery" class="solar-flow-line combined" d="M 450 420 L 450 500"/>
+          <circle id="solar-dot-combined" class="solar-flow-dot" r="4" cx="450" cy="420"/>
+
+          <!-- Battery indicator -->
+          <g class="battery-indicator" transform="translate(380, 510)">
+            <rect class="battery-rect" x="0" y="0" width="140" height="60" rx="8"/>
+            <rect class="battery-terminal" x="55" y="-8" width="30" height="10" rx="2"/>
+            <text class="battery-label" x="70" y="28">BATTERY</text>
+            <text class="battery-value" id="solar-battery-voltage" x="70" y="48">-- V</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Detail Cards Row -->
+      <div class="solar-cards">
+        <div class="solar-card">
+          <div class="solar-card-header">
+            <span class="solar-card-icon">1</span>
+            <span class="solar-card-title">Roof String</span>
+          </div>
+          <div class="solar-card-stats">
+            <div class="solar-stat">
+              <span class="solar-stat-label">Current Power</span>
+              <span class="solar-stat-value solar" id="card-mppt1-power">-- W</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">PV Voltage</span>
+              <span class="solar-stat-value" id="card-mppt1-pv-voltage">-- V</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Output Current</span>
+              <span class="solar-stat-value" id="card-mppt1-current">-- A</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">State</span>
+              <span class="solar-stat-value" id="card-mppt1-state">--</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Today's Yield</span>
+              <span class="solar-stat-value solar" id="card-mppt1-yield">-- kWh</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Peak Power</span>
+              <span class="solar-stat-value" id="card-mppt1-peak">-- W</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="solar-card">
+          <div class="solar-card-header">
+            <span class="solar-card-icon">2</span>
+            <span class="solar-card-title">Terrace String</span>
+          </div>
+          <div class="solar-card-stats">
+            <div class="solar-stat">
+              <span class="solar-stat-label">Current Power</span>
+              <span class="solar-stat-value solar" id="card-mppt2-power">-- W</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">PV Voltage</span>
+              <span class="solar-stat-value" id="card-mppt2-pv-voltage">-- V</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Output Current</span>
+              <span class="solar-stat-value" id="card-mppt2-current">-- A</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">State</span>
+              <span class="solar-stat-value" id="card-mppt2-state">--</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Today's Yield</span>
+              <span class="solar-stat-value solar" id="card-mppt2-yield">-- kWh</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Peak Power</span>
+              <span class="solar-stat-value" id="card-mppt2-peak">-- W</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="solar-card solar-card-total">
+          <div class="solar-card-header">
+            <span class="solar-card-icon total">Σ</span>
+            <span class="solar-card-title">Combined Total</span>
+          </div>
+          <div class="solar-card-stats">
+            <div class="solar-stat">
+              <span class="solar-stat-label">Total Power</span>
+              <span class="solar-stat-value solar" id="card-total-power">-- W</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Today's Yield</span>
+              <span class="solar-stat-value solar" id="card-total-yield">-- kWh</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Lifetime</span>
+              <span class="solar-stat-value" id="card-total-lifetime">-- kWh</span>
+            </div>
+            <div class="solar-stat">
+              <span class="solar-stat-label">Efficiency</span>
+              <span class="solar-stat-value positive" id="card-efficiency">--%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- End Solar Tab -->
+
+  <!-- Inverter Tab (placeholder) -->
+  <div class="tab-content" id="tab-inverter">
+    <div class="placeholder-content">
+      <h2>Inverter Details</h2>
+      <p>3-Phase inverter view coming soon...</p>
+    </div>
+  </div>
+
+  <!-- Battery Tab (placeholder) -->
+  <div class="tab-content" id="tab-battery">
+    <div class="placeholder-content">
+      <h2>Battery Details</h2>
+      <p>Battery system view coming soon...</p>
+    </div>
+  </div>
 
   <!-- Sensor Card -->
   <div class="sensor-card">
@@ -689,10 +1231,48 @@
     let solarPower1 = 0, solarPower2 = 0;
     let solarVoltage1 = 0, solarVoltage2 = 0;
     let solarYield1 = 0, solarYield2 = 0;
+    let solarCurrent1 = 0, solarCurrent2 = 0;
+    let solarState1 = 0, solarState2 = 0;
+    let solarPeak1 = 0, solarPeak2 = 0;
+    let solarLifetime1 = 0, solarLifetime2 = 0;
     let batteryPower = 0, batterySoc = 0, batteryVoltage = 0, batteryTemp = 0;
     let gridPower = 0, gridVoltage = 0, gridFrequency = 0;
     let homePower = 0;
     let peakSolarToday = 0;
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Show corresponding tab content
+        const tabId = btn.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById('tab-' + tabId).classList.add('active');
+      });
+    });
+
+    // MPPT state decoder
+    function getMpptState(state) {
+      const states = {
+        0: 'Off',
+        2: 'Fault',
+        3: 'Bulk',
+        4: 'Absorption',
+        5: 'Float',
+        6: 'Storage',
+        7: 'Equalize',
+        11: 'Other',
+        245: 'Wake-up',
+        247: 'Recondition',
+        252: 'Ext. Control'
+      };
+      return states[state] || 'Unknown';
+    }
 
     const flowPaths = {
       'solar-home': { path: null, dots: [], active: false, direction: 1, color: 'solar' },
@@ -764,32 +1344,70 @@
         document.getElementById('stat-battery-temp').textContent = Math.round(value) + ' °C';
       }
 
-      // Solar charger 1
+      // Solar charger 1 (MPPT 278 - Roof)
       if (topic.includes('/solarcharger/278/Yield/Power')) {
         solarPower1 = value;
         updateSolarDisplay();
+        updateSolarTab();
       }
       if (topic.includes('/solarcharger/278/Pv/V')) {
         solarVoltage1 = value;
         updateSolarVoltage();
+        updateSolarTab();
       }
       if (topic.includes('/solarcharger/278/History/Daily/0/Yield')) {
         solarYield1 = value;
         updateSolarYield();
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/278/Dc/0/Current')) {
+        solarCurrent1 = value;
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/278/State')) {
+        solarState1 = value;
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/278/History/Daily/0/MaxPower')) {
+        solarPeak1 = value;
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/278/Yield/User') || topic.includes('/solarcharger/278/Yield/System')) {
+        if (topic.includes('/Yield/System')) solarLifetime1 = value;
+        updateSolarTab();
       }
 
-      // Solar charger 2
+      // Solar charger 2 (MPPT 279 - Terrace)
       if (topic.includes('/solarcharger/279/Yield/Power')) {
         solarPower2 = value;
         updateSolarDisplay();
+        updateSolarTab();
       }
       if (topic.includes('/solarcharger/279/Pv/V')) {
         solarVoltage2 = value;
         updateSolarVoltage();
+        updateSolarTab();
       }
       if (topic.includes('/solarcharger/279/History/Daily/0/Yield')) {
         solarYield2 = value;
         updateSolarYield();
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/279/Dc/0/Current')) {
+        solarCurrent2 = value;
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/279/State')) {
+        solarState2 = value;
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/279/History/Daily/0/MaxPower')) {
+        solarPeak2 = value;
+        updateSolarTab();
+      }
+      if (topic.includes('/solarcharger/279/Yield/User') || topic.includes('/solarcharger/279/Yield/System')) {
+        if (topic.includes('/Yield/System')) solarLifetime2 = value;
+        updateSolarTab();
       }
 
       // Grid
@@ -970,6 +1588,161 @@
 
     initFlowingDots();
     animateDots();
+
+    // ========== Solar Tab Functions ==========
+
+    function updateSolarTab() {
+      // Update SVG MPPT values
+      const mppt1Power = document.getElementById('mppt1-power');
+      const mppt1Voltage = document.getElementById('mppt1-voltage');
+      const mppt1Yield = document.getElementById('mppt1-yield');
+      const mppt2Power = document.getElementById('mppt2-power');
+      const mppt2Voltage = document.getElementById('mppt2-voltage');
+      const mppt2Yield = document.getElementById('mppt2-yield');
+
+      if (mppt1Power) mppt1Power.textContent = Math.round(solarPower1) + ' W';
+      if (mppt1Voltage) mppt1Voltage.textContent = solarVoltage1.toFixed(1) + ' V';
+      if (mppt1Yield) mppt1Yield.textContent = solarYield1.toFixed(2) + ' kWh';
+      if (mppt2Power) mppt2Power.textContent = Math.round(solarPower2) + ' W';
+      if (mppt2Voltage) mppt2Voltage.textContent = solarVoltage2.toFixed(1) + ' V';
+      if (mppt2Yield) mppt2Yield.textContent = solarYield2.toFixed(2) + ' kWh';
+
+      // Update battery voltage in solar diagram
+      const solarBatteryVoltage = document.getElementById('solar-battery-voltage');
+      if (solarBatteryVoltage) solarBatteryVoltage.textContent = batteryVoltage.toFixed(1) + ' V';
+
+      // Update detail cards - MPPT 1
+      const cardMppt1Power = document.getElementById('card-mppt1-power');
+      const cardMppt1PvVoltage = document.getElementById('card-mppt1-pv-voltage');
+      const cardMppt1Current = document.getElementById('card-mppt1-current');
+      const cardMppt1State = document.getElementById('card-mppt1-state');
+      const cardMppt1Yield = document.getElementById('card-mppt1-yield');
+      const cardMppt1Peak = document.getElementById('card-mppt1-peak');
+
+      if (cardMppt1Power) cardMppt1Power.textContent = Math.round(solarPower1) + ' W';
+      if (cardMppt1PvVoltage) cardMppt1PvVoltage.textContent = solarVoltage1.toFixed(1) + ' V';
+      if (cardMppt1Current) cardMppt1Current.textContent = solarCurrent1.toFixed(1) + ' A';
+      if (cardMppt1State) cardMppt1State.textContent = getMpptState(solarState1);
+      if (cardMppt1Yield) cardMppt1Yield.textContent = solarYield1.toFixed(2) + ' kWh';
+      if (cardMppt1Peak) cardMppt1Peak.textContent = Math.round(solarPeak1) + ' W';
+
+      // Update detail cards - MPPT 2
+      const cardMppt2Power = document.getElementById('card-mppt2-power');
+      const cardMppt2PvVoltage = document.getElementById('card-mppt2-pv-voltage');
+      const cardMppt2Current = document.getElementById('card-mppt2-current');
+      const cardMppt2State = document.getElementById('card-mppt2-state');
+      const cardMppt2Yield = document.getElementById('card-mppt2-yield');
+      const cardMppt2Peak = document.getElementById('card-mppt2-peak');
+
+      if (cardMppt2Power) cardMppt2Power.textContent = Math.round(solarPower2) + ' W';
+      if (cardMppt2PvVoltage) cardMppt2PvVoltage.textContent = solarVoltage2.toFixed(1) + ' V';
+      if (cardMppt2Current) cardMppt2Current.textContent = solarCurrent2.toFixed(1) + ' A';
+      if (cardMppt2State) cardMppt2State.textContent = getMpptState(solarState2);
+      if (cardMppt2Yield) cardMppt2Yield.textContent = solarYield2.toFixed(2) + ' kWh';
+      if (cardMppt2Peak) cardMppt2Peak.textContent = Math.round(solarPeak2) + ' W';
+
+      // Update totals card
+      const totalPower = solarPower1 + solarPower2;
+      const totalYield = solarYield1 + solarYield2;
+      const totalLifetime = solarLifetime1 + solarLifetime2;
+      const maxCapacity = 7400; // 7.4 kWp system
+      const efficiency = maxCapacity > 0 ? (totalPower / maxCapacity * 100) : 0;
+
+      const cardTotalPower = document.getElementById('card-total-power');
+      const cardTotalYield = document.getElementById('card-total-yield');
+      const cardTotalLifetime = document.getElementById('card-total-lifetime');
+      const cardEfficiency = document.getElementById('card-efficiency');
+
+      if (cardTotalPower) cardTotalPower.textContent = Math.round(totalPower) + ' W';
+      if (cardTotalYield) cardTotalYield.textContent = totalYield.toFixed(2) + ' kWh';
+      if (cardTotalLifetime) cardTotalLifetime.textContent = (totalLifetime / 1000).toFixed(1) + ' MWh';
+      if (cardEfficiency) cardEfficiency.textContent = efficiency.toFixed(0) + '%';
+
+      // Update panel glow and flow animations based on power
+      updateSolarFlowAnimations();
+    }
+
+    function updateSolarFlowAnimations() {
+      const threshold = 10;
+      const string1Active = solarPower1 > threshold;
+      const string2Active = solarPower2 > threshold;
+
+      // Update panel glow
+      document.querySelectorAll('#string1-group .solar-panel').forEach(panel => {
+        panel.classList.toggle('active', string1Active);
+      });
+      document.querySelectorAll('#string2-group .solar-panel').forEach(panel => {
+        panel.classList.toggle('active', string2Active);
+      });
+
+      // Update flow lines
+      const flow1 = document.getElementById('solar-flow-1');
+      const flow2 = document.getElementById('solar-flow-2');
+      const flowCombined = document.getElementById('solar-flow-combined');
+      const flowToBattery = document.getElementById('solar-flow-to-battery');
+
+      if (flow1) flow1.classList.toggle('active', string1Active);
+      if (flow2) flow2.classList.toggle('active', string2Active);
+      if (flowCombined) flowCombined.classList.toggle('active', string1Active || string2Active);
+      if (flowToBattery) flowToBattery.classList.toggle('active', string1Active || string2Active);
+
+      // Update flow dots
+      const dot1 = document.getElementById('solar-dot-1');
+      const dot2 = document.getElementById('solar-dot-2');
+      const dotCombined = document.getElementById('solar-dot-combined');
+
+      if (dot1) dot1.classList.toggle('active', string1Active);
+      if (dot2) dot2.classList.toggle('active', string2Active);
+      if (dotCombined) dotCombined.classList.toggle('active', string1Active || string2Active);
+    }
+
+    // Animate solar flow dots
+    let solarAnimationFrame = 0;
+    function animateSolarDots() {
+      solarAnimationFrame++;
+      const speed = 0.02;
+
+      // Animate dot 1 (string 1 to MPPT)
+      const dot1 = document.getElementById('solar-dot-1');
+      const flow1 = document.getElementById('solar-flow-1');
+      if (dot1 && flow1 && dot1.classList.contains('active')) {
+        const path = flow1;
+        const length = path.getTotalLength();
+        const progress = (solarAnimationFrame * speed) % 1;
+        const point = path.getPointAtLength(progress * length);
+        dot1.setAttribute('cx', point.x);
+        dot1.setAttribute('cy', point.y);
+      }
+
+      // Animate dot 2 (string 2 to MPPT)
+      const dot2 = document.getElementById('solar-dot-2');
+      const flow2 = document.getElementById('solar-flow-2');
+      if (dot2 && flow2 && dot2.classList.contains('active')) {
+        const path = flow2;
+        const length = path.getTotalLength();
+        const progress = (solarAnimationFrame * speed) % 1;
+        const point = path.getPointAtLength(progress * length);
+        dot2.setAttribute('cx', point.x);
+        dot2.setAttribute('cy', point.y);
+      }
+
+      // Animate combined dot (to battery)
+      const dotCombined = document.getElementById('solar-dot-combined');
+      const flowToBattery = document.getElementById('solar-flow-to-battery');
+      if (dotCombined && flowToBattery && dotCombined.classList.contains('active')) {
+        const path = flowToBattery;
+        const length = path.getTotalLength();
+        const progress = (solarAnimationFrame * speed * 0.7) % 1;
+        const point = path.getPointAtLength(progress * length);
+        dotCombined.setAttribute('cx', point.x);
+        dotCombined.setAttribute('cy', point.y);
+      }
+
+      requestAnimationFrame(animateSolarDots);
+    }
+
+    // Start solar animations when DOM is ready
+    animateSolarDots();
   </script>
 </body>
 </html>
