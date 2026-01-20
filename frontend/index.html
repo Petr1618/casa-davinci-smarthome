@@ -840,7 +840,7 @@
 
     function updateFlows() {
       const totalSolar = solarPower1 + solarPower2;
-      const threshold = 50;
+      const threshold = 10;
 
       Object.keys(flowPaths).forEach(key => {
         flowPaths[key].active = false;
