@@ -64,6 +64,112 @@ const latestData = {
   sensors: {}
 };
 
+// Daily energy tracking (resets at midnight)
+const dailyEnergy = {
+  date: new Date().toDateString(),
+  gridImport: 0,      // Wh imported from grid
+  gridExport: 0,      // Wh exported to grid
+  homeConsumed: 0,    // Wh consumed by home
+  solarProduced: 0,   // Wh from solar (tracked separately for accuracy)
+  lastGridPower: null,
+  lastHomePower: null,
+  lastSolarPower: null,
+  lastTimestamp: null
+};
+
+// Integrate power over time using trapezoidal method
+function updateDailyEnergy(gridPower, homePower, solarPower) {
+  const now = Date.now();
+  const today = new Date().toDateString();
+
+  // Reset at midnight
+  if (dailyEnergy.date !== today) {
+    console.log(`[Daily Energy] New day detected, resetting counters`);
+    dailyEnergy.date = today;
+    dailyEnergy.gridImport = 0;
+    dailyEnergy.gridExport = 0;
+    dailyEnergy.homeConsumed = 0;
+    dailyEnergy.solarProduced = 0;
+    dailyEnergy.lastGridPower = null;
+    dailyEnergy.lastHomePower = null;
+    dailyEnergy.lastSolarPower = null;
+    dailyEnergy.lastTimestamp = null;
+  }
+
+  // Need previous values to integrate
+  if (dailyEnergy.lastTimestamp !== null) {
+    const deltaHours = (now - dailyEnergy.lastTimestamp) / (1000 * 60 * 60); // Convert ms to hours
+
+    // Only integrate if time delta is reasonable (< 5 minutes)
+    if (deltaHours < 0.0833) {
+      // Grid: positive = import, negative = export
+      if (dailyEnergy.lastGridPower !== null && gridPower !== null) {
+        const avgGridPower = (dailyEnergy.lastGridPower + gridPower) / 2;
+        if (avgGridPower > 0) {
+          dailyEnergy.gridImport += avgGridPower * deltaHours; // Wh
+        } else {
+          dailyEnergy.gridExport += Math.abs(avgGridPower) * deltaHours; // Wh
+        }
+      }
+
+      // Home consumption
+      if (dailyEnergy.lastHomePower !== null && homePower !== null) {
+        const avgHomePower = (dailyEnergy.lastHomePower + homePower) / 2;
+        dailyEnergy.homeConsumed += avgHomePower * deltaHours; // Wh
+      }
+
+      // Solar production
+      if (dailyEnergy.lastSolarPower !== null && solarPower !== null) {
+        const avgSolarPower = (dailyEnergy.lastSolarPower + solarPower) / 2;
+        dailyEnergy.solarProduced += avgSolarPower * deltaHours; // Wh
+      }
+    }
+  }
+
+  // Update last values
+  if (gridPower !== null) dailyEnergy.lastGridPower = gridPower;
+  if (homePower !== null) dailyEnergy.lastHomePower = homePower;
+  if (solarPower !== null) dailyEnergy.lastSolarPower = solarPower;
+  dailyEnergy.lastTimestamp = now;
+}
+
+// Calculate derived daily metrics
+function getDailyMetrics() {
+  const gridImportKwh = dailyEnergy.gridImport / 1000;
+  const gridExportKwh = dailyEnergy.gridExport / 1000;
+  const homeConsumedKwh = dailyEnergy.homeConsumed / 1000;
+  const solarProducedKwh = dailyEnergy.solarProduced / 1000;
+
+  // Solar used directly = solar produced - exported to grid
+  const solarUsedKwh = Math.max(0, solarProducedKwh - gridExportKwh);
+
+  // Self-sufficiency: % of home consumption covered by solar
+  const selfSufficiency = homeConsumedKwh > 0
+    ? Math.min(100, (solarUsedKwh / homeConsumedKwh) * 100)
+    : 0;
+
+  // Self-consumption: % of solar production used locally
+  const selfConsumption = solarProducedKwh > 0
+    ? Math.min(100, (solarUsedKwh / solarProducedKwh) * 100)
+    : 0;
+
+  return {
+    gridImportKwh: gridImportKwh.toFixed(2),
+    gridExportKwh: gridExportKwh.toFixed(2),
+    homeConsumedKwh: homeConsumedKwh.toFixed(2),
+    selfSufficiency: selfSufficiency.toFixed(0),
+    selfConsumption: selfConsumption.toFixed(0)
+  };
+}
+
+// Current power values for integration tracking
+let currentPower = {
+  grid: null,
+  home: null,
+  solar1: 0,
+  solar2: 0
+};
+
 // MQTT Client for Cerbo GX
 const cerboClient = mqtt.connect(CONFIG.mqtt.cerboGx);
 
@@ -104,6 +210,24 @@ cerboClient.on('message', (topic, message) => {
 
       // Emit to connected web clients
       io.emit('victron-data', { topic, value: data.value });
+
+      // Track power values for daily energy integration
+      if (topic.endsWith('/grid/30/Ac/Power')) {
+        currentPower.grid = data.value;
+        updateDailyEnergy(currentPower.grid, currentPower.home, currentPower.solar1 + currentPower.solar2);
+      }
+      if (topic.endsWith('/vebus/276/Ac/Out/P')) {
+        currentPower.home = data.value;
+        updateDailyEnergy(currentPower.grid, currentPower.home, currentPower.solar1 + currentPower.solar2);
+      }
+      if (topic.endsWith('/solarcharger/278/Yield/Power')) {
+        currentPower.solar1 = data.value;
+        updateDailyEnergy(currentPower.grid, currentPower.home, currentPower.solar1 + currentPower.solar2);
+      }
+      if (topic.endsWith('/solarcharger/279/Yield/Power')) {
+        currentPower.solar2 = data.value;
+        updateDailyEnergy(currentPower.grid, currentPower.home, currentPower.solar1 + currentPower.solar2);
+      }
 
       // Store in InfluxDB (only essential metrics + all alarms)
       if (typeof data.value === 'number') {
@@ -168,10 +292,18 @@ io.on('connection', (socket) => {
   // Send latest data to newly connected client
   socket.emit('initial-data', latestData);
 
+  // Send daily energy metrics immediately
+  socket.emit('daily-energy', getDailyMetrics());
+
   socket.on('disconnect', () => {
     console.log('← Web client disconnected:', socket.id);
   });
 });
+
+// Broadcast daily energy metrics every 30 seconds
+setInterval(() => {
+  io.emit('daily-energy', getDailyMetrics());
+}, 30000);
 
 // API Endpoints
 app.get('/api/health', (req, res) => {

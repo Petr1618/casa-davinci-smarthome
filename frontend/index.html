@@ -731,6 +731,15 @@
       }
     });
 
+    socket.on('daily-energy', (data) => {
+      document.getElementById('stat-grid-imported').textContent = data.gridImportKwh + ' kWh';
+      document.getElementById('stat-grid-exported').textContent = data.gridExportKwh + ' kWh';
+      document.getElementById('stat-home-today').textContent = data.homeConsumedKwh + ' kWh';
+      document.getElementById('stat-self-sufficiency').textContent = data.selfSufficiency + '%';
+      document.getElementById('stat-self-consumption').textContent = data.selfConsumption + '%';
+      document.getElementById('stat-summary-consumed').textContent = data.homeConsumedKwh + ' kWh';
+    });
+
     function processVictronData(topic, value) {
       // Battery
       if (topic.includes('/battery/512/Soc')) {
