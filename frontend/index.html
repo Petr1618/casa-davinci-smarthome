@@ -858,7 +858,8 @@
         flowPaths['solar-home'].direction = 1;
       }
 
-      if (solarProducing && batteryCharging) {
+      // Show solar to battery flow when solar exceeds home consumption
+      if (solarProducing && totalSolar > homePower) {
         flowPaths['solar-battery'].active = true;
         flowPaths['solar-battery'].direction = 1;
       }
