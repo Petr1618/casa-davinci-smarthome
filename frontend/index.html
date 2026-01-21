@@ -707,360 +707,713 @@
       }
     }
 
-    /* ========== Inverter Tab Styles ========== */
+    /* ========== Inverter Tab Styles - Industrial Design ========== */
     .inverter-layout {
-      padding: 80px 40px 40px;
-      max-width: 1200px;
+      padding: 80px 24px 40px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
-    .inverter-title {
-      font-size: 24px;
-      font-weight: 500;
-      color: var(--home-color);
+    .inverter-header {
+      background: linear-gradient(135deg, rgba(0, 191, 255, 0.1), rgba(30, 30, 30, 0.8));
+      border: 1px solid #00bfff;
+      border-radius: 8px;
+      padding: 12px 24px;
+      margin-bottom: 20px;
       text-align: center;
-      margin-bottom: 8px;
     }
 
-    .inverter-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .inverter-diagram {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
-      margin-bottom: 24px;
-      overflow-x: auto;
-    }
-
-    .inverter-svg {
-      width: 100%;
-      height: auto;
-      max-height: 450px;
-    }
-
-    /* Section labels */
-    .section-label {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      font-weight: 500;
-      text-anchor: middle;
-      letter-spacing: 0.5px;
-    }
-
-    /* Grid and Output boxes */
-    .grid-box, .output-box {
-      fill: rgba(136, 136, 136, 0.1);
-      stroke: var(--grid-color);
-      stroke-width: 2;
-    }
-
-    .output-box {
-      stroke: var(--home-color);
-      fill: rgba(59, 158, 255, 0.1);
-    }
-
-    .phase-label {
-      fill: var(--text-secondary);
-      font-size: 11px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .phase-value {
-      fill: var(--text-primary);
+    .inverter-header-title {
       font-size: 16px;
-      font-weight: 500;
-      text-anchor: middle;
+      font-weight: 600;
+      color: #00bfff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
-    .phase-value-small {
-      fill: var(--text-secondary);
-      font-size: 9px;
-      text-anchor: middle;
+    .inverter-header-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
     }
 
-    .phase-divider {
-      stroke: var(--border-color);
-      stroke-width: 1;
-    }
-
-    .freq-label {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      text-anchor: middle;
-    }
-
-    .freq-value {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    /* MultiPlus units */
-    .multiplus-box {
-      fill: rgba(30, 30, 30, 0.9);
-      stroke: var(--home-color);
-      stroke-width: 2;
-    }
-
-    .multiplus-title {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .multiplus-phase {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      text-anchor: middle;
-    }
-
-    .multiplus-divider {
-      stroke: var(--border-color);
-      stroke-width: 1;
-    }
-
-    .multiplus-label {
-      fill: var(--text-secondary);
-      font-size: 8px;
-    }
-
-    .multiplus-value {
-      fill: var(--text-secondary);
-      font-size: 9px;
-      font-weight: 500;
-      text-anchor: end;
-    }
-
-    /* Flow lines */
-    .inverter-flow-line {
-      fill: none;
-      stroke: var(--grid-color);
-      stroke-width: 2;
-      stroke-dasharray: 6, 3;
-      opacity: 0.5;
-    }
-
-    .inverter-flow-line.out {
-      stroke: var(--home-color);
-    }
-
-    .inverter-flow-line.active {
-      opacity: 1;
-      animation: flowDash 1s linear infinite;
-    }
-
-    /* DC section */
-    .dc-box {
-      fill: rgba(68, 214, 44, 0.1);
-      stroke: var(--battery-color);
-      stroke-width: 2;
-    }
-
-    .dc-title {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .dc-divider {
-      stroke: var(--border-color);
-      stroke-width: 1;
-    }
-
-    .dc-label {
-      fill: var(--text-secondary);
-      font-size: 8px;
-    }
-
-    .dc-value {
-      fill: var(--text-secondary);
-      font-size: 9px;
-      font-weight: 500;
-      text-anchor: end;
-    }
-
-    .dc-state {
-      fill: var(--text-secondary);
-      font-size: 9px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .dc-flow-line {
-      fill: none;
-      stroke: var(--battery-color);
-      stroke-width: 2;
-      stroke-dasharray: 6, 3;
-      opacity: 0.5;
-    }
-
-    /* Load section */
-    .load-box {
-      fill: rgba(59, 158, 255, 0.15);
-      stroke: var(--home-color);
-      stroke-width: 2;
-    }
-
-    .load-title {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .load-divider {
-      stroke: var(--border-color);
-      stroke-width: 1;
-    }
-
-    .load-value {
-      fill: var(--text-secondary);
-      font-size: 11px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .load-label {
-      fill: var(--text-secondary);
-      font-size: 8px;
-      text-anchor: middle;
-    }
-
-    .load-label-small {
-      fill: var(--text-secondary);
-      font-size: 7px;
-      text-anchor: middle;
-    }
-
-    /* Inverter detail cards */
-    .inverter-cards {
-      display: flex;
+    /* Primary Row: Gauge + Alarms/Units */
+    .inverter-primary-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
       gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
-    .inverter-card {
+    /* Circular Power Gauge */
+    .inverter-gauge-card {
       background: var(--bg-card);
       border-radius: 12px;
-      padding: 20px 24px;
+      padding: 20px;
       border: 1px solid var(--border-color);
-      min-width: 280px;
-      flex: 1;
-      max-width: 350px;
-      border: 1px solid var(--border-color);
-      min-width: 220px;
-      flex: 1;
-      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .inverter-card-system {
-      border-color: var(--home-color);
-      background: rgba(59, 158, 255, 0.05);
+    .inverter-gauge-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
     }
 
-    .inverter-card-header {
+    .inverter-gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .inv-gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 12;
+    }
+
+    .inv-gauge-fill {
+      fill: none;
+      stroke: #00bfff;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease, stroke 0.3s;
+    }
+
+    .inverter-gauge-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .inv-gauge-power-value {
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .inv-gauge-power-unit {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .inv-gauge-state {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .inv-gauge-grid-exchange {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .inv-gauge-direction {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .inv-gauge-direction.importing { color: #3b9eff; }
+    .inv-gauge-direction.exporting { color: #44d62c; }
+    .inv-gauge-direction.idle { color: var(--text-secondary); }
+
+    .inv-gauge-grid-power {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .inv-gauge-grid-power.importing { color: #3b9eff; }
+    .inv-gauge-grid-power.exporting { color: #44d62c; }
+    .inv-gauge-grid-power.idle { color: var(--text-secondary); }
+
+    /* Inverter Status LEDs */
+    .inverter-leds {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Right Panel: Alarms + Units */
+    .inverter-right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Inverter Alarms Panel */
+    .inverter-alarms-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      flex: 1;
+    }
+
+    .inv-alarms-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--border-color);
+    }
+
+    .inv-alarms-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--text-secondary);
+    }
+
+    .inv-alarms-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+
+    .inv-alarms-count {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(0, 191, 255, 0.2);
+      color: #00bfff;
+    }
+
+    .inv-alarms-count.warning { background: rgba(245, 197, 66, 0.2); color: #f5c542; }
+    .inv-alarms-count.critical { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+    .inv-alarms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .inv-alarm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .inv-alarm-item.warning {
+      background: rgba(245, 197, 66, 0.1);
+      border: 1px solid rgba(245, 197, 66, 0.3);
+      color: #f5c542;
+    }
+
+    .inv-alarm-item.critical {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: #ff4444;
+    }
+
+    .inv-alarm-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .inv-alarm-item.warning .inv-alarm-dot { background: #f5c542; }
+    .inv-alarm-item.critical .inv-alarm-dot { background: #ff4444; }
+
+    .inv-alarms-ok {
+      color: #00bfff;
+      font-size: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    /* Alarm History Section */
+    .inv-alarm-history {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .inv-history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .inv-history-title {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .inv-history-toggle {
+      font-size: 10px;
+      color: var(--text-secondary);
+      transition: transform 0.2s;
+    }
+
+    .inv-history-toggle.expanded {
+      transform: rotate(180deg);
+    }
+
+    .inv-history-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .inv-history-list.expanded {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .inv-history-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 8px;
+      margin-top: 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .inv-history-item.warning {
+      border-left: 2px solid rgba(245, 197, 66, 0.5);
+    }
+
+    .inv-history-item.critical {
+      border-left: 2px solid rgba(255, 68, 68, 0.5);
+    }
+
+    .inv-history-time {
+      color: var(--text-secondary);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .inv-history-msg {
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .inv-history-empty {
+      color: var(--text-muted);
+      font-size: 10px;
+      padding: 8px;
+      text-align: center;
+      opacity: 0.6;
+    }
+
+    .inv-history-clear {
+      font-size: 9px;
+      color: var(--text-secondary);
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .inv-history-clear:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    /* MultiPlus Unit Status */
+    .inverter-units-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .units-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .units-grid {
+      display: flex;
+      gap: 12px;
+    }
+
+    .unit-box {
+      flex: 1;
+      background: rgba(0, 191, 255, 0.05);
+      border: 1px solid #00bfff;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .unit-box.l1 { border-color: #ff6347; background: rgba(255, 99, 71, 0.05); }
+    .unit-box.l2 { border-color: #ffd700; background: rgba(255, 215, 0, 0.05); }
+    .unit-box.l3 { border-color: #00bfff; background: rgba(0, 191, 255, 0.05); }
+
+    .unit-box.offline {
+      background: rgba(255, 68, 68, 0.05);
+      border-color: #ff4444;
+    }
+
+    .unit-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .unit-phase {
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+
+    .unit-phase.l1 { color: #ff6347; }
+    .unit-phase.l2 { color: #ffd700; }
+    .unit-phase.l3 { color: #00bfff; }
+
+    .unit-status {
+      font-size: 10px;
+      color: #00bfff;
+      text-transform: uppercase;
+    }
+
+    .unit-box.offline .unit-status { color: #ff4444; }
+
+    .unit-power {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+
+    /* Phase Power Bars Row */
+    .inverter-phase-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .phase-viz-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .phase-viz-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .phase-bars-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .phase-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phase-bar-label {
+      font-size: 11px;
+      font-weight: 500;
+      width: 24px;
+      flex-shrink: 0;
+    }
+
+    .phase-bar-label.l1 { color: #ff6347; }
+    .phase-bar-label.l2 { color: #ffd700; }
+    .phase-bar-label.l3 { color: #00bfff; }
+
+    .phase-bar-track {
+      flex: 1;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phase-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .phase-bar-fill.l1 { background: linear-gradient(90deg, rgba(255, 99, 71, 0.6), #ff6347); }
+    .phase-bar-fill.l2 { background: linear-gradient(90deg, rgba(255, 215, 0, 0.6), #ffd700); }
+    .phase-bar-fill.l3 { background: linear-gradient(90deg, rgba(0, 191, 255, 0.6), #00bfff); }
+
+    .phase-bar-value {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      width: 60px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .phase-total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .phase-total-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .phase-total-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .phase-balance-indicator {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-left: 8px;
+    }
+
+    .phase-balance-indicator.good { background: rgba(68, 214, 44, 0.15); color: #44d62c; }
+    .phase-balance-indicator.warning { background: rgba(245, 197, 66, 0.15); color: #f5c542; }
+    .phase-balance-indicator.critical { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+
+    /* Operational Status Card for Inverter */
+    .inverter-op-status-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .inv-op-status-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .inv-op-status-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .inv-op-status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inv-op-status-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .inv-op-status-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .inv-op-status-value.good { color: #44d62c; }
+    .inv-op-status-value.warning { color: #f5c542; }
+
+    .inv-load-bar-container {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .inv-load-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .inv-load-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .inv-load-fill {
+      height: 100%;
+      background: #00bfff;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .inv-load-fill.high { background: #f5c542; }
+    .inv-load-fill.critical { background: #ff4444; }
+
+    /* Detail Cards Row */
+    .inverter-detail-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .inverter-detail-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .inverter-detail-card.highlight {
+      border-color: #00bfff;
+      background: rgba(0, 191, 255, 0.03);
+    }
+
+    .inv-detail-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border-color);
     }
 
-    .inverter-card-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+    .inv-detail-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(0, 191, 255, 0.15);
+      color: #00bfff;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 12px;
       font-weight: 600;
-      font-size: 14px;
     }
 
-    .inverter-card-icon.l1 {
-      background: rgba(255, 99, 71, 0.2);
-      color: #ff6347;
+    .inv-detail-card-icon.dc {
+      background: rgba(68, 214, 44, 0.15);
+      color: #44d62c;
     }
 
-    .inverter-card-icon.l2 {
-      background: rgba(255, 215, 0, 0.2);
-      color: #ffd700;
-    }
-
-    .inverter-card-icon.l3 {
-      background: rgba(0, 191, 255, 0.2);
-      color: #00bfff;
-    }
-
-    .inverter-card-icon.system {
-      background: var(--home-color);
+    .inv-detail-card-icon.summary {
+      background: #00bfff;
       color: #000;
     }
 
-    .inverter-card-title {
-      font-size: 14px;
+    .inv-detail-card-title {
+      font-size: 12px;
       font-weight: 500;
       color: var(--text-primary);
     }
 
-    .inverter-card-stats {
+    .inv-detail-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .inverter-stat {
+    .inv-detail-stat {
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
 
-    .inverter-stat-label {
-      font-size: 10px;
+    .inv-detail-stat-label {
+      font-size: 9px;
       color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
-    .inverter-stat-value {
-      font-size: 14px;
+    .inv-detail-stat-value {
+      font-size: 13px;
       font-weight: 500;
       color: var(--text-primary);
     }
 
-    .inverter-stat-value.grid { color: var(--grid-color); }
-    .inverter-stat-value.home { color: var(--home-color); }
-    .inverter-stat-value.battery { color: var(--battery-color); }
-    .inverter-stat-value.positive { color: var(--battery-color); }
+    .inv-detail-stat-value.cyan { color: #00bfff; }
+    .inv-detail-stat-value.green { color: #44d62c; }
+    .inv-detail-stat-value.warning { color: #f5c542; }
 
     /* Responsive for inverter tab */
-    @media (max-width: 900px) {
+    @media (max-width: 1100px) {
+      .inverter-primary-row {
+        grid-template-columns: 1fr;
+      }
+      .inverter-phase-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .inverter-detail-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
       .inverter-layout {
-        padding: 80px 20px 20px;
+        padding: 80px 16px 20px;
       }
-      .inverter-cards {
+      .inverter-phase-row {
+        grid-template-columns: 1fr;
+      }
+      .inverter-detail-row {
+        grid-template-columns: 1fr;
+      }
+      .units-grid {
         flex-direction: column;
-        align-items: center;
-      }
-      .inverter-card {
-        width: 100%;
-        max-width: 350px;
       }
     }
 
@@ -1310,6 +1663,103 @@
       font-size: 12px;
       padding: 12px;
       text-align: center;
+    }
+
+    /* Battery Alarm History */
+    .batt-alarm-history {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .batt-history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .batt-history-title {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .batt-history-toggle {
+      font-size: 10px;
+      color: var(--text-secondary);
+      transition: transform 0.2s;
+    }
+
+    .batt-history-toggle.expanded {
+      transform: rotate(180deg);
+    }
+
+    .batt-history-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .batt-history-list.expanded {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .batt-history-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 8px;
+      margin-top: 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .batt-history-item.warning {
+      border-left: 2px solid rgba(245, 197, 66, 0.5);
+    }
+
+    .batt-history-item.critical {
+      border-left: 2px solid rgba(255, 68, 68, 0.5);
+    }
+
+    .batt-history-time {
+      color: var(--text-secondary);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .batt-history-msg {
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .batt-history-empty {
+      color: var(--text-muted);
+      font-size: 10px;
+      padding: 8px;
+      text-align: center;
+      opacity: 0.6;
+    }
+
+    .batt-history-clear {
+      font-size: 9px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .batt-history-clear:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     /* Module Status */
@@ -2126,229 +2576,315 @@
     </div>
   </div><!-- End Solar Tab -->
 
-  <!-- Inverter Tab -->
+  <!-- Inverter Tab - Industrial Design -->
   <div class="tab-content" id="tab-inverter">
     <div class="inverter-layout">
-      <h2 class="inverter-title">3-Phase Inverter System</h2>
-      <p class="inverter-subtitle">3x MultiPlus II 48/5000/70 | 13.5 kW Total Capacity</p>
-
-      <div class="inverter-diagram">
-        <svg class="inverter-svg" viewBox="0 0 800 480">
-          <!-- Grid Input Section -->
-          <g class="grid-section">
-            <text x="55" y="25" class="section-label">GRID</text>
-            <rect class="grid-box" x="20" y="40" width="70" height="240" rx="6"/>
-            <text x="55" y="65" class="phase-label">L1</text>
-            <text x="55" y="85" class="phase-value-small" id="inv-grid-l1-v">-- V</text>
-            <text x="55" y="100" class="phase-value-small" id="inv-grid-l1-p">-- W</text>
-            <line class="phase-divider" x1="28" y1="110" x2="82" y2="110"/>
-            <text x="55" y="130" class="phase-label">L2</text>
-            <text x="55" y="150" class="phase-value-small" id="inv-grid-l2-v">-- V</text>
-            <text x="55" y="165" class="phase-value-small" id="inv-grid-l2-p">-- W</text>
-            <line class="phase-divider" x1="28" y1="175" x2="82" y2="175"/>
-            <text x="55" y="195" class="phase-label">L3</text>
-            <text x="55" y="215" class="phase-value-small" id="inv-grid-l3-v">-- V</text>
-            <text x="55" y="230" class="phase-value-small" id="inv-grid-l3-p">-- W</text>
-            <line class="phase-divider" x1="28" y1="245" x2="82" y2="245"/>
-            <text x="55" y="265" class="freq-value" id="inv-grid-freq">-- Hz</text>
-          </g>
-
-          <!-- Flow lines Grid to Inverters -->
-          <g class="flow-lines">
-            <path class="inverter-flow-line" id="flow-grid-l1" d="M 90 80 L 150 55"/>
-            <path class="inverter-flow-line" id="flow-grid-l2" d="M 90 145 L 150 145"/>
-            <path class="inverter-flow-line" id="flow-grid-l3" d="M 90 210 L 150 235"/>
-          </g>
-
-          <!-- MultiPlus Units -->
-          <!-- Unit 1 - L1 -->
-          <g class="multiplus-unit" id="multiplus-1">
-            <rect class="multiplus-box" x="150" y="20" width="140" height="70" rx="6"/>
-            <text x="220" y="38" class="multiplus-title">MultiPlus #1 (L1)</text>
-            <line class="multiplus-divider" x1="158" y1="45" x2="282" y2="45"/>
-            <text x="158" y="60" class="multiplus-label">In</text>
-            <text x="200" y="60" class="multiplus-value" id="inv-mp1-in">-- W</text>
-            <text x="158" y="78" class="multiplus-label">Out</text>
-            <text x="200" y="78" class="multiplus-value" id="inv-mp1-out">-- W</text>
-          </g>
-
-          <!-- Unit 2 - L2 -->
-          <g class="multiplus-unit" id="multiplus-2">
-            <rect class="multiplus-box" x="150" y="110" width="140" height="70" rx="6"/>
-            <text x="220" y="128" class="multiplus-title">MultiPlus #2 (L2)</text>
-            <line class="multiplus-divider" x1="158" y1="135" x2="282" y2="135"/>
-            <text x="158" y="150" class="multiplus-label">In</text>
-            <text x="200" y="150" class="multiplus-value" id="inv-mp2-in">-- W</text>
-            <text x="158" y="168" class="multiplus-label">Out</text>
-            <text x="200" y="168" class="multiplus-value" id="inv-mp2-out">-- W</text>
-          </g>
-
-          <!-- Unit 3 - L3 -->
-          <g class="multiplus-unit" id="multiplus-3">
-            <rect class="multiplus-box" x="150" y="200" width="140" height="70" rx="6"/>
-            <text x="220" y="218" class="multiplus-title">MultiPlus #3 (L3)</text>
-            <line class="multiplus-divider" x1="158" y1="225" x2="282" y2="225"/>
-            <text x="158" y="240" class="multiplus-label">In</text>
-            <text x="200" y="240" class="multiplus-value" id="inv-mp3-in">-- W</text>
-            <text x="158" y="258" class="multiplus-label">Out</text>
-            <text x="200" y="258" class="multiplus-value" id="inv-mp3-out">-- W</text>
-          </g>
-
-          <!-- Flow lines Inverters to Output -->
-          <g class="flow-lines">
-            <path class="inverter-flow-line out" id="flow-out-l1" d="M 290 55 L 350 80"/>
-            <path class="inverter-flow-line out" id="flow-out-l2" d="M 290 145 L 350 145"/>
-            <path class="inverter-flow-line out" id="flow-out-l3" d="M 290 235 L 350 210"/>
-          </g>
-
-          <!-- AC Output Section -->
-          <g class="output-section">
-            <text x="385" y="25" class="section-label">OUTPUT</text>
-            <rect class="output-box" x="350" y="40" width="70" height="240" rx="6"/>
-            <text x="385" y="65" class="phase-label">L1</text>
-            <text x="385" y="85" class="phase-value-small" id="inv-out-l1-v">-- V</text>
-            <text x="385" y="100" class="phase-value-small" id="inv-out-l1-p">-- W</text>
-            <line class="phase-divider" x1="358" y1="110" x2="412" y2="110"/>
-            <text x="385" y="130" class="phase-label">L2</text>
-            <text x="385" y="150" class="phase-value-small" id="inv-out-l2-v">-- V</text>
-            <text x="385" y="165" class="phase-value-small" id="inv-out-l2-p">-- W</text>
-            <line class="phase-divider" x1="358" y1="175" x2="412" y2="175"/>
-            <text x="385" y="195" class="phase-label">L3</text>
-            <text x="385" y="215" class="phase-value-small" id="inv-out-l3-v">-- V</text>
-            <text x="385" y="230" class="phase-value-small" id="inv-out-l3-p">-- W</text>
-            <line class="phase-divider" x1="358" y1="245" x2="412" y2="245"/>
-            <text x="385" y="268" class="freq-value" id="inv-out-total">-- W</text>
-          </g>
-
-          <!-- Flow line to load -->
-          <path class="inverter-flow-line out" d="M 420 145 L 480 145"/>
-
-          <!-- Load indicator -->
-          <g class="load-section">
-            <rect class="load-box" x="480" y="100" width="80" height="90" rx="6"/>
-            <text x="520" y="125" class="load-title">LOAD</text>
-            <line class="load-divider" x1="490" y1="135" x2="550" y2="135"/>
-            <text x="520" y="158" class="load-value" id="inv-load-power">-- W</text>
-            <text x="520" y="178" class="load-label-small">Consumption</text>
-          </g>
-
-          <!-- DC Bus Section - under the inverters -->
-          <g class="dc-section">
-            <rect class="dc-box" x="150" y="310" width="140" height="120" rx="6"/>
-            <text x="220" y="335" class="dc-title">DC BUS</text>
-            <line class="dc-divider" x1="158" y1="345" x2="282" y2="345"/>
-            <text x="165" y="365" class="dc-label">Voltage</text>
-            <text x="275" y="365" class="dc-value" id="inv-dc-voltage">-- V</text>
-            <text x="165" y="385" class="dc-label">Current</text>
-            <text x="275" y="385" class="dc-value" id="inv-dc-current">-- A</text>
-            <text x="165" y="405" class="dc-label">Power</text>
-            <text x="275" y="405" class="dc-value" id="inv-dc-power">-- W</text>
-            <text x="220" y="425" class="dc-state" id="inv-state">--</text>
-          </g>
-
-          <!-- DC connection line - exits bottom of MP3, enters top of DC box -->
-          <path class="dc-flow-line" d="M 220 270 L 220 310"/>
-        </svg>
+      <!-- Header -->
+      <div class="inverter-header">
+        <div class="inverter-header-title">3-Phase Inverter System - MultiPlus II</div>
+        <div class="inverter-header-subtitle">3 Units | 13.5kW Total Capacity | 230V 3-Phase</div>
       </div>
 
-      <!-- Detail Cards -->
-      <div class="inverter-cards">
-        <div class="inverter-card">
-          <div class="inverter-card-header">
-            <span class="inverter-card-icon l1">L1</span>
-            <span class="inverter-card-title">Phase 1</span>
-          </div>
-          <div class="inverter-card-stats">
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Voltage</span>
-              <span class="inverter-stat-value" id="card-l1-grid-v">-- V</span>
-            </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Current</span>
-              <span class="inverter-stat-value" id="card-l1-grid-i">-- A</span>
-            </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Power</span>
-              <span class="inverter-stat-value" id="card-l1-grid-p">-- W</span>
-            </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Output Power</span>
-              <span class="inverter-stat-value home" id="card-l1-out-p">-- W</span>
+      <!-- Primary Row: Gauge + Alarms/Units -->
+      <div class="inverter-primary-row">
+        <!-- Left: Circular Power Gauge -->
+        <div class="inverter-gauge-card">
+          <div class="inverter-gauge-container">
+            <svg class="inverter-gauge-svg" viewBox="0 0 200 200">
+              <circle class="inv-gauge-bg" cx="100" cy="100" r="85"/>
+              <circle class="inv-gauge-fill" id="inv-gauge-arc" cx="100" cy="100" r="85"
+                      stroke-dasharray="534" stroke-dashoffset="534"/>
+            </svg>
+            <div class="inverter-gauge-center">
+              <div class="inv-gauge-power-value"><span id="inv-gauge-power">--</span><span class="inv-gauge-power-unit"> kW</span></div>
+              <div class="inv-gauge-state" id="inv-gauge-state">--</div>
+              <div class="inv-gauge-grid-exchange">
+                <span class="inv-gauge-direction idle" id="inv-gauge-direction">↓</span>
+                <span class="inv-gauge-grid-power" id="inv-gauge-grid-power">-- kW</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div class="inverter-card">
-          <div class="inverter-card-header">
-            <span class="inverter-card-icon l2">L2</span>
-            <span class="inverter-card-title">Phase 2</span>
-          </div>
-          <div class="inverter-card-stats">
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Voltage</span>
-              <span class="inverter-stat-value" id="card-l2-grid-v">-- V</span>
+          <!-- Status LEDs -->
+          <div class="inverter-leds">
+            <div class="led-indicator">
+              <div class="led-light" id="inv-led-grid"></div>
+              <span class="led-label">GRID</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Current</span>
-              <span class="inverter-stat-value" id="card-l2-grid-i">-- A</span>
+            <div class="led-indicator">
+              <div class="led-light" id="inv-led-inv"></div>
+              <span class="led-label">INV</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Power</span>
-              <span class="inverter-stat-value" id="card-l2-grid-p">-- W</span>
+            <div class="led-indicator">
+              <div class="led-light" id="inv-led-flt"></div>
+              <span class="led-label">FLT</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Output Power</span>
-              <span class="inverter-stat-value home" id="card-l2-out-p">-- W</span>
+            <div class="led-indicator">
+              <div class="led-light" id="inv-led-alm"></div>
+              <span class="led-label">ALM</span>
             </div>
           </div>
         </div>
 
-        <div class="inverter-card">
-          <div class="inverter-card-header">
-            <span class="inverter-card-icon l3">L3</span>
-            <span class="inverter-card-title">Phase 3</span>
+        <!-- Right: Alarms + Unit Status -->
+        <div class="inverter-right-panel">
+          <!-- Alarms Panel -->
+          <div class="inverter-alarms-card">
+            <div class="inv-alarms-header">
+              <svg class="inv-alarms-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <span class="inv-alarms-title">Alarms & Warnings</span>
+              <span class="inv-alarms-count" id="inv-alarms-count">0</span>
+            </div>
+            <div class="inv-alarms-list" id="inv-alarms-list">
+              <div class="inv-alarms-ok">All systems normal</div>
+            </div>
+            <!-- Alarm History -->
+            <div class="inv-alarm-history" id="inv-alarm-history">
+              <div class="inv-history-header" onclick="toggleInvAlarmHistory()">
+                <span class="inv-history-title">
+                  History <span id="inv-history-count">(0)</span>
+                </span>
+                <span class="inv-history-toggle" id="inv-history-toggle">▼</span>
+              </div>
+              <div class="inv-history-list" id="inv-history-list">
+                <div class="inv-history-empty">No alarm history yet</div>
+              </div>
+              <button class="inv-history-clear" onclick="clearInvAlarmHistory()" style="margin-top: 8px; display: none;" id="inv-history-clear-btn">Clear History</button>
+            </div>
           </div>
-          <div class="inverter-card-stats">
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Voltage</span>
-              <span class="inverter-stat-value" id="card-l3-grid-v">-- V</span>
+
+          <!-- MultiPlus Unit Status -->
+          <div class="inverter-units-card">
+            <div class="units-header">MultiPlus Unit Status</div>
+            <div class="units-grid">
+              <div class="unit-box l1" id="inv-unit1-box">
+                <div class="unit-name">MP #1</div>
+                <div class="unit-phase l1">L1</div>
+                <div class="unit-status" id="inv-unit1-status">Online</div>
+                <div class="unit-power" id="inv-unit1-power">-- W</div>
+              </div>
+              <div class="unit-box l2" id="inv-unit2-box">
+                <div class="unit-name">MP #2</div>
+                <div class="unit-phase l2">L2</div>
+                <div class="unit-status" id="inv-unit2-status">Online</div>
+                <div class="unit-power" id="inv-unit2-power">-- W</div>
+              </div>
+              <div class="unit-box l3" id="inv-unit3-box">
+                <div class="unit-name">MP #3</div>
+                <div class="unit-phase l3">L3</div>
+                <div class="unit-status" id="inv-unit3-status">Online</div>
+                <div class="unit-power" id="inv-unit3-power">-- W</div>
+              </div>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Current</span>
-              <span class="inverter-stat-value" id="card-l3-grid-i">-- A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase Power Bars Row -->
+      <div class="inverter-phase-row">
+        <!-- Grid Input -->
+        <div class="phase-viz-card">
+          <div class="phase-viz-header">Grid Input</div>
+          <div class="phase-bars-container">
+            <div class="phase-bar-row">
+              <span class="phase-bar-label l1">L1</span>
+              <div class="phase-bar-track">
+                <div class="phase-bar-fill l1" id="inv-grid-bar-l1" style="width: 0%"></div>
+              </div>
+              <span class="phase-bar-value" id="inv-grid-l1-val">-- W</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Power</span>
-              <span class="inverter-stat-value" id="card-l3-grid-p">-- W</span>
+            <div class="phase-bar-row">
+              <span class="phase-bar-label l2">L2</span>
+              <div class="phase-bar-track">
+                <div class="phase-bar-fill l2" id="inv-grid-bar-l2" style="width: 0%"></div>
+              </div>
+              <span class="phase-bar-value" id="inv-grid-l2-val">-- W</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Output Power</span>
-              <span class="inverter-stat-value home" id="card-l3-out-p">-- W</span>
+            <div class="phase-bar-row">
+              <span class="phase-bar-label l3">L3</span>
+              <div class="phase-bar-track">
+                <div class="phase-bar-fill l3" id="inv-grid-bar-l3" style="width: 0%"></div>
+              </div>
+              <span class="phase-bar-value" id="inv-grid-l3-val">-- W</span>
+            </div>
+          </div>
+          <div class="phase-total-row">
+            <span class="phase-total-label">Total:</span>
+            <span class="phase-total-value" id="inv-grid-total">-- W</span>
+            <span class="phase-balance-indicator good" id="inv-grid-balance">Balanced</span>
+          </div>
+        </div>
+
+        <!-- AC Output -->
+        <div class="phase-viz-card">
+          <div class="phase-viz-header">AC Output</div>
+          <div class="phase-bars-container">
+            <div class="phase-bar-row">
+              <span class="phase-bar-label l1">L1</span>
+              <div class="phase-bar-track">
+                <div class="phase-bar-fill l1" id="inv-out-bar-l1" style="width: 0%"></div>
+              </div>
+              <span class="phase-bar-value" id="inv-out-l1-val">-- W</span>
+            </div>
+            <div class="phase-bar-row">
+              <span class="phase-bar-label l2">L2</span>
+              <div class="phase-bar-track">
+                <div class="phase-bar-fill l2" id="inv-out-bar-l2" style="width: 0%"></div>
+              </div>
+              <span class="phase-bar-value" id="inv-out-l2-val">-- W</span>
+            </div>
+            <div class="phase-bar-row">
+              <span class="phase-bar-label l3">L3</span>
+              <div class="phase-bar-track">
+                <div class="phase-bar-fill l3" id="inv-out-bar-l3" style="width: 0%"></div>
+              </div>
+              <span class="phase-bar-value" id="inv-out-l3-val">-- W</span>
+            </div>
+          </div>
+          <div class="phase-total-row">
+            <span class="phase-total-label">Total:</span>
+            <span class="phase-total-value" id="inv-out-total">-- W</span>
+            <span class="phase-balance-indicator good" id="inv-out-balance">Balanced</span>
+          </div>
+        </div>
+
+        <!-- Operational Status -->
+        <div class="inverter-op-status-card">
+          <div class="inv-op-status-header">Operational Status</div>
+          <div class="inv-op-status-grid">
+            <div class="inv-op-status-item">
+              <span class="inv-op-status-label">Current State</span>
+              <span class="inv-op-status-value" id="inv-op-state">--</span>
+            </div>
+            <div class="inv-op-status-item">
+              <span class="inv-op-status-label">Grid Sync</span>
+              <span class="inv-op-status-value good" id="inv-op-sync">--</span>
+            </div>
+            <div class="inv-op-status-item">
+              <span class="inv-op-status-label">DC Bus</span>
+              <span class="inv-op-status-value" id="inv-op-dc">-- V</span>
+            </div>
+            <div class="inv-op-status-item">
+              <span class="inv-op-status-label">Efficiency</span>
+              <span class="inv-op-status-value" id="inv-op-eff">-- %</span>
+            </div>
+          </div>
+          <div class="inv-load-bar-container">
+            <div class="inv-load-label">
+              <span>System Load</span>
+              <span id="inv-load-pct">0%</span>
+            </div>
+            <div class="inv-load-bar">
+              <div class="inv-load-fill" id="inv-load-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Cards Row -->
+      <div class="inverter-detail-row">
+        <!-- DC Bus -->
+        <div class="inverter-detail-card">
+          <div class="inv-detail-card-header">
+            <span class="inv-detail-card-icon dc">DC</span>
+            <span class="inv-detail-card-title">DC Bus</span>
+          </div>
+          <div class="inv-detail-stats">
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-dc-v">-- V</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Current</span>
+              <span class="inv-detail-stat-value" id="inv-card-dc-i">-- A</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Power</span>
+              <span class="inv-detail-stat-value green" id="inv-card-dc-p">-- W</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Grid Dep.</span>
+              <span class="inv-detail-stat-value" id="inv-card-grid-dep">-- %</span>
             </div>
           </div>
         </div>
 
-        <div class="inverter-card inverter-card-system">
-          <div class="inverter-card-header">
-            <span class="inverter-card-icon system">Σ</span>
-            <span class="inverter-card-title">System Total</span>
+        <!-- Grid Input Voltages -->
+        <div class="inverter-detail-card">
+          <div class="inv-detail-card-header">
+            <span class="inv-detail-card-icon">IN</span>
+            <span class="inv-detail-card-title">Grid Input</span>
           </div>
-          <div class="inverter-card-stats">
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Grid Power</span>
-              <span class="inverter-stat-value grid" id="card-total-grid">-- W</span>
+          <div class="inv-detail-stats">
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">L1 Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-in-l1v">-- V</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">Output Power</span>
-              <span class="inverter-stat-value home" id="card-total-out">-- W</span>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">L2 Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-in-l2v">-- V</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">DC Power</span>
-              <span class="inverter-stat-value battery" id="card-dc-power">-- W</span>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">L3 Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-in-l3v">-- V</span>
             </div>
-            <div class="inverter-stat">
-              <span class="inverter-stat-label">System State</span>
-              <span class="inverter-stat-value positive" id="card-system-state">--</span>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Frequency</span>
+              <span class="inv-detail-stat-value" id="inv-card-freq">-- Hz</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AC Output Voltages -->
+        <div class="inverter-detail-card">
+          <div class="inv-detail-card-header">
+            <span class="inv-detail-card-icon">OUT</span>
+            <span class="inv-detail-card-title">AC Output</span>
+          </div>
+          <div class="inv-detail-stats">
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">L1 Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-out-l1v">-- V</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">L2 Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-out-l2v">-- V</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">L3 Voltage</span>
+              <span class="inv-detail-stat-value" id="inv-card-out-l3v">-- V</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Out Freq</span>
+              <span class="inv-detail-stat-value" id="inv-card-out-freq">-- Hz</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Summary -->
+        <div class="inverter-detail-card highlight">
+          <div class="inv-detail-card-header">
+            <span class="inv-detail-card-icon summary">Σ</span>
+            <span class="inv-detail-card-title">System Summary</span>
+          </div>
+          <div class="inv-detail-stats">
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Total Grid</span>
+              <span class="inv-detail-stat-value" id="inv-card-total-grid">-- W</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Total Output</span>
+              <span class="inv-detail-stat-value cyan" id="inv-card-total-out">-- W</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Efficiency</span>
+              <span class="inv-detail-stat-value" id="inv-card-eff">-- %</span>
+            </div>
+            <div class="inv-detail-stat">
+              <span class="inv-detail-stat-label">Load Factor</span>
+              <span class="inv-detail-stat-value" id="inv-card-load">-- %</span>
             </div>
           </div>
         </div>
@@ -2416,6 +2952,19 @@
             </div>
             <div class="alarms-list" id="alarms-list">
               <div class="alarms-ok">All systems normal</div>
+            </div>
+            <!-- Alarm History -->
+            <div class="batt-alarm-history" id="batt-alarm-history">
+              <div class="batt-history-header" onclick="toggleBattAlarmHistory()">
+                <span class="batt-history-title">
+                  History <span id="batt-history-count">(0)</span>
+                </span>
+                <span class="batt-history-toggle" id="batt-history-toggle">▼</span>
+              </div>
+              <div class="batt-history-list" id="batt-history-list">
+                <div class="batt-history-empty">No alarm history yet</div>
+              </div>
+              <button class="batt-history-clear" onclick="clearBattAlarmHistory()" style="margin-top: 8px; display: none;" id="batt-history-clear-btn">Clear History</button>
             </div>
           </div>
 
@@ -2698,10 +3247,38 @@
     // Battery tab alarm state
     let batteryAlarms = [];
     let previousAlarmKeys = new Set(); // Track previous alarms to detect new ones
+    let battAlarmHistory = [];
+    let battHistoryExpanded = false;
+    const MAX_BATT_ALARM_HISTORY = 50;
     let battAvgCellV = 0, battAvgCellT = 0;
     let battUsableEnergy = 0;
     const BATTERY_CAPACITY_KWH = 28; // SEPLOS 28kWh total
     const NOMINAL_VOLTAGE = 51.2; // Nominal battery voltage
+
+    // Inverter tab alarm state
+    let inverterAlarms = [];
+    let previousInvAlarmKeys = new Set();
+    const INVERTER_CAPACITY_W = 13500; // 3x 4500W = 13.5kW total capacity
+
+    // Inverter alarm history
+    let invAlarmHistory = [];
+    let invHistoryExpanded = false;
+    const MAX_ALARM_HISTORY = 50;
+
+    // Victron alarm values from MQTT (0=OK, 1=Warning, 2=Alarm)
+    let victronAlarms = {
+      l1Overload: 0,
+      l2Overload: 0,
+      l3Overload: 0,
+      overload: 0,
+      highTemp: 0,
+      lowBattery: 0,
+      ripple: 0,
+      tempSensor: 0,
+      voltageSensor: 0,
+      lowSoc: 0,
+      gridLost: 0
+    };
 
     // Audio context for alarm sounds
     let audioContext = null;
@@ -3002,6 +3579,19 @@
       if (topic.includes('/vebus/276/Devices/2/Ac/In/P')) { invMp3In = value; updateInverterTab(); }
       if (topic.includes('/vebus/276/Devices/2/Ac/Out/P')) { invMp3Out = value; updateInverterTab(); }
       if (topic.includes('/vebus/276/Devices/2/Ac/Inverter/P')) { invMp3Inv = value; updateInverterTab(); }
+
+      // Victron Alarms (vebus)
+      if (topic.includes('/vebus/276/Alarms/L1/Overload')) { victronAlarms.l1Overload = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/L2/Overload')) { victronAlarms.l2Overload = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/L3/Overload')) { victronAlarms.l3Overload = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/Overload') && !topic.includes('/L')) { victronAlarms.overload = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/HighTemperature')) { victronAlarms.highTemp = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/LowBattery')) { victronAlarms.lowBattery = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/Ripple')) { victronAlarms.ripple = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/TemperatureSensor')) { victronAlarms.tempSensor = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/VoltageSensor')) { victronAlarms.voltageSensor = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/LowSoc')) { victronAlarms.lowSoc = value; updateInverterTab(); }
+      if (topic.includes('/vebus/276/Alarms/GridLost')) { victronAlarms.gridLost = value; updateInverterTab(); }
 
       // Battery data
       if (topic.includes('/battery/512/Soc')) { battSoc = value; updateBatteryTab(); }
@@ -3347,96 +3937,551 @@
       return states[state] || 'Unknown';
     }
 
-    function updateInverterTab() {
-      // Grid input - SVG
-      const el = (id) => document.getElementById(id);
-
-      if (el('inv-grid-l1-v')) el('inv-grid-l1-v').textContent = invGridL1V.toFixed(0) + ' V';
-      if (el('inv-grid-l1-p')) el('inv-grid-l1-p').textContent = Math.round(invGridL1P) + ' W';
-      if (el('inv-grid-l2-v')) el('inv-grid-l2-v').textContent = invGridL2V.toFixed(0) + ' V';
-      if (el('inv-grid-l2-p')) el('inv-grid-l2-p').textContent = Math.round(invGridL2P) + ' W';
-      if (el('inv-grid-l3-v')) el('inv-grid-l3-v').textContent = invGridL3V.toFixed(0) + ' V';
-      if (el('inv-grid-l3-p')) el('inv-grid-l3-p').textContent = Math.round(invGridL3P) + ' W';
-      if (el('inv-grid-freq')) el('inv-grid-freq').textContent = invFrequency.toFixed(1) + ' Hz';
-
-      // AC Output - SVG
-      if (el('inv-out-l1-v')) el('inv-out-l1-v').textContent = invOutL1V.toFixed(0) + ' V';
-      if (el('inv-out-l1-p')) el('inv-out-l1-p').textContent = Math.round(invOutL1P) + ' W';
-      if (el('inv-out-l2-v')) el('inv-out-l2-v').textContent = invOutL2V.toFixed(0) + ' V';
-      if (el('inv-out-l2-p')) el('inv-out-l2-p').textContent = Math.round(invOutL2P) + ' W';
-      if (el('inv-out-l3-v')) el('inv-out-l3-v').textContent = invOutL3V.toFixed(0) + ' V';
-      if (el('inv-out-l3-p')) el('inv-out-l3-p').textContent = Math.round(invOutL3P) + ' W';
-
-      const totalOut = invOutL1P + invOutL2P + invOutL3P;
-      if (el('inv-out-total')) el('inv-out-total').textContent = Math.round(totalOut) + ' W';
-
-      // MultiPlus units - SVG
-      if (el('inv-mp1-in')) el('inv-mp1-in').textContent = Math.round(invMp1In) + ' W';
-      if (el('inv-mp1-out')) el('inv-mp1-out').textContent = Math.round(invMp1Out) + ' W';
-      if (el('inv-mp1-inv')) el('inv-mp1-inv').textContent = Math.round(invMp1Inv) + ' W';
-      if (el('inv-mp2-in')) el('inv-mp2-in').textContent = Math.round(invMp2In) + ' W';
-      if (el('inv-mp2-out')) el('inv-mp2-out').textContent = Math.round(invMp2Out) + ' W';
-      if (el('inv-mp2-inv')) el('inv-mp2-inv').textContent = Math.round(invMp2Inv) + ' W';
-      if (el('inv-mp3-in')) el('inv-mp3-in').textContent = Math.round(invMp3In) + ' W';
-      if (el('inv-mp3-out')) el('inv-mp3-out').textContent = Math.round(invMp3Out) + ' W';
-      if (el('inv-mp3-inv')) el('inv-mp3-inv').textContent = Math.round(invMp3Inv) + ' W';
-
-      // DC Bus - SVG
-      if (el('inv-dc-voltage')) el('inv-dc-voltage').textContent = invDcVoltage.toFixed(1) + ' V';
-      if (el('inv-dc-current')) el('inv-dc-current').textContent = invDcCurrent.toFixed(1) + ' A';
-      if (el('inv-dc-power')) el('inv-dc-power').textContent = Math.round(invDcPower) + ' W';
-      if (el('inv-state')) el('inv-state').textContent = getInverterState(invState);
-
-      // Load
-      if (el('inv-load-power')) el('inv-load-power').textContent = Math.round(totalOut) + ' W';
-
-      // Detail cards
-      if (el('card-l1-grid-v')) el('card-l1-grid-v').textContent = invGridL1V.toFixed(0) + ' V';
-      if (el('card-l1-grid-i')) el('card-l1-grid-i').textContent = invGridL1I.toFixed(2) + ' A';
-      if (el('card-l1-grid-p')) el('card-l1-grid-p').textContent = Math.round(invGridL1P) + ' W';
-      if (el('card-l1-out-p')) el('card-l1-out-p').textContent = Math.round(invOutL1P) + ' W';
-
-      if (el('card-l2-grid-v')) el('card-l2-grid-v').textContent = invGridL2V.toFixed(0) + ' V';
-      if (el('card-l2-grid-i')) el('card-l2-grid-i').textContent = invGridL2I.toFixed(2) + ' A';
-      if (el('card-l2-grid-p')) el('card-l2-grid-p').textContent = Math.round(invGridL2P) + ' W';
-      if (el('card-l2-out-p')) el('card-l2-out-p').textContent = Math.round(invOutL2P) + ' W';
-
-      if (el('card-l3-grid-v')) el('card-l3-grid-v').textContent = invGridL3V.toFixed(0) + ' V';
-      if (el('card-l3-grid-i')) el('card-l3-grid-i').textContent = invGridL3I.toFixed(2) + ' A';
-      if (el('card-l3-grid-p')) el('card-l3-grid-p').textContent = Math.round(invGridL3P) + ' W';
-      if (el('card-l3-out-p')) el('card-l3-out-p').textContent = Math.round(invOutL3P) + ' W';
-
-      // System totals
+    // Evaluate inverter alarms based on current values
+    function evaluateInverterAlarms() {
+      inverterAlarms = [];
       const totalGridP = invGridL1P + invGridL2P + invGridL3P;
-      if (el('card-total-grid')) el('card-total-grid').textContent = Math.round(totalGridP) + ' W';
-      if (el('card-total-out')) el('card-total-out').textContent = Math.round(totalOut) + ' W';
-      if (el('card-dc-power')) el('card-dc-power').textContent = Math.round(invDcPower) + ' W';
-      if (el('card-system-state')) el('card-system-state').textContent = getInverterState(invState);
+      const totalOutP = invOutL1P + invOutL2P + invOutL3P;
+      const loadPercent = (totalOutP / INVERTER_CAPACITY_W) * 100;
 
-      // Update flow line activity based on power flow
-      updateInverterFlowLines();
+      // ===== Victron Hardware Alarms (from MQTT) =====
+      // Per-phase overload alarms (value: 0=OK, 1=Warning, 2=Alarm)
+      if (victronAlarms.l1Overload === 2) {
+        inverterAlarms.push({ key: 'victron-l1-overload', severity: 'critical', message: 'L1 Overload (Victron)' });
+      } else if (victronAlarms.l1Overload === 1) {
+        inverterAlarms.push({ key: 'victron-l1-overload', severity: 'warning', message: 'L1 Overload Warning' });
+      }
+      if (victronAlarms.l2Overload === 2) {
+        inverterAlarms.push({ key: 'victron-l2-overload', severity: 'critical', message: 'L2 Overload (Victron)' });
+      } else if (victronAlarms.l2Overload === 1) {
+        inverterAlarms.push({ key: 'victron-l2-overload', severity: 'warning', message: 'L2 Overload Warning' });
+      }
+      if (victronAlarms.l3Overload === 2) {
+        inverterAlarms.push({ key: 'victron-l3-overload', severity: 'critical', message: 'L3 Overload (Victron)' });
+      } else if (victronAlarms.l3Overload === 1) {
+        inverterAlarms.push({ key: 'victron-l3-overload', severity: 'warning', message: 'L3 Overload Warning' });
+      }
+      // System overload
+      if (victronAlarms.overload === 2) {
+        inverterAlarms.push({ key: 'victron-overload', severity: 'critical', message: 'System Overload (Victron)' });
+      } else if (victronAlarms.overload === 1) {
+        inverterAlarms.push({ key: 'victron-overload', severity: 'warning', message: 'Overload Warning' });
+      }
+      // High temperature
+      if (victronAlarms.highTemp === 2) {
+        inverterAlarms.push({ key: 'victron-hightemp', severity: 'critical', message: 'High Temperature (Victron)' });
+      } else if (victronAlarms.highTemp === 1) {
+        inverterAlarms.push({ key: 'victron-hightemp', severity: 'warning', message: 'Temperature Warning' });
+      }
+      // Low battery
+      if (victronAlarms.lowBattery === 2) {
+        inverterAlarms.push({ key: 'victron-lowbatt', severity: 'critical', message: 'Low Battery (Victron)' });
+      } else if (victronAlarms.lowBattery === 1) {
+        inverterAlarms.push({ key: 'victron-lowbatt', severity: 'warning', message: 'Low Battery Warning' });
+      }
+      // Grid lost
+      if (victronAlarms.gridLost === 2) {
+        inverterAlarms.push({ key: 'victron-gridlost', severity: 'critical', message: 'Grid Lost (Victron)' });
+      } else if (victronAlarms.gridLost === 1) {
+        inverterAlarms.push({ key: 'victron-gridlost', severity: 'warning', message: 'Grid Warning' });
+      }
+      // Ripple
+      if (victronAlarms.ripple === 2) {
+        inverterAlarms.push({ key: 'victron-ripple', severity: 'critical', message: 'DC Ripple (Victron)' });
+      } else if (victronAlarms.ripple === 1) {
+        inverterAlarms.push({ key: 'victron-ripple', severity: 'warning', message: 'DC Ripple Warning' });
+      }
+      // Low SOC
+      if (victronAlarms.lowSoc === 2) {
+        inverterAlarms.push({ key: 'victron-lowsoc', severity: 'critical', message: 'Low SOC (Victron)' });
+      } else if (victronAlarms.lowSoc === 1) {
+        inverterAlarms.push({ key: 'victron-lowsoc', severity: 'warning', message: 'Low SOC Warning' });
+      }
+
+      // ===== Calculated Alarms (from values) =====
+      // Critical alarms
+      if (invState === 2) {
+        inverterAlarms.push({ key: 'fault', severity: 'critical', message: 'System Fault Detected' });
+      }
+      if (invDcVoltage > 60) {
+        inverterAlarms.push({ key: 'dc-overvolt', severity: 'critical', message: 'DC Overvoltage: ' + invDcVoltage.toFixed(1) + 'V' });
+      }
+      if (invDcVoltage > 0 && invDcVoltage < 44) {
+        inverterAlarms.push({ key: 'dc-undervolt', severity: 'critical', message: 'DC Undervoltage: ' + invDcVoltage.toFixed(1) + 'V' });
+      }
+      // Phase failure detection (only if no Victron grid lost alarm)
+      if (victronAlarms.gridLost === 0) {
+        if (invGridL1V > 0 && invGridL1V < 180) {
+          inverterAlarms.push({ key: 'l1-failure', severity: 'critical', message: 'L1 Phase Failure: ' + invGridL1V.toFixed(0) + 'V' });
+        }
+        if (invGridL2V > 0 && invGridL2V < 180) {
+          inverterAlarms.push({ key: 'l2-failure', severity: 'critical', message: 'L2 Phase Failure: ' + invGridL2V.toFixed(0) + 'V' });
+        }
+        if (invGridL3V > 0 && invGridL3V < 180) {
+          inverterAlarms.push({ key: 'l3-failure', severity: 'critical', message: 'L3 Phase Failure: ' + invGridL3V.toFixed(0) + 'V' });
+        }
+      }
+
+      // Warning alarms (only if no Victron overload alarms)
+      if (victronAlarms.overload === 0 && victronAlarms.l1Overload === 0 && victronAlarms.l2Overload === 0 && victronAlarms.l3Overload === 0) {
+        if (loadPercent > 80 && loadPercent <= 100) {
+          inverterAlarms.push({ key: 'high-load', severity: 'warning', message: 'High Load: ' + loadPercent.toFixed(0) + '%' });
+        }
+      }
+      if (invState === 1) {
+        inverterAlarms.push({ key: 'low-power', severity: 'warning', message: 'Low Power Mode Active' });
+      }
+      // Phase imbalance (>1500W difference)
+      const phasePowers = [Math.abs(invOutL1P), Math.abs(invOutL2P), Math.abs(invOutL3P)];
+      const maxPhase = Math.max(...phasePowers);
+      const minPhase = Math.min(...phasePowers);
+      if (maxPhase - minPhase > 1500) {
+        inverterAlarms.push({ key: 'phase-imbalance', severity: 'warning', message: 'Phase Imbalance: ' + Math.round(maxPhase - minPhase) + 'W' });
+      }
+      // Voltage warnings
+      if (invGridL1V > 180 && invGridL1V < 210) {
+        inverterAlarms.push({ key: 'l1-low-v', severity: 'warning', message: 'L1 Low Voltage: ' + invGridL1V.toFixed(0) + 'V' });
+      }
+      if (invGridL1V > 250) {
+        inverterAlarms.push({ key: 'l1-high-v', severity: 'warning', message: 'L1 High Voltage: ' + invGridL1V.toFixed(0) + 'V' });
+      }
+      // Frequency warnings
+      if (invFrequency > 0 && invFrequency < 49.5) {
+        inverterAlarms.push({ key: 'freq-low', severity: 'warning', message: 'Low Frequency: ' + invFrequency.toFixed(1) + 'Hz' });
+      }
+      if (invFrequency > 50.5) {
+        inverterAlarms.push({ key: 'freq-high', severity: 'warning', message: 'High Frequency: ' + invFrequency.toFixed(1) + 'Hz' });
+      }
     }
 
-    function updateInverterFlowLines() {
-      const threshold = 10;
+    // Update inverter alarm display
+    function updateInverterAlarmDisplay() {
+      const el = (id) => document.getElementById(id);
+      const countEl = el('inv-alarms-count');
+      const listEl = el('inv-alarms-list');
 
-      // Grid to inverter flow lines
-      const flowGridL1 = document.getElementById('flow-grid-l1');
-      const flowGridL2 = document.getElementById('flow-grid-l2');
-      const flowGridL3 = document.getElementById('flow-grid-l3');
+      if (!countEl || !listEl) return;
 
-      if (flowGridL1) flowGridL1.classList.toggle('active', Math.abs(invGridL1P) > threshold);
-      if (flowGridL2) flowGridL2.classList.toggle('active', Math.abs(invGridL2P) > threshold);
-      if (flowGridL3) flowGridL3.classList.toggle('active', Math.abs(invGridL3P) > threshold);
+      const criticalCount = inverterAlarms.filter(a => a.severity === 'critical').length;
+      const warningCount = inverterAlarms.filter(a => a.severity === 'warning').length;
+      const total = inverterAlarms.length;
 
-      // Inverter to output flow lines
-      const flowOutL1 = document.getElementById('flow-out-l1');
-      const flowOutL2 = document.getElementById('flow-out-l2');
-      const flowOutL3 = document.getElementById('flow-out-l3');
+      countEl.textContent = total;
+      countEl.classList.remove('warning', 'critical');
+      if (criticalCount > 0) {
+        countEl.classList.add('critical');
+      } else if (warningCount > 0) {
+        countEl.classList.add('warning');
+      }
 
-      if (flowOutL1) flowOutL1.classList.toggle('active', Math.abs(invOutL1P) > threshold);
-      if (flowOutL2) flowOutL2.classList.toggle('active', Math.abs(invOutL2P) > threshold);
-      if (flowOutL3) flowOutL3.classList.toggle('active', Math.abs(invOutL3P) > threshold);
+      if (total === 0) {
+        listEl.innerHTML = '<div class="inv-alarms-ok">All systems normal</div>';
+      } else {
+        const sorted = [...inverterAlarms].sort((a, b) => (a.severity === 'critical' ? -1 : 1));
+        listEl.innerHTML = sorted.map(alarm =>
+          `<div class="inv-alarm-item ${alarm.severity}"><span class="inv-alarm-dot"></span>${alarm.message}</div>`
+        ).join('');
+      }
+
+      // Check for cleared alarms and add to history
+      const currentKeys = new Set(inverterAlarms.map(a => a.key));
+      for (const key of previousInvAlarmKeys) {
+        if (!currentKeys.has(key)) {
+          // This alarm was cleared - find it in previous alarms and add to history
+          // We need to track the full alarm objects, so let's store them
+        }
+      }
+
+      // Check for new alarms and play sound + track for history
+      for (const alarm of inverterAlarms) {
+        if (!previousInvAlarmKeys.has(alarm.key)) {
+          playAlarmSound(alarm.severity);
+          // Add to history with timestamp when it triggers
+          addToInvAlarmHistory(alarm, 'triggered');
+          break; // Only play sound once
+        }
+      }
+
+      // Check for cleared alarms - add to history
+      for (const key of previousInvAlarmKeys) {
+        if (!currentKeys.has(key)) {
+          // Find the alarm details from history (most recent triggered entry)
+          const historyEntry = invAlarmHistory.find(h => h.key === key && h.action === 'triggered');
+          if (historyEntry) {
+            addToInvAlarmHistory({ key, severity: historyEntry.severity, message: historyEntry.message }, 'cleared');
+          }
+        }
+      }
+
+      previousInvAlarmKeys = currentKeys;
+
+      // Update history display
+      updateInvAlarmHistoryDisplay();
+    }
+
+    // Add alarm to history
+    function addToInvAlarmHistory(alarm, action) {
+      const timestamp = new Date();
+      invAlarmHistory.unshift({
+        key: alarm.key,
+        severity: alarm.severity,
+        message: alarm.message,
+        action: action,
+        time: timestamp,
+        timeStr: timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      });
+
+      // Trim history if too long
+      if (invAlarmHistory.length > MAX_ALARM_HISTORY) {
+        invAlarmHistory = invAlarmHistory.slice(0, MAX_ALARM_HISTORY);
+      }
+    }
+
+    // Update history display
+    function updateInvAlarmHistoryDisplay() {
+      const el = (id) => document.getElementById(id);
+      const historyList = el('inv-history-list');
+      const historyCount = el('inv-history-count');
+      const clearBtn = el('inv-history-clear-btn');
+
+      if (!historyList) return;
+
+      historyCount.textContent = `(${invAlarmHistory.length})`;
+
+      // Show empty message or history items
+      if (invAlarmHistory.length === 0) {
+        historyList.innerHTML = '<div class="inv-history-empty">No alarm history yet</div>';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+
+      clearBtn.style.display = invHistoryExpanded ? 'block' : 'none';
+
+      if (invHistoryExpanded) {
+        historyList.innerHTML = invAlarmHistory.map(entry => `
+          <div class="inv-history-item ${entry.severity}">
+            <span class="inv-history-time">${entry.timeStr}</span>
+            <span class="inv-history-msg">${entry.message} - ${entry.action}</span>
+          </div>
+        `).join('');
+      } else {
+        historyList.innerHTML = '<div class="inv-history-empty">Click to expand</div>';
+      }
+    }
+
+    // Toggle history expansion
+    function toggleInvAlarmHistory() {
+      invHistoryExpanded = !invHistoryExpanded;
+      const el = (id) => document.getElementById(id);
+      const historyList = el('inv-history-list');
+      const toggle = el('inv-history-toggle');
+
+      if (historyList) historyList.classList.toggle('expanded', invHistoryExpanded);
+      if (toggle) toggle.classList.toggle('expanded', invHistoryExpanded);
+
+      updateInvAlarmHistoryDisplay();
+    }
+
+    // Clear alarm history
+    function clearInvAlarmHistory() {
+      invAlarmHistory = [];
+      updateInvAlarmHistoryDisplay();
+    }
+
+    // Update inverter power gauge
+    function updateInverterGauge() {
+      const el = (id) => document.getElementById(id);
+      const totalGridP = invGridL1P + invGridL2P + invGridL3P;
+      const totalOutP = invOutL1P + invOutL2P + invOutL3P;
+      const loadPercent = Math.min((totalOutP / INVERTER_CAPACITY_W) * 100, 100);
+
+      // Update gauge arc
+      const arc = el('inv-gauge-arc');
+      if (arc) {
+        const circumference = 2 * Math.PI * 85;
+        const offset = circumference - (loadPercent / 100) * circumference;
+        arc.style.strokeDashoffset = offset;
+        // Color based on grid flow: green if exporting, blue if importing
+        arc.style.stroke = totalGridP < -50 ? '#44d62c' : totalGridP > 50 ? '#3b9eff' : '#00bfff';
+      }
+
+      // Update center values
+      const powerKW = (totalOutP / 1000).toFixed(1);
+      if (el('inv-gauge-power')) el('inv-gauge-power').textContent = powerKW;
+
+      // Update grid exchange display (arrow + power value)
+      const dirEl = el('inv-gauge-direction');
+      const gridPowerEl = el('inv-gauge-grid-power');
+      const gridPowerKW = (Math.abs(totalGridP) / 1000).toFixed(1);
+
+      if (dirEl) {
+        dirEl.classList.remove('importing', 'exporting', 'idle');
+        if (totalGridP < -50) {
+          dirEl.textContent = '↑';
+          dirEl.classList.add('exporting');
+        } else if (totalGridP > 50) {
+          dirEl.textContent = '↓';
+          dirEl.classList.add('importing');
+        } else {
+          dirEl.textContent = '⇄';
+          dirEl.classList.add('idle');
+        }
+      }
+
+      if (gridPowerEl) {
+        gridPowerEl.classList.remove('importing', 'exporting', 'idle');
+        if (totalGridP < -50) {
+          gridPowerEl.textContent = `${gridPowerKW} kW`;
+          gridPowerEl.classList.add('exporting');
+        } else if (totalGridP > 50) {
+          gridPowerEl.textContent = `${gridPowerKW} kW`;
+          gridPowerEl.classList.add('importing');
+        } else {
+          gridPowerEl.textContent = '0.0 kW';
+          gridPowerEl.classList.add('idle');
+        }
+      }
+
+      if (el('inv-gauge-state')) el('inv-gauge-state').textContent = getInverterState(invState);
+    }
+
+    // Update inverter status LEDs
+    function updateInverterLEDs() {
+      const el = (id) => document.getElementById(id);
+      const totalGridP = invGridL1P + invGridL2P + invGridL3P;
+      const hasGrid = invGridL1V > 180 || invGridL2V > 180 || invGridL3V > 180;
+      const criticalCount = inverterAlarms.filter(a => a.severity === 'critical').length;
+      const warningCount = inverterAlarms.filter(a => a.severity === 'warning').length;
+
+      // GRID LED
+      const gridLed = el('inv-led-grid');
+      if (gridLed) {
+        gridLed.classList.remove('green', 'yellow', 'red');
+        if (hasGrid && [3,4,5,6,7,10].includes(invState)) {
+          gridLed.classList.add('green');
+        } else if (invState === 8) {
+          gridLed.classList.add('yellow');
+        } else {
+          gridLed.classList.add('red');
+        }
+      }
+
+      // INV LED
+      const invLed = el('inv-led-inv');
+      if (invLed) {
+        invLed.classList.remove('green', 'yellow', 'red');
+        if ([9, 10].includes(invState)) {
+          invLed.classList.add('green');
+        } else if (invState === 1) {
+          invLed.classList.add('yellow');
+        } else if (invState === 0) {
+          // Off - no LED
+        }
+      }
+
+      // FLT LED
+      const fltLed = el('inv-led-flt');
+      if (fltLed) {
+        fltLed.classList.remove('green', 'yellow', 'red');
+        if (invState === 2) {
+          fltLed.classList.add('red');
+        } else if (warningCount > 0) {
+          fltLed.classList.add('yellow');
+        }
+      }
+
+      // ALM LED
+      const almLed = el('inv-led-alm');
+      if (almLed) {
+        almLed.classList.remove('green', 'yellow', 'red');
+        if (criticalCount > 0) {
+          almLed.classList.add('red');
+        } else if (warningCount > 0) {
+          almLed.classList.add('yellow');
+        }
+      }
+    }
+
+    // Update MultiPlus unit status boxes
+    function updateInverterUnits() {
+      const el = (id) => document.getElementById(id);
+
+      // Unit 1 (L1)
+      const unit1Out = invMp1Out || invOutL1P;
+      if (el('inv-unit1-power')) el('inv-unit1-power').textContent = Math.round(unit1Out) + ' W';
+      const unit1Box = el('inv-unit1-box');
+      const unit1Status = el('inv-unit1-status');
+      const isUnit1Offline = unit1Out === 0 && (invMp2Out > 100 || invMp3Out > 100);
+      if (unit1Box) unit1Box.classList.toggle('offline', isUnit1Offline);
+      if (unit1Status) unit1Status.textContent = isUnit1Offline ? 'Offline' : 'Online';
+
+      // Unit 2 (L2)
+      const unit2Out = invMp2Out || invOutL2P;
+      if (el('inv-unit2-power')) el('inv-unit2-power').textContent = Math.round(unit2Out) + ' W';
+      const unit2Box = el('inv-unit2-box');
+      const unit2Status = el('inv-unit2-status');
+      const isUnit2Offline = unit2Out === 0 && (invMp1Out > 100 || invMp3Out > 100);
+      if (unit2Box) unit2Box.classList.toggle('offline', isUnit2Offline);
+      if (unit2Status) unit2Status.textContent = isUnit2Offline ? 'Offline' : 'Online';
+
+      // Unit 3 (L3)
+      const unit3Out = invMp3Out || invOutL3P;
+      if (el('inv-unit3-power')) el('inv-unit3-power').textContent = Math.round(unit3Out) + ' W';
+      const unit3Box = el('inv-unit3-box');
+      const unit3Status = el('inv-unit3-status');
+      const isUnit3Offline = unit3Out === 0 && (invMp1Out > 100 || invMp2Out > 100);
+      if (unit3Box) unit3Box.classList.toggle('offline', isUnit3Offline);
+      if (unit3Status) unit3Status.textContent = isUnit3Offline ? 'Offline' : 'Online';
+    }
+
+    // Update phase power bars
+    function updateInverterPhaseBars() {
+      const el = (id) => document.getElementById(id);
+      const maxPower = 5000; // Max per phase
+
+      // Grid input bars
+      const gridL1Pct = Math.min((Math.abs(invGridL1P) / maxPower) * 100, 100);
+      const gridL2Pct = Math.min((Math.abs(invGridL2P) / maxPower) * 100, 100);
+      const gridL3Pct = Math.min((Math.abs(invGridL3P) / maxPower) * 100, 100);
+
+      if (el('inv-grid-bar-l1')) el('inv-grid-bar-l1').style.width = gridL1Pct + '%';
+      if (el('inv-grid-bar-l2')) el('inv-grid-bar-l2').style.width = gridL2Pct + '%';
+      if (el('inv-grid-bar-l3')) el('inv-grid-bar-l3').style.width = gridL3Pct + '%';
+
+      if (el('inv-grid-l1-val')) el('inv-grid-l1-val').textContent = Math.round(invGridL1P) + ' W';
+      if (el('inv-grid-l2-val')) el('inv-grid-l2-val').textContent = Math.round(invGridL2P) + ' W';
+      if (el('inv-grid-l3-val')) el('inv-grid-l3-val').textContent = Math.round(invGridL3P) + ' W';
+
+      const totalGridP = invGridL1P + invGridL2P + invGridL3P;
+      if (el('inv-grid-total')) el('inv-grid-total').textContent = Math.round(totalGridP) + ' W';
+
+      // Grid balance indicator
+      const gridPowers = [Math.abs(invGridL1P), Math.abs(invGridL2P), Math.abs(invGridL3P)];
+      const gridMaxDiff = Math.max(...gridPowers) - Math.min(...gridPowers);
+      const gridBalanceEl = el('inv-grid-balance');
+      if (gridBalanceEl) {
+        gridBalanceEl.classList.remove('good', 'warning', 'critical');
+        if (gridMaxDiff < 500) {
+          gridBalanceEl.textContent = 'Balanced';
+          gridBalanceEl.classList.add('good');
+        } else if (gridMaxDiff < 1500) {
+          gridBalanceEl.textContent = 'Minor';
+          gridBalanceEl.classList.add('warning');
+        } else {
+          gridBalanceEl.textContent = 'Imbalanced';
+          gridBalanceEl.classList.add('critical');
+        }
+      }
+
+      // AC output bars
+      const outL1Pct = Math.min((Math.abs(invOutL1P) / maxPower) * 100, 100);
+      const outL2Pct = Math.min((Math.abs(invOutL2P) / maxPower) * 100, 100);
+      const outL3Pct = Math.min((Math.abs(invOutL3P) / maxPower) * 100, 100);
+
+      if (el('inv-out-bar-l1')) el('inv-out-bar-l1').style.width = outL1Pct + '%';
+      if (el('inv-out-bar-l2')) el('inv-out-bar-l2').style.width = outL2Pct + '%';
+      if (el('inv-out-bar-l3')) el('inv-out-bar-l3').style.width = outL3Pct + '%';
+
+      if (el('inv-out-l1-val')) el('inv-out-l1-val').textContent = Math.round(invOutL1P) + ' W';
+      if (el('inv-out-l2-val')) el('inv-out-l2-val').textContent = Math.round(invOutL2P) + ' W';
+      if (el('inv-out-l3-val')) el('inv-out-l3-val').textContent = Math.round(invOutL3P) + ' W';
+
+      const totalOutP = invOutL1P + invOutL2P + invOutL3P;
+      if (el('inv-out-total')) el('inv-out-total').textContent = Math.round(totalOutP) + ' W';
+
+      // Output balance indicator
+      const outPowers = [Math.abs(invOutL1P), Math.abs(invOutL2P), Math.abs(invOutL3P)];
+      const outMaxDiff = Math.max(...outPowers) - Math.min(...outPowers);
+      const outBalanceEl = el('inv-out-balance');
+      if (outBalanceEl) {
+        outBalanceEl.classList.remove('good', 'warning', 'critical');
+        if (outMaxDiff < 500) {
+          outBalanceEl.textContent = 'Balanced';
+          outBalanceEl.classList.add('good');
+        } else if (outMaxDiff < 1500) {
+          outBalanceEl.textContent = 'Minor';
+          outBalanceEl.classList.add('warning');
+        } else {
+          outBalanceEl.textContent = 'Imbalanced';
+          outBalanceEl.classList.add('critical');
+        }
+      }
+    }
+
+    // Update operational status and detail cards
+    function updateInverterDetails() {
+      const el = (id) => document.getElementById(id);
+      const totalGridP = invGridL1P + invGridL2P + invGridL3P;
+      const totalOutP = invOutL1P + invOutL2P + invOutL3P;
+
+      // Operational status
+      if (el('inv-op-state')) el('inv-op-state').textContent = getInverterState(invState);
+
+      const syncEl = el('inv-op-sync');
+      if (syncEl) {
+        const hasGrid = invGridL1V > 180 || invGridL2V > 180 || invGridL3V > 180;
+        syncEl.textContent = hasGrid ? 'YES' : 'NO';
+        syncEl.classList.toggle('good', hasGrid);
+        syncEl.classList.toggle('warning', !hasGrid);
+      }
+
+      if (el('inv-op-dc')) el('inv-op-dc').textContent = invDcVoltage.toFixed(1) + ' V';
+
+      // Efficiency calculation
+      const efficiency = totalOutP > 10 && invDcPower > 10 ? (totalOutP / invDcPower) * 100 : 0;
+      const effEl = el('inv-op-eff');
+      if (effEl) effEl.textContent = efficiency > 0 ? efficiency.toFixed(0) + '%' : '--';
+
+      // Load bar
+      const loadPercent = (totalOutP / INVERTER_CAPACITY_W) * 100;
+      if (el('inv-load-pct')) el('inv-load-pct').textContent = loadPercent.toFixed(0) + '%';
+      const loadFill = el('inv-load-fill');
+      if (loadFill) {
+        loadFill.style.width = Math.min(loadPercent, 100) + '%';
+        loadFill.classList.remove('high', 'critical');
+        if (loadPercent > 90) loadFill.classList.add('critical');
+        else if (loadPercent > 80) loadFill.classList.add('high');
+      }
+
+      // DC Bus card
+      if (el('inv-card-dc-v')) el('inv-card-dc-v').textContent = invDcVoltage.toFixed(1) + ' V';
+      if (el('inv-card-dc-i')) el('inv-card-dc-i').textContent = invDcCurrent.toFixed(1) + ' A';
+      if (el('inv-card-dc-p')) el('inv-card-dc-p').textContent = Math.round(invDcPower) + ' W';
+
+      // Grid dependency
+      const gridDep = totalOutP > 10 ? Math.max(0, (totalGridP / totalOutP) * 100) : 0;
+      if (el('inv-card-grid-dep')) el('inv-card-grid-dep').textContent = gridDep.toFixed(0) + '%';
+
+      // Grid input voltages
+      if (el('inv-card-in-l1v')) el('inv-card-in-l1v').textContent = invGridL1V.toFixed(0) + ' V';
+      if (el('inv-card-in-l2v')) el('inv-card-in-l2v').textContent = invGridL2V.toFixed(0) + ' V';
+      if (el('inv-card-in-l3v')) el('inv-card-in-l3v').textContent = invGridL3V.toFixed(0) + ' V';
+      if (el('inv-card-freq')) el('inv-card-freq').textContent = invFrequency.toFixed(1) + ' Hz';
+
+      // AC output voltages
+      if (el('inv-card-out-l1v')) el('inv-card-out-l1v').textContent = invOutL1V.toFixed(0) + ' V';
+      if (el('inv-card-out-l2v')) el('inv-card-out-l2v').textContent = invOutL2V.toFixed(0) + ' V';
+      if (el('inv-card-out-l3v')) el('inv-card-out-l3v').textContent = invOutL3V.toFixed(0) + ' V';
+      if (el('inv-card-out-freq')) el('inv-card-out-freq').textContent = invFrequency.toFixed(1) + ' Hz';
+
+      // System summary
+      if (el('inv-card-total-grid')) el('inv-card-total-grid').textContent = Math.round(totalGridP) + ' W';
+      if (el('inv-card-total-out')) el('inv-card-total-out').textContent = Math.round(totalOutP) + ' W';
+      if (el('inv-card-eff')) el('inv-card-eff').textContent = efficiency > 0 ? efficiency.toFixed(0) + '%' : '--';
+      if (el('inv-card-load')) el('inv-card-load').textContent = loadPercent.toFixed(0) + '%';
+    }
+
+    function updateInverterTab() {
+      // Evaluate alarms first
+      evaluateInverterAlarms();
+
+      // Update all UI components
+      updateInverterGauge();
+      updateInverterLEDs();
+      updateInverterAlarmDisplay();
+      updateInverterUnits();
+      updateInverterPhaseBars();
+      updateInverterDetails();
     }
 
     // ========== Battery Tab Helper Functions ==========
@@ -3542,6 +4587,16 @@
           } else {
             hasNewWarning = true;
           }
+          // Add to history
+          addToBattAlarmHistory(alarm, 'TRIGGERED');
+        }
+      }
+
+      // Check for cleared alarms
+      for (const key of previousAlarmKeys) {
+        if (!currentAlarmKeys.has(key)) {
+          // This alarm has cleared
+          addToBattAlarmHistory({ key, msg: key.replace(/_/g, ' '), severity: 'warning' }, 'CLEARED');
         }
       }
 
@@ -3598,6 +4653,79 @@
           ledAlm.classList.add('green');
         }
       }
+
+      // Update history display
+      updateBattAlarmHistoryDisplay();
+    }
+
+    // Add entry to battery alarm history
+    function addToBattAlarmHistory(alarm, action) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      battAlarmHistory.unshift({
+        time: now,
+        timeStr: timeStr,
+        message: alarm.msg,
+        severity: alarm.severity,
+        action: action
+      });
+
+      // Limit history size
+      if (battAlarmHistory.length > MAX_BATT_ALARM_HISTORY) {
+        battAlarmHistory = battAlarmHistory.slice(0, MAX_BATT_ALARM_HISTORY);
+      }
+    }
+
+    // Update battery alarm history display
+    function updateBattAlarmHistoryDisplay() {
+      const el = (id) => document.getElementById(id);
+      const historyList = el('batt-history-list');
+      const historyCount = el('batt-history-count');
+      const clearBtn = el('batt-history-clear-btn');
+
+      if (!historyList) return;
+
+      historyCount.textContent = `(${battAlarmHistory.length})`;
+
+      // Show empty message or history items
+      if (battAlarmHistory.length === 0) {
+        historyList.innerHTML = '<div class="batt-history-empty">No alarm history yet</div>';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+
+      clearBtn.style.display = battHistoryExpanded ? 'block' : 'none';
+
+      if (battHistoryExpanded) {
+        historyList.innerHTML = battAlarmHistory.map(entry => `
+          <div class="batt-history-item ${entry.severity}">
+            <span class="batt-history-time">${entry.timeStr}</span>
+            <span class="batt-history-msg">${entry.message} - ${entry.action}</span>
+          </div>
+        `).join('');
+      } else {
+        historyList.innerHTML = '<div class="batt-history-empty">Click to expand</div>';
+      }
+    }
+
+    // Toggle battery alarm history expansion
+    function toggleBattAlarmHistory() {
+      battHistoryExpanded = !battHistoryExpanded;
+      const el = (id) => document.getElementById(id);
+      const historyList = el('batt-history-list');
+      const toggle = el('batt-history-toggle');
+
+      if (historyList) historyList.classList.toggle('expanded', battHistoryExpanded);
+      if (toggle) toggle.classList.toggle('expanded', battHistoryExpanded);
+
+      updateBattAlarmHistoryDisplay();
+    }
+
+    // Clear battery alarm history
+    function clearBattAlarmHistory() {
+      battAlarmHistory = [];
+      updateBattAlarmHistoryDisplay();
     }
 
     // Update circular gauge
