@@ -20,6 +20,16 @@ const CONFIG = {
   }
 };
 
+// Settings topics to subscribe to for read-only display
+const SETTINGS_TOPICS = [
+  '/vebus/276/Mode',
+  '/settings/0/Settings/CGwacs/Hub4Mode',
+  '/settings/0/Settings/CGwacs/AcPowerSetPoint',
+  '/vebus/276/Ac/ActiveIn/CurrentLimit',
+  '/settings/0/Settings/CGwacs/BatteryLife/MinimumSocLimit',
+  '/settings/0/Settings/SystemSetup/MaxChargeCurrent'
+];
+
 // Essential metrics to store in InfluxDB (all other data still available real-time)
 const ESSENTIAL_METRICS = [
   // Battery
@@ -182,15 +192,39 @@ cerboClient.on('connect', () => {
   // Subscribe to ESP32 sensor data
   cerboClient.subscribe('home/#');
 
+  // Subscribe to settings topics for control panel current values
+  SETTINGS_TOPICS.forEach(topic => {
+    const fullTopic = `N/${CONFIG.mqtt.cerboSerial}${topic}`;
+    cerboClient.subscribe(fullTopic);
+  });
+  console.log('✓ Subscribed to settings topics for control panel');
+
   // Send initial keepalive (must use actual serial, not wildcard)
   const keepaliveTopic = `R/${CONFIG.mqtt.cerboSerial}/keepalive`;
   cerboClient.publish(keepaliveTopic, '');
   console.log('✓ Sent initial keepalive to Cerbo GX');
 
+  // Request current settings values (read-only, for display)
+  setTimeout(() => {
+    SETTINGS_TOPICS.forEach(topic => {
+      const readTopic = `R/${CONFIG.mqtt.cerboSerial}${topic}`;
+      cerboClient.publish(readTopic, '');
+    });
+    console.log('✓ Requested current settings values');
+  }, 2000);
+
   // Send keepalive every 25 seconds
   setInterval(() => {
     cerboClient.publish(keepaliveTopic, '');
   }, CONFIG.mqtt.keepaliveInterval);
+
+  // Refresh settings values every 60 seconds
+  setInterval(() => {
+    SETTINGS_TOPICS.forEach(topic => {
+      const readTopic = `R/${CONFIG.mqtt.cerboSerial}${topic}`;
+      cerboClient.publish(readTopic, '');
+    });
+  }, 60000);
 });
 
 cerboClient.on('error', (error) => {
@@ -294,6 +328,12 @@ io.on('connection', (socket) => {
 
   // Send daily energy metrics immediately
   socket.emit('daily-energy', getDailyMetrics());
+
+  // Request fresh settings data for new client
+  SETTINGS_TOPICS.forEach(topic => {
+    const readTopic = `R/${CONFIG.mqtt.cerboSerial}${topic}`;
+    cerboClient.publish(readTopic, '');
+  });
 
   socket.on('disconnect', () => {
     console.log('← Web client disconnected:', socket.id);

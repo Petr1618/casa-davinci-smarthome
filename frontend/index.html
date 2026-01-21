@@ -114,6 +114,42 @@
       display: block;
     }
 
+    /* Header Right */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .settings-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(30, 30, 30, 0.6);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .settings-btn svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .settings-btn:hover {
+      border-color: #ffa500;
+      background: rgba(255, 165, 0, 0.1);
+    }
+
+    .settings-btn:hover svg {
+      color: #ffa500;
+    }
+
     /* Main Layout */
     .main-layout {
       min-height: 100vh;
@@ -2143,6 +2179,484 @@
       }
     }
 
+    /* ========== Control Panel Styles - Industrial Design ========== */
+    .control-panel {
+      background: rgba(20, 20, 20, 0.9);
+      border: 1px solid rgba(255, 165, 0, 0.4);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .control-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 165, 0, 0.3);
+    }
+
+    .control-panel-icon {
+      width: 24px;
+      height: 24px;
+      color: #ffa500;
+    }
+
+    .control-panel-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffa500;
+    }
+
+    .control-group {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .control-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .control-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .control-current-value {
+      font-size: 10px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .control-current-value span {
+      color: #ffa500;
+      font-weight: 500;
+    }
+
+    /* Mode Button Group */
+    .control-mode-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .control-mode-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(30, 30, 30, 0.8);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .control-mode-btn:hover {
+      border-color: rgba(255, 165, 0, 0.5);
+      color: var(--text-primary);
+      background: rgba(255, 165, 0, 0.1);
+    }
+
+    .control-mode-btn.active {
+      border-color: #ffa500;
+      background: rgba(255, 165, 0, 0.2);
+      color: #ffa500;
+    }
+
+    .control-mode-btn.danger {
+      border-color: rgba(255, 68, 68, 0.3);
+    }
+
+    .control-mode-btn.danger:hover {
+      border-color: rgba(255, 68, 68, 0.6);
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+    }
+
+    .control-mode-btn.danger.active {
+      border-color: #ff4444;
+      background: rgba(255, 68, 68, 0.25);
+      color: #ff4444;
+    }
+
+    /* Slider Control */
+    .control-slider-container {
+      margin-bottom: 8px;
+    }
+
+    .control-slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 9px;
+      color: var(--text-secondary);
+    }
+
+    .control-slider {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .control-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #ffa500;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .control-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #ffa500;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .control-slider-value {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffa500;
+      margin-top: 8px;
+    }
+
+    /* Number Input with +/- */
+    .control-number-input {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .control-number-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(30, 30, 30, 0.8);
+      color: var(--text-primary);
+      font-size: 18px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .control-number-btn:hover {
+      border-color: #ffa500;
+      background: rgba(255, 165, 0, 0.15);
+      color: #ffa500;
+    }
+
+    .control-number-btn:active {
+      transform: scale(0.95);
+    }
+
+    .control-number-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffa500;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .control-number-unit {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 2px;
+    }
+
+    /* Apply Button */
+    .control-apply-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid #ffa500;
+      background: rgba(255, 165, 0, 0.15);
+      color: #ffa500;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .control-apply-btn:hover {
+      background: rgba(255, 165, 0, 0.25);
+      box-shadow: 0 0 15px rgba(255, 165, 0, 0.2);
+    }
+
+    .control-apply-btn:active {
+      transform: scale(0.98);
+    }
+
+    .control-apply-btn.sending {
+      background: rgba(255, 165, 0, 0.3);
+      cursor: wait;
+    }
+
+    .control-apply-btn.success {
+      border-color: #44d62c;
+      background: rgba(68, 214, 44, 0.2);
+      color: #44d62c;
+    }
+
+    .control-apply-btn.error {
+      border-color: #ff4444;
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+    }
+
+    /* Confirmation Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-dialog {
+      background: rgba(30, 30, 30, 0.95);
+      border: 1px solid rgba(255, 165, 0, 0.5);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffa500;
+      margin-bottom: 12px;
+    }
+
+    .modal-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .modal-warning {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #ff6666;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-cancel {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .modal-btn-cancel:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--text-primary);
+    }
+
+    .modal-btn-confirm {
+      border: 1px solid #ffa500;
+      background: rgba(255, 165, 0, 0.2);
+      color: #ffa500;
+    }
+
+    .modal-btn-confirm:hover {
+      background: rgba(255, 165, 0, 0.3);
+    }
+
+    .modal-btn-confirm.danger {
+      border-color: #ff4444;
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+    }
+
+    .modal-btn-confirm.danger:hover {
+      background: rgba(255, 68, 68, 0.3);
+    }
+
+    /* Settings Modal */
+    .settings-modal-dialog {
+      max-width: 450px;
+      padding: 0;
+    }
+
+    .settings-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 165, 0, 0.3);
+      background: rgba(255, 165, 0, 0.05);
+    }
+
+    .settings-modal-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffa500;
+    }
+
+    .settings-modal-title svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .settings-modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .settings-modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .settings-modal-content {
+      padding: 20px;
+    }
+
+    .settings-section {
+      margin-bottom: 20px;
+    }
+
+    .settings-section:last-of-type {
+      margin-bottom: 16px;
+    }
+
+    .settings-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+
+    .settings-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .settings-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: #ffa500;
+      background: rgba(255, 165, 0, 0.1);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .settings-note {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      border: 1px dashed var(--border-color);
+    }
+
     /* ========== Battery Tab Styles - Industrial Design ========== */
     .battery-layout {
       padding: 80px 24px 40px;
@@ -2830,9 +3344,16 @@
       <button class="tab-btn" data-tab="inverter">Inverter</button>
       <button class="tab-btn" data-tab="battery">Battery</button>
     </nav>
-    <div class="status">
-      <span id="status-text">Connecting</span>
-      <span class="status-dot" id="dot"></span>
+    <div class="header-right">
+      <button class="settings-btn" onclick="openSettingsModal()" title="System Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+      <div class="status">
+        <span id="status-text">Connecting</span>
+        <span class="status-dot" id="dot"></span>
+      </div>
     </div>
   </div>
 
@@ -3827,6 +4348,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -4126,6 +4648,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -4140,6 +4663,56 @@
       <div class="sensor-item">
         <span class="sensor-value humid" id="hum">--</span>
         <span class="sensor-unit">%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-dialog settings-modal-dialog">
+      <div class="settings-modal-header">
+        <div class="settings-modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+          System Settings
+        </div>
+        <button class="settings-modal-close" onclick="closeSettingsModal()">&times;</button>
+      </div>
+      <div class="settings-modal-content">
+        <div class="settings-section">
+          <div class="settings-section-title">Inverter</div>
+          <div class="settings-row">
+            <span class="settings-label">Inverter Mode</span>
+            <span class="settings-value" id="set-inv-mode">--</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">ESS Mode</span>
+            <span class="settings-value" id="set-ess-mode">--</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Grid Setpoint</span>
+            <span class="settings-value" id="set-grid-setpoint">--</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Input Current Limit</span>
+            <span class="settings-value" id="set-input-current">--</span>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">Battery</div>
+          <div class="settings-row">
+            <span class="settings-label">Minimum SOC Limit</span>
+            <span class="settings-value" id="set-min-soc">--</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Max Charge Current</span>
+            <span class="settings-value" id="set-max-charge">--</span>
+          </div>
+        </div>
+        <div class="settings-note">
+          Settings are read-only. Use VRM Portal to change settings.
+        </div>
       </div>
     </div>
   </div>
@@ -4365,6 +4938,9 @@
     });
 
     function processVictronData(topic, value) {
+      // Update control panel current values
+      updateSettingsFromMqtt(topic, value);
+
       // Battery
       if (topic.includes('/battery/512/Soc')) {
         batterySoc = value;
@@ -6515,6 +7091,106 @@
       if (el('card-capacity')) el('card-capacity').textContent = Math.round(battCapacity) + ' Ah';
       if (el('card-charged')) el('card-charged').textContent = battChargedEnergy.toFixed(1) + ' kWh';
       if (el('card-discharged')) el('card-discharged').textContent = battDischargedEnergy.toFixed(1) + ' kWh';
+    }
+
+    // ========== Settings Modal Functions ==========
+
+    // Settings state (read from MQTT)
+    const systemSettings = {
+      inverterMode: null,
+      essMode: null,
+      gridSetpoint: null,
+      inputCurrentLimit: null,
+      minSoc: null,
+      maxChargeCurrent: null
+    };
+
+    // Mode name maps
+    const inverterModeNames = { 1: 'Charger', 2: 'Inverter', 3: 'On', 4: 'Off' };
+    const essModeNames = { 1: 'Optimized', 2: 'Optimized + BatteryLife', 3: 'Keep Charged' };
+
+    // Settings modal functions
+    function openSettingsModal() {
+      updateSettingsDisplay();
+      document.getElementById('settings-modal').classList.add('active');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('active');
+    }
+
+    // Close modal on overlay click
+    document.getElementById('settings-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeSettingsModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeSettingsModal();
+    });
+
+    // Update settings display in modal
+    function updateSettingsDisplay() {
+      const el = (id) => document.getElementById(id);
+
+      el('set-inv-mode').textContent = systemSettings.inverterMode !== null
+        ? inverterModeNames[systemSettings.inverterMode] || 'Unknown'
+        : '--';
+
+      el('set-ess-mode').textContent = systemSettings.essMode !== null
+        ? essModeNames[systemSettings.essMode] || 'Unknown'
+        : '--';
+
+      el('set-grid-setpoint').textContent = systemSettings.gridSetpoint !== null
+        ? Math.round(systemSettings.gridSetpoint) + ' W'
+        : '--';
+
+      el('set-input-current').textContent = systemSettings.inputCurrentLimit !== null
+        ? Math.round(systemSettings.inputCurrentLimit) + ' A'
+        : '--';
+
+      el('set-min-soc').textContent = systemSettings.minSoc !== null
+        ? Math.round(systemSettings.minSoc) + '%'
+        : '--';
+
+      el('set-max-charge').textContent = systemSettings.maxChargeCurrent !== null
+        ? Math.round(systemSettings.maxChargeCurrent) + ' A'
+        : '--';
+    }
+
+    // Update settings values from MQTT data
+    function updateSettingsFromMqtt(topic, value) {
+      let updated = false;
+
+      if (topic.endsWith('/vebus/276/Mode')) {
+        systemSettings.inverterMode = value;
+        updated = true;
+      }
+      if (topic.endsWith('/Settings/CGwacs/Hub4Mode')) {
+        systemSettings.essMode = value;
+        updated = true;
+      }
+      if (topic.endsWith('/Settings/CGwacs/AcPowerSetPoint')) {
+        systemSettings.gridSetpoint = value;
+        updated = true;
+      }
+      if (topic.endsWith('/Ac/ActiveIn/CurrentLimit')) {
+        systemSettings.inputCurrentLimit = value;
+        updated = true;
+      }
+      if (topic.endsWith('/BatteryLife/MinimumSocLimit')) {
+        systemSettings.minSoc = value;
+        updated = true;
+      }
+      if (topic.endsWith('/SystemSetup/MaxChargeCurrent')) {
+        systemSettings.maxChargeCurrent = value;
+        updated = true;
+      }
+
+      // Update display if modal is open
+      if (updated && document.getElementById('settings-modal').classList.contains('active')) {
+        updateSettingsDisplay();
+      }
     }
   </script>
 </body>
