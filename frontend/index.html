@@ -1064,241 +1064,577 @@
       }
     }
 
-    /* ========== Battery Tab Styles ========== */
+    /* ========== Battery Tab Styles - Industrial Design ========== */
     .battery-layout {
-      padding: 80px 40px 40px;
+      padding: 80px 24px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
-    .battery-title {
-      font-size: 24px;
-      font-weight: 500;
-      color: var(--battery-color);
+    .battery-header {
+      background: linear-gradient(135deg, rgba(68, 214, 44, 0.1), rgba(30, 30, 30, 0.8));
+      border: 1px solid var(--battery-color);
+      border-radius: 8px;
+      padding: 12px 24px;
+      margin-bottom: 20px;
       text-align: center;
-      margin-bottom: 8px;
     }
 
-    .battery-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .battery-diagram {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
-      margin-bottom: 24px;
-    }
-
-    .battery-svg {
-      width: 100%;
-      height: auto;
-      max-height: 400px;
-    }
-
-    .battery-outline {
-      fill: none;
-      stroke: var(--border-color);
-      stroke-width: 2;
-    }
-
-    .battery-terminal {
-      fill: var(--border-color);
-    }
-
-    .battery-fill {
-      fill: var(--battery-color);
-      opacity: 0.3;
-    }
-
-    .battery-fill-level {
-      fill: var(--battery-color);
-      transition: height 0.5s ease, y 0.5s ease;
-    }
-
-    .battery-soc-text {
-      fill: var(--text-primary);
-      font-size: 48px;
+    .battery-header-title {
+      font-size: 16px;
       font-weight: 600;
-      text-anchor: middle;
+      color: var(--battery-color);
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
-    .battery-soc-label {
-      fill: var(--text-secondary);
-      font-size: 14px;
-      text-anchor: middle;
-    }
-
-    .battery-status-text {
-      fill: var(--text-secondary);
+    .battery-header-subtitle {
       font-size: 12px;
-      text-anchor: middle;
+      color: var(--text-secondary);
+      margin-top: 4px;
     }
 
-    .battery-power-text {
-      fill: var(--battery-color);
-      font-size: 18px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .battery-power-text.discharging {
-      fill: var(--home-color);
-    }
-
-    .battery-power-text.charging {
-      fill: var(--battery-color);
-    }
-
-    .battery-info-label {
-      fill: var(--text-secondary);
-      font-size: 10px;
-      text-anchor: middle;
-    }
-
-    .battery-info-value {
-      fill: var(--text-secondary);
-      font-size: 11px;
-      font-weight: 500;
-      text-anchor: middle;
-    }
-
-    .module-box {
-      fill: rgba(76, 175, 80, 0.1);
-      stroke: var(--battery-color);
-      stroke-width: 1;
-    }
-
-    .module-label {
-      fill: var(--text-secondary);
-      font-size: 9px;
-      text-anchor: middle;
-    }
-
-    .module-status {
-      fill: var(--battery-color);
-      font-size: 8px;
-      text-anchor: middle;
-    }
-
-    .cell-bar {
-      fill: var(--battery-color);
-      opacity: 0.6;
-    }
-
-    .cell-label {
-      fill: var(--text-secondary);
-      font-size: 8px;
-      text-anchor: middle;
-    }
-
-    /* Battery Cards */
-    .battery-cards {
-      display: flex;
+    /* Primary Row: Gauge + Alarms/Modules */
+    .battery-primary-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
       gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
-    .battery-card {
+    /* Circular SOC Gauge */
+    .battery-gauge-card {
       background: var(--bg-card);
       border-radius: 12px;
-      padding: 16px 20px;
+      padding: 20px;
       border: 1px solid var(--border-color);
-      min-width: 280px;
-      flex: 1;
-      max-width: 350px;
-    }
-
-    .battery-card-health {
-      border-color: var(--battery-color);
-      background: rgba(76, 175, 80, 0.05);
-    }
-
-    .battery-card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .battery-card-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: rgba(76, 175, 80, 0.15);
-      color: var(--battery-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .battery-card-icon.health {
-      background: var(--battery-color);
-      color: #000;
-    }
-
-    .battery-card-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    .battery-card-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .battery-stat {
       display: flex;
       flex-direction: column;
+      align-items: center;
+    }
+
+    .battery-gauge-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
+    .battery-gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 12;
+    }
+
+    .gauge-fill {
+      fill: none;
+      stroke: var(--battery-color);
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease, stroke 0.3s;
+    }
+
+    .battery-gauge-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .gauge-soc-value {
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .gauge-soc-unit {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    .gauge-power-value {
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    .gauge-power-value.charging { color: var(--battery-color); }
+    .gauge-power-value.discharging { color: #3b9eff; }
+    .gauge-power-value.idle { color: var(--text-secondary); }
+
+    .gauge-status-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    /* Status LEDs Row */
+    .battery-leds {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+      justify-content: center;
+    }
+
+    .led-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 4px;
     }
 
-    .battery-stat-label {
-      font-size: 10px;
+    .led-light {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #333;
+      border: 1px solid #555;
+      transition: all 0.3s;
+    }
+
+    .led-light.green { background: #44d62c; box-shadow: 0 0 8px rgba(68, 214, 44, 0.6); }
+    .led-light.yellow { background: #f5c542; box-shadow: 0 0 8px rgba(245, 197, 66, 0.6); }
+    .led-light.red { background: #ff4444; box-shadow: 0 0 8px rgba(255, 68, 68, 0.6); }
+
+    .led-label {
+      font-size: 9px;
       color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .battery-stat-value {
-      font-size: 14px;
+    /* Right Panel: Alarms + Modules */
+    .battery-right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Alarms Panel */
+    .battery-alarms-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      flex: 1;
+    }
+
+    .alarms-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .alarms-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--text-secondary);
+    }
+
+    .alarms-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+
+    .alarms-count {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(68, 214, 44, 0.2);
+      color: var(--battery-color);
+    }
+
+    .alarms-count.warning { background: rgba(245, 197, 66, 0.2); color: #f5c542; }
+    .alarms-count.critical { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+    .alarms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .alarm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .alarm-item.warning {
+      background: rgba(245, 197, 66, 0.1);
+      border: 1px solid rgba(245, 197, 66, 0.3);
+      color: #f5c542;
+    }
+
+    .alarm-item.critical {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: #ff4444;
+    }
+
+    .alarm-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .alarm-item.warning .alarm-dot { background: #f5c542; }
+    .alarm-item.critical .alarm-dot { background: #ff4444; }
+
+    .alarms-ok {
+      color: var(--battery-color);
+      font-size: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    /* Module Status */
+    .battery-modules-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .modules-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modules-grid {
+      display: flex;
+      gap: 12px;
+    }
+
+    .module-box {
+      flex: 1;
+      background: rgba(68, 214, 44, 0.05);
+      border: 1px solid var(--battery-color);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .module-box.offline {
+      background: rgba(255, 68, 68, 0.05);
+      border-color: #ff4444;
+    }
+
+    .module-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .module-status {
+      font-size: 10px;
+      color: var(--battery-color);
+      text-transform: uppercase;
+    }
+
+    .module-box.offline .module-status { color: #ff4444; }
+
+    /* Cell Visualization Row */
+    .battery-cell-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .cell-viz-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .cell-viz-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .cell-bars-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      height: 80px;
+      padding: 0 10px;
+    }
+
+    .cell-bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cell-bar-wrapper {
+      width: 32px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .cell-bar-fill {
+      width: 100%;
+      background: var(--battery-color);
+      border-radius: 4px;
+      transition: height 0.5s ease;
+    }
+
+    .cell-bar-fill.min { background: #3b9eff; }
+    .cell-bar-fill.max { background: var(--battery-color); }
+    .cell-bar-fill.avg { background: #9acd32; }
+
+    .cell-bar-label {
+      font-size: 9px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .cell-bar-value {
+      font-size: 11px;
       font-weight: 500;
       color: var(--text-primary);
     }
 
-    .battery-stat-value.battery {
-      color: var(--battery-color);
+    .cell-delta-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
     }
 
-    .battery-stat-value.warning {
-      color: #ff9800;
+    .cell-delta {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 12px;
     }
 
-    .battery-stat-value.good {
-      color: var(--battery-color);
+    .cell-delta.good { background: rgba(68, 214, 44, 0.15); color: var(--battery-color); }
+    .cell-delta.warning { background: rgba(245, 197, 66, 0.15); color: #f5c542; }
+    .cell-delta.critical { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+
+    /* Operational Status Card */
+    .operational-status-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
     }
+
+    .op-status-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .op-status-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .op-status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .op-status-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .op-status-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .utilization-bar-container {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .utilization-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .utilization-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .utilization-fill {
+      height: 100%;
+      background: var(--battery-color);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .utilization-fill.discharging { background: #3b9eff; }
+
+    /* Detail Cards Row */
+    .battery-detail-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .battery-detail-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .battery-detail-card.highlight {
+      border-color: var(--battery-color);
+      background: rgba(68, 214, 44, 0.03);
+    }
+
+    .detail-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(68, 214, 44, 0.15);
+      color: var(--battery-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .detail-card-icon.health {
+      background: var(--battery-color);
+      color: #000;
+    }
+
+    .detail-card-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .detail-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .detail-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .detail-stat-label {
+      font-size: 9px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .detail-stat-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .detail-stat-value.battery { color: var(--battery-color); }
+    .detail-stat-value.warning { color: #f5c542; }
+    .detail-stat-value.good { color: var(--battery-color); }
 
     /* Responsive for battery tab */
-    @media (max-width: 900px) {
+    @media (max-width: 1100px) {
+      .battery-primary-row {
+        grid-template-columns: 1fr;
+      }
+      .battery-cell-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .battery-detail-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
       .battery-layout {
-        padding: 80px 20px 20px;
+        padding: 80px 16px 20px;
       }
-      .battery-cards {
+      .battery-cell-row {
+        grid-template-columns: 1fr;
+      }
+      .battery-detail-row {
+        grid-template-columns: 1fr;
+      }
+      .modules-grid {
         flex-direction: column;
-        align-items: center;
-      }
-      .battery-card {
-        width: 100%;
-        max-width: 400px;
       }
     }
   </style>
@@ -2020,193 +2356,285 @@
     </div>
   </div>
 
-  <!-- Battery Tab (placeholder) -->
+  <!-- Battery Tab - Industrial Design -->
   <div class="tab-content" id="tab-battery">
     <div class="battery-layout">
-      <h2 class="battery-title">Battery Storage System</h2>
-      <p class="battery-subtitle">SEPLOS 28kWh | 2 Modules | 560Ah Capacity</p>
-
-      <div class="battery-diagram">
-        <svg class="battery-svg" viewBox="0 0 700 350">
-          <!-- Main Battery Visual -->
-          <g transform="translate(250, 30)">
-            <!-- Battery Terminal -->
-            <rect class="battery-terminal" x="70" y="0" width="60" height="15" rx="3"/>
-
-            <!-- Battery Outline -->
-            <rect class="battery-outline" x="20" y="15" width="160" height="280" rx="10"/>
-
-            <!-- Battery Fill Background -->
-            <rect class="battery-fill" x="25" y="20" width="150" height="270" rx="7"/>
-
-            <!-- Battery Fill Level (dynamic) -->
-            <rect class="battery-fill-level" id="battery-fill-level" x="25" y="200" width="150" height="90" rx="7"/>
-
-            <!-- SOC Text -->
-            <text class="battery-soc-text" x="100" y="145" id="battery-soc-display">--%</text>
-            <text class="battery-soc-label" x="100" y="170">State of Charge</text>
-
-            <!-- Power indicator -->
-            <text class="battery-power-text" x="100" y="210" id="battery-power-display">-- W</text>
-            <text class="battery-status-text" x="100" y="230" id="battery-status-display">--</text>
-          </g>
-
-          <!-- Left side info -->
-          <g transform="translate(30, 60)">
-            <text class="battery-info-label" x="60" y="0">VOLTAGE</text>
-            <text class="battery-info-value" x="60" y="18" id="batt-voltage-display">-- V</text>
-
-            <text class="battery-info-label" x="60" y="50">CURRENT</text>
-            <text class="battery-info-value" x="60" y="68" id="batt-current-display">-- A</text>
-
-            <text class="battery-info-label" x="60" y="100">TEMPERATURE</text>
-            <text class="battery-info-value" x="60" y="118" id="batt-temp-display">-- °C</text>
-
-            <text class="battery-info-label" x="60" y="150">STATE OF HEALTH</text>
-            <text class="battery-info-value" x="60" y="168" id="batt-soh-display">-- %</text>
-          </g>
-
-          <!-- Right side info -->
-          <g transform="translate(530, 60)">
-            <text class="battery-info-label" x="60" y="0">MAX CHARGE</text>
-            <text class="battery-info-value" x="60" y="18" id="batt-max-charge">-- A</text>
-
-            <text class="battery-info-label" x="60" y="50">MAX DISCHARGE</text>
-            <text class="battery-info-value" x="60" y="68" id="batt-max-discharge">-- A</text>
-
-            <text class="battery-info-label" x="60" y="100">CHARGE VOLTAGE</text>
-            <text class="battery-info-value" x="60" y="118" id="batt-charge-voltage">-- V</text>
-
-            <text class="battery-info-label" x="60" y="150">LOW VOLTAGE</text>
-            <text class="battery-info-value" x="60" y="168" id="batt-low-voltage">-- V</text>
-          </g>
-
-          <!-- Module boxes at bottom -->
-          <g transform="translate(120, 320)">
-            <rect class="module-box" x="0" y="0" width="100" height="25" rx="4"/>
-            <text class="module-label" x="50" y="12">Module 1</text>
-            <text class="module-status" x="50" y="22" id="module1-status">Online</text>
-          </g>
-          <g transform="translate(240, 320)">
-            <rect class="module-box" x="0" y="0" width="100" height="25" rx="4"/>
-            <text class="module-label" x="50" y="12">Module 2</text>
-            <text class="module-status" x="50" y="22" id="module2-status">Online</text>
-          </g>
-
-          <!-- Cell voltage bars -->
-          <g transform="translate(480, 200)">
-            <text class="battery-info-label" x="60" y="0">CELL VOLTAGES</text>
-            <rect class="cell-bar" x="20" y="15" width="20" height="40" rx="2" id="cell-min-bar"/>
-            <text class="cell-label" x="30" y="65">Min</text>
-            <text class="cell-label" x="30" y="78" id="cell-min-v">--V</text>
-
-            <rect class="cell-bar" x="60" y="15" width="20" height="40" rx="2" id="cell-max-bar"/>
-            <text class="cell-label" x="70" y="65">Max</text>
-            <text class="cell-label" x="70" y="78" id="cell-max-v">--V</text>
-
-            <text class="cell-label" x="50" y="95" id="cell-delta">Δ --mV</text>
-          </g>
-        </svg>
+      <!-- Header -->
+      <div class="battery-header">
+        <div class="battery-header-title">Battery Storage System - SEPLOS 28kWh</div>
+        <div class="battery-header-subtitle">2 Modules | 560Ah Capacity | LiFePO4</div>
       </div>
 
-      <!-- Battery Detail Cards -->
-      <div class="battery-cards">
-        <div class="battery-card">
-          <div class="battery-card-header">
-            <span class="battery-card-icon">DC</span>
-            <span class="battery-card-title">DC Electrical</span>
-          </div>
-          <div class="battery-card-stats">
-            <div class="battery-stat">
-              <span class="battery-stat-label">Voltage</span>
-              <span class="battery-stat-value" id="card-batt-voltage">-- V</span>
-            </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Current</span>
-              <span class="battery-stat-value" id="card-batt-current">-- A</span>
-            </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Power</span>
-              <span class="battery-stat-value battery" id="card-batt-power">-- W</span>
-            </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Temperature</span>
-              <span class="battery-stat-value" id="card-batt-temp">-- °C</span>
+      <!-- Primary Row: Gauge + Alarms/Modules -->
+      <div class="battery-primary-row">
+        <!-- Left: Circular SOC Gauge -->
+        <div class="battery-gauge-card">
+          <div class="battery-gauge-container">
+            <svg class="battery-gauge-svg" viewBox="0 0 200 200">
+              <circle class="gauge-bg" cx="100" cy="100" r="85"/>
+              <circle class="gauge-fill" id="gauge-arc" cx="100" cy="100" r="85"
+                      stroke-dasharray="534" stroke-dashoffset="534"/>
+            </svg>
+            <div class="battery-gauge-center">
+              <div class="gauge-soc-value"><span id="gauge-soc">--</span><span class="gauge-soc-unit">%</span></div>
+              <div class="gauge-power-value idle" id="gauge-power">-- W</div>
+              <div class="gauge-status-text" id="gauge-status">--</div>
             </div>
           </div>
-        </div>
-
-        <div class="battery-card">
-          <div class="battery-card-header">
-            <span class="battery-card-icon">⚡</span>
-            <span class="battery-card-title">Cell Status</span>
-          </div>
-          <div class="battery-card-stats">
-            <div class="battery-stat">
-              <span class="battery-stat-label">Min Cell Voltage</span>
-              <span class="battery-stat-value" id="card-cell-min-v">-- V</span>
+          <!-- Status LEDs -->
+          <div class="battery-leds">
+            <div class="led-indicator">
+              <div class="led-light" id="led-comm"></div>
+              <span class="led-label">COMM</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Max Cell Voltage</span>
-              <span class="battery-stat-value" id="card-cell-max-v">-- V</span>
+            <div class="led-indicator">
+              <div class="led-light" id="led-chg"></div>
+              <span class="led-label">CHG</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Min Cell Temp</span>
-              <span class="battery-stat-value" id="card-cell-min-t">-- °C</span>
+            <div class="led-indicator">
+              <div class="led-light" id="led-dch"></div>
+              <span class="led-label">DCH</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Max Cell Temp</span>
-              <span class="battery-stat-value" id="card-cell-max-t">-- °C</span>
+            <div class="led-indicator">
+              <div class="led-light" id="led-alm"></div>
+              <span class="led-label">ALM</span>
             </div>
           </div>
         </div>
 
-        <div class="battery-card">
-          <div class="battery-card-header">
-            <span class="battery-card-icon">⚙</span>
-            <span class="battery-card-title">Limits</span>
+        <!-- Right: Alarms + Module Status -->
+        <div class="battery-right-panel">
+          <!-- Alarms Panel -->
+          <div class="battery-alarms-card">
+            <div class="alarms-header">
+              <svg class="alarms-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <span class="alarms-title">Alarms & Warnings</span>
+              <span class="alarms-count" id="alarms-count">0</span>
+            </div>
+            <div class="alarms-list" id="alarms-list">
+              <div class="alarms-ok">All systems normal</div>
+            </div>
           </div>
-          <div class="battery-card-stats">
-            <div class="battery-stat">
-              <span class="battery-stat-label">Max Charge Current</span>
-              <span class="battery-stat-value" id="card-max-charge-i">-- A</span>
+
+          <!-- Module Status -->
+          <div class="battery-modules-card">
+            <div class="modules-header">Module Status</div>
+            <div class="modules-grid">
+              <div class="module-box" id="module1-box">
+                <div class="module-name">Module 1</div>
+                <div class="module-status" id="module1-status">Online</div>
+              </div>
+              <div class="module-box" id="module2-box">
+                <div class="module-name">Module 2</div>
+                <div class="module-status" id="module2-status">Online</div>
+              </div>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Max Discharge Current</span>
-              <span class="battery-stat-value" id="card-max-discharge-i">-- A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cell Visualization Row -->
+      <div class="battery-cell-row">
+        <!-- Cell Voltage Card -->
+        <div class="cell-viz-card">
+          <div class="cell-viz-header">Cell Voltages</div>
+          <div class="cell-bars-container">
+            <div class="cell-bar-group">
+              <div class="cell-bar-wrapper">
+                <div class="cell-bar-fill min" id="cell-v-min-bar" style="height: 50%"></div>
+              </div>
+              <span class="cell-bar-label">Min</span>
+              <span class="cell-bar-value" id="cell-v-min">--V</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Max Charge Voltage</span>
-              <span class="battery-stat-value" id="card-max-charge-v">-- V</span>
+            <div class="cell-bar-group">
+              <div class="cell-bar-wrapper">
+                <div class="cell-bar-fill avg" id="cell-v-avg-bar" style="height: 50%"></div>
+              </div>
+              <span class="cell-bar-label">Avg</span>
+              <span class="cell-bar-value" id="cell-v-avg">--V</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Low Voltage Cutoff</span>
-              <span class="battery-stat-value" id="card-low-voltage">-- V</span>
+            <div class="cell-bar-group">
+              <div class="cell-bar-wrapper">
+                <div class="cell-bar-fill max" id="cell-v-max-bar" style="height: 50%"></div>
+              </div>
+              <span class="cell-bar-label">Max</span>
+              <span class="cell-bar-value" id="cell-v-max">--V</span>
+            </div>
+          </div>
+          <div class="cell-delta-row">
+            <span class="cell-delta good" id="cell-v-delta">Delta: -- mV</span>
+          </div>
+        </div>
+
+        <!-- Cell Temperature Card -->
+        <div class="cell-viz-card">
+          <div class="cell-viz-header">Cell Temperatures</div>
+          <div class="cell-bars-container">
+            <div class="cell-bar-group">
+              <div class="cell-bar-wrapper">
+                <div class="cell-bar-fill min" id="cell-t-min-bar" style="height: 50%"></div>
+              </div>
+              <span class="cell-bar-label">Min</span>
+              <span class="cell-bar-value" id="cell-t-min">--°C</span>
+            </div>
+            <div class="cell-bar-group">
+              <div class="cell-bar-wrapper">
+                <div class="cell-bar-fill avg" id="cell-t-avg-bar" style="height: 50%"></div>
+              </div>
+              <span class="cell-bar-label">Avg</span>
+              <span class="cell-bar-value" id="cell-t-avg">--°C</span>
+            </div>
+            <div class="cell-bar-group">
+              <div class="cell-bar-wrapper">
+                <div class="cell-bar-fill max" id="cell-t-max-bar" style="height: 50%"></div>
+              </div>
+              <span class="cell-bar-label">Max</span>
+              <span class="cell-bar-value" id="cell-t-max">--°C</span>
+            </div>
+          </div>
+          <div class="cell-delta-row">
+            <span class="cell-delta good" id="cell-t-delta">Delta: -- °C</span>
+          </div>
+        </div>
+
+        <!-- Operational Status Card -->
+        <div class="operational-status-card">
+          <div class="op-status-header">Operational Status</div>
+          <div class="op-status-grid">
+            <div class="op-status-item">
+              <span class="op-status-label">Current State</span>
+              <span class="op-status-value" id="op-state">--</span>
+            </div>
+            <div class="op-status-item">
+              <span class="op-status-label">Time to Full</span>
+              <span class="op-status-value" id="op-time-full">--</span>
+            </div>
+            <div class="op-status-item">
+              <span class="op-status-label">Time to Empty</span>
+              <span class="op-status-value" id="op-time-empty">--</span>
+            </div>
+            <div class="op-status-item">
+              <span class="op-status-label">Usable Energy</span>
+              <span class="op-status-value" id="op-usable-energy">-- kWh</span>
+            </div>
+          </div>
+          <div class="utilization-bar-container">
+            <div class="utilization-label">
+              <span>Current Utilization</span>
+              <span id="utilization-pct">0%</span>
+            </div>
+            <div class="utilization-bar">
+              <div class="utilization-fill" id="utilization-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Cards Row -->
+      <div class="battery-detail-row">
+        <!-- DC Electrical -->
+        <div class="battery-detail-card">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">DC</span>
+            <span class="detail-card-title">DC Electrical</span>
+          </div>
+          <div class="detail-stats">
+            <div class="detail-stat">
+              <span class="detail-stat-label">Voltage</span>
+              <span class="detail-stat-value" id="card-batt-voltage">-- V</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Current</span>
+              <span class="detail-stat-value" id="card-batt-current">-- A</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Power</span>
+              <span class="detail-stat-value battery" id="card-batt-power">-- W</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Temperature</span>
+              <span class="detail-stat-value" id="card-batt-temp">-- °C</span>
             </div>
           </div>
         </div>
 
-        <div class="battery-card battery-card-health">
-          <div class="battery-card-header">
-            <span class="battery-card-icon health">♥</span>
-            <span class="battery-card-title">Lifetime Stats</span>
+        <!-- Cell Status -->
+        <div class="battery-detail-card">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">⚡</span>
+            <span class="detail-card-title">Cell Status</span>
           </div>
-          <div class="battery-card-stats">
-            <div class="battery-stat">
-              <span class="battery-stat-label">State of Health</span>
-              <span class="battery-stat-value good" id="card-soh">-- %</span>
+          <div class="detail-stats">
+            <div class="detail-stat">
+              <span class="detail-stat-label">Min Cell V</span>
+              <span class="detail-stat-value" id="card-cell-min-v">-- V</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Capacity</span>
-              <span class="battery-stat-value" id="card-capacity">-- Ah</span>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Max Cell V</span>
+              <span class="detail-stat-value" id="card-cell-max-v">-- V</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Total Charged</span>
-              <span class="battery-stat-value battery" id="card-charged">-- kWh</span>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Min Cell T</span>
+              <span class="detail-stat-value" id="card-cell-min-t">-- °C</span>
             </div>
-            <div class="battery-stat">
-              <span class="battery-stat-label">Total Discharged</span>
-              <span class="battery-stat-value" id="card-discharged">-- kWh</span>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Max Cell T</span>
+              <span class="detail-stat-value" id="card-cell-max-t">-- °C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Limits -->
+        <div class="battery-detail-card">
+          <div class="detail-card-header">
+            <span class="detail-card-icon">⚙</span>
+            <span class="detail-card-title">Op Limits</span>
+          </div>
+          <div class="detail-stats">
+            <div class="detail-stat">
+              <span class="detail-stat-label">Max Charge I</span>
+              <span class="detail-stat-value" id="card-max-charge-i">-- A</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Max Discharge I</span>
+              <span class="detail-stat-value" id="card-max-discharge-i">-- A</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Max Charge V</span>
+              <span class="detail-stat-value" id="card-max-charge-v">-- V</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Low V Cutoff</span>
+              <span class="detail-stat-value" id="card-low-voltage">-- V</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lifetime Stats -->
+        <div class="battery-detail-card highlight">
+          <div class="detail-card-header">
+            <span class="detail-card-icon health">♥</span>
+            <span class="detail-card-title">Lifetime Stats</span>
+          </div>
+          <div class="detail-stats">
+            <div class="detail-stat">
+              <span class="detail-stat-label">State of Health</span>
+              <span class="detail-stat-value good" id="card-soh">-- %</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Capacity</span>
+              <span class="detail-stat-value" id="card-capacity">-- Ah</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Total Charged</span>
+              <span class="detail-stat-value battery" id="card-charged">-- kWh</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Total Discharged</span>
+              <span class="detail-stat-value" id="card-discharged">-- kWh</span>
             </div>
           </div>
         </div>
@@ -2266,6 +2694,72 @@
     let battMaxChargeV = 0, battLowVoltage = 0;
     let battChargedEnergy = 0, battDischargedEnergy = 0;
     let battModulesOnline = 0;
+
+    // Battery tab alarm state
+    let batteryAlarms = [];
+    let previousAlarmKeys = new Set(); // Track previous alarms to detect new ones
+    let battAvgCellV = 0, battAvgCellT = 0;
+    let battUsableEnergy = 0;
+    const BATTERY_CAPACITY_KWH = 28; // SEPLOS 28kWh total
+    const NOMINAL_VOLTAGE = 51.2; // Nominal battery voltage
+
+    // Audio context for alarm sounds
+    let audioContext = null;
+    let alarmSoundsEnabled = true;
+
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioContext;
+    }
+
+    function playAlarmSound(severity) {
+      if (!alarmSoundsEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        if (severity === 'critical') {
+          // Critical: Higher pitch, two beeps
+          oscillator.frequency.value = 880; // A5
+          oscillator.type = 'square';
+          gainNode.gain.value = 0.3;
+          oscillator.start(ctx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+          oscillator.stop(ctx.currentTime + 0.15);
+
+          // Second beep
+          setTimeout(() => {
+            const ctx2 = getAudioContext();
+            const osc2 = ctx2.createOscillator();
+            const gain2 = ctx2.createGain();
+            osc2.connect(gain2);
+            gain2.connect(ctx2.destination);
+            osc2.frequency.value = 880;
+            osc2.type = 'square';
+            gain2.gain.value = 0.3;
+            osc2.start(ctx2.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.15);
+            osc2.stop(ctx2.currentTime + 0.15);
+          }, 200);
+        } else {
+          // Warning: Lower pitch, single beep
+          oscillator.frequency.value = 440; // A4
+          oscillator.type = 'sine';
+          gainNode.gain.value = 0.2;
+          oscillator.start(ctx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+          oscillator.stop(ctx.currentTime + 0.2);
+        }
+      } catch (e) {
+        console.log('Audio not available:', e);
+      }
+    }
 
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2945,63 +3439,369 @@
       if (flowOutL3) flowOutL3.classList.toggle('active', Math.abs(invOutL3P) > threshold);
     }
 
-    function updateBatteryTab() {
-      const el = (id) => document.getElementById(id);
+    // ========== Battery Tab Helper Functions ==========
 
-      // Update SOC display and fill level
-      if (el('battery-soc-display')) el('battery-soc-display').textContent = Math.round(battSoc) + '%';
+    // Get SOC-based color
+    function getSocColor(soc) {
+      if (soc < 10) return '#ff4444';
+      if (soc < 20) return '#ff6b35';
+      if (soc < 40) return '#f5c542';
+      if (soc < 60) return '#9acd32';
+      return '#44d62c';
+    }
 
-      // Update battery fill level (rect height based on SOC)
-      const fillLevel = el('battery-fill-level');
-      if (fillLevel) {
-        const maxHeight = 270;
-        const fillHeight = (battSoc / 100) * maxHeight;
-        const yPos = 20 + (maxHeight - fillHeight);
-        fillLevel.setAttribute('height', fillHeight);
-        fillLevel.setAttribute('y', yPos);
+    // Format duration (hours to "Xh Ym")
+    function formatDuration(hours) {
+      if (!isFinite(hours) || hours <= 0) return '--';
+      if (hours > 99) return '99h+';
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+      if (h === 0) return m + 'm';
+      if (m === 0) return h + 'h';
+      return h + 'h ' + m + 'm';
+    }
+
+    // Calculate time to full (charging)
+    function getTimeToFull() {
+      if (battPower <= 10) return null; // Not charging
+      const remainingPercent = 100 - battSoc;
+      const remainingEnergy = (remainingPercent / 100) * BATTERY_CAPACITY_KWH;
+      const chargeRateKW = battPower / 1000;
+      return remainingEnergy / chargeRateKW;
+    }
+
+    // Calculate time to empty (at current discharge rate)
+    function getTimeToEmpty() {
+      if (battPower >= -10) return null; // Not discharging
+      const usablePercent = battSoc - 10; // Reserve 10%
+      if (usablePercent <= 0) return 0;
+      const usableEnergy = (usablePercent / 100) * BATTERY_CAPACITY_KWH;
+      const dischargeRateKW = Math.abs(battPower) / 1000;
+      return usableEnergy / dischargeRateKW;
+    }
+
+    // Evaluate all alarm conditions
+    function evaluateAlarms() {
+      batteryAlarms = [];
+
+      // Cell voltage alarms
+      if (battMaxCellV > 3.65) {
+        batteryAlarms.push({ key: 'cell_overvoltage', msg: 'Cell Overvoltage: ' + battMaxCellV.toFixed(3) + 'V', severity: 'critical' });
+      }
+      if (battMinCellV > 0 && battMinCellV < 2.5) {
+        batteryAlarms.push({ key: 'cell_undervoltage', msg: 'Cell Undervoltage: ' + battMinCellV.toFixed(3) + 'V', severity: 'critical' });
       }
 
-      // Power display with charging/discharging indicator
-      const powerDisplay = el('battery-power-display');
-      const statusDisplay = el('battery-status-display');
-      if (powerDisplay) {
-        const absPower = Math.abs(battPower);
-        powerDisplay.textContent = Math.round(absPower) + ' W';
-        if (battPower > 10) {
-          powerDisplay.classList.remove('discharging');
-          powerDisplay.classList.add('charging');
-          if (statusDisplay) statusDisplay.textContent = 'Charging';
-        } else if (battPower < -10) {
-          powerDisplay.classList.remove('charging');
-          powerDisplay.classList.add('discharging');
-          if (statusDisplay) statusDisplay.textContent = 'Discharging';
-        } else {
-          powerDisplay.classList.remove('charging', 'discharging');
-          if (statusDisplay) statusDisplay.textContent = 'Idle';
+      // Cell imbalance
+      const cellDeltaMV = (battMaxCellV - battMinCellV) * 1000;
+      if (cellDeltaMV >= 50) {
+        batteryAlarms.push({ key: 'cell_imbalance', msg: 'Cell Imbalance: ' + cellDeltaMV.toFixed(0) + 'mV', severity: 'warning' });
+      }
+
+      // Temperature alarms
+      if (battMaxCellT > 45) {
+        batteryAlarms.push({ key: 'high_temp', msg: 'High Temperature: ' + Math.round(battMaxCellT) + '°C', severity: 'warning' });
+      }
+      if (battMinCellT < 0 && battMinCellT > -50) {
+        batteryAlarms.push({ key: 'low_temp', msg: 'Low Temperature: ' + Math.round(battMinCellT) + '°C', severity: 'warning' });
+      }
+
+      // Temp spread
+      const tempDelta = battMaxCellT - battMinCellT;
+      if (tempDelta > 10) {
+        batteryAlarms.push({ key: 'temp_spread', msg: 'Temp Spread: ' + tempDelta.toFixed(1) + '°C', severity: 'warning' });
+      }
+
+      // SOC alarms
+      if (battSoc < 5 && battSoc > 0) {
+        batteryAlarms.push({ key: 'critical_soc', msg: 'Critical SOC: ' + Math.round(battSoc) + '%', severity: 'critical' });
+      } else if (battSoc < 10 && battSoc > 0) {
+        batteryAlarms.push({ key: 'low_soc', msg: 'Low SOC: ' + Math.round(battSoc) + '%', severity: 'warning' });
+      }
+
+      // Module offline
+      if (battModulesOnline < 2 && battModulesOnline >= 0) {
+        batteryAlarms.push({ key: 'module_offline', msg: 'Module Offline (' + battModulesOnline + '/2)', severity: 'critical' });
+      }
+
+      // SOH degraded
+      if (battSoh < 80 && battSoh > 0) {
+        batteryAlarms.push({ key: 'soh_degraded', msg: 'SOH Degraded: ' + Math.round(battSoh) + '%', severity: 'warning' });
+      }
+
+      // Check for new alarms and play sounds
+      const currentAlarmKeys = new Set(batteryAlarms.map(a => a.key));
+      let hasNewCritical = false;
+      let hasNewWarning = false;
+
+      for (const alarm of batteryAlarms) {
+        if (!previousAlarmKeys.has(alarm.key)) {
+          // This is a new alarm
+          if (alarm.severity === 'critical') {
+            hasNewCritical = true;
+          } else {
+            hasNewWarning = true;
+          }
         }
       }
 
-      // Left side info (SVG)
-      if (el('batt-voltage-display')) el('batt-voltage-display').textContent = battVoltage.toFixed(1) + ' V';
-      if (el('batt-current-display')) el('batt-current-display').textContent = battCurrent.toFixed(1) + ' A';
-      if (el('batt-temp-display')) el('batt-temp-display').textContent = Math.round(battTemp) + ' °C';
-      if (el('batt-soh-display')) el('batt-soh-display').textContent = Math.round(battSoh) + ' %';
+      // Play sound for highest severity new alarm
+      if (hasNewCritical) {
+        playAlarmSound('critical');
+      } else if (hasNewWarning) {
+        playAlarmSound('warning');
+      }
 
-      // Right side info (SVG)
-      if (el('batt-max-charge')) el('batt-max-charge').textContent = Math.round(battMaxChargeI) + ' A';
-      if (el('batt-max-discharge')) el('batt-max-discharge').textContent = Math.round(battMaxDischargeI) + ' A';
-      if (el('batt-charge-voltage')) el('batt-charge-voltage').textContent = battMaxChargeV.toFixed(1) + ' V';
-      if (el('batt-low-voltage')) el('batt-low-voltage').textContent = battLowVoltage.toFixed(1) + ' V';
+      // Update previous alarms for next cycle
+      previousAlarmKeys = currentAlarmKeys;
+    }
 
-      // Module status
-      if (el('module1-status')) el('module1-status').textContent = battModulesOnline >= 1 ? 'Online' : 'Offline';
-      if (el('module2-status')) el('module2-status').textContent = battModulesOnline >= 2 ? 'Online' : 'Offline';
+    // Update alarms display
+    function updateAlarmDisplay() {
+      const el = (id) => document.getElementById(id);
+      const alarmsList = el('alarms-list');
+      const alarmsCount = el('alarms-count');
 
-      // Cell voltages
-      if (el('cell-min-v')) el('cell-min-v').textContent = battMinCellV.toFixed(3) + 'V';
-      if (el('cell-max-v')) el('cell-max-v').textContent = battMaxCellV.toFixed(3) + 'V';
-      const cellDelta = (battMaxCellV - battMinCellV) * 1000;
-      if (el('cell-delta')) el('cell-delta').textContent = 'Δ ' + cellDelta.toFixed(0) + 'mV';
+      if (!alarmsList || !alarmsCount) return;
+
+      const criticalCount = batteryAlarms.filter(a => a.severity === 'critical').length;
+      const warningCount = batteryAlarms.filter(a => a.severity === 'warning').length;
+      const totalCount = batteryAlarms.length;
+
+      // Update count badge
+      alarmsCount.textContent = totalCount;
+      alarmsCount.classList.remove('warning', 'critical');
+      if (criticalCount > 0) {
+        alarmsCount.classList.add('critical');
+      } else if (warningCount > 0) {
+        alarmsCount.classList.add('warning');
+      }
+
+      // Update alarm list
+      if (totalCount === 0) {
+        alarmsList.innerHTML = '<div class="alarms-ok">All systems normal</div>';
+      } else {
+        alarmsList.innerHTML = batteryAlarms.map(alarm =>
+          `<div class="alarm-item ${alarm.severity}"><span class="alarm-dot"></span>${alarm.msg}</div>`
+        ).join('');
+      }
+
+      // Update ALM LED
+      const ledAlm = el('led-alm');
+      if (ledAlm) {
+        ledAlm.classList.remove('green', 'yellow', 'red');
+        if (criticalCount > 0) {
+          ledAlm.classList.add('red');
+        } else if (warningCount > 0) {
+          ledAlm.classList.add('yellow');
+        } else {
+          ledAlm.classList.add('green');
+        }
+      }
+    }
+
+    // Update circular gauge
+    function updateGauge() {
+      const el = (id) => document.getElementById(id);
+      const gaugeArc = el('gauge-arc');
+      const gaugeSoc = el('gauge-soc');
+      const gaugePower = el('gauge-power');
+      const gaugeStatus = el('gauge-status');
+
+      if (gaugeSoc) gaugeSoc.textContent = Math.round(battSoc);
+
+      // Update gauge arc (circumference = 2 * PI * 85 ≈ 534)
+      if (gaugeArc) {
+        const circumference = 534;
+        const offset = circumference - (battSoc / 100) * circumference;
+        gaugeArc.style.strokeDashoffset = offset;
+        gaugeArc.style.stroke = getSocColor(battSoc);
+      }
+
+      // Power and status
+      if (gaugePower) {
+        const absPower = Math.abs(battPower);
+        const powerStr = absPower >= 1000 ? (absPower / 1000).toFixed(1) + ' kW' : Math.round(absPower) + ' W';
+        gaugePower.textContent = (battPower > 10 ? '+' : battPower < -10 ? '-' : '') + powerStr;
+        gaugePower.classList.remove('charging', 'discharging', 'idle');
+        if (battPower > 10) {
+          gaugePower.classList.add('charging');
+        } else if (battPower < -10) {
+          gaugePower.classList.add('discharging');
+        } else {
+          gaugePower.classList.add('idle');
+        }
+      }
+
+      if (gaugeStatus) {
+        if (battPower > 10) {
+          gaugeStatus.textContent = 'CHARGING';
+        } else if (battPower < -10) {
+          gaugeStatus.textContent = 'DISCHARGING';
+        } else {
+          gaugeStatus.textContent = 'IDLE';
+        }
+      }
+    }
+
+    // Update LEDs
+    function updateLEDs() {
+      const el = (id) => document.getElementById(id);
+
+      // COMM LED - green if modules online
+      const ledComm = el('led-comm');
+      if (ledComm) {
+        ledComm.classList.remove('green', 'red');
+        ledComm.classList.add(battModulesOnline >= 2 ? 'green' : 'red');
+      }
+
+      // CHG LED - green when charging
+      const ledChg = el('led-chg');
+      if (ledChg) {
+        ledChg.classList.remove('green');
+        if (battPower > 10) ledChg.classList.add('green');
+      }
+
+      // DCH LED - yellow when discharging
+      const ledDch = el('led-dch');
+      if (ledDch) {
+        ledDch.classList.remove('yellow');
+        if (battPower < -10) ledDch.classList.add('yellow');
+      }
+    }
+
+    // Update cell visualization bars
+    function updateCellVizBars() {
+      const el = (id) => document.getElementById(id);
+
+      // Calculate averages
+      battAvgCellV = (battMinCellV + battMaxCellV) / 2;
+      battAvgCellT = (battMinCellT + battMaxCellT) / 2;
+
+      // Cell voltage bars (scale: 2.5V-3.65V range)
+      const vMin = 2.5, vMax = 3.65;
+      const vRange = vMax - vMin;
+
+      const minVPct = Math.max(0, Math.min(100, ((battMinCellV - vMin) / vRange) * 100));
+      const avgVPct = Math.max(0, Math.min(100, ((battAvgCellV - vMin) / vRange) * 100));
+      const maxVPct = Math.max(0, Math.min(100, ((battMaxCellV - vMin) / vRange) * 100));
+
+      if (el('cell-v-min-bar')) el('cell-v-min-bar').style.height = minVPct + '%';
+      if (el('cell-v-avg-bar')) el('cell-v-avg-bar').style.height = avgVPct + '%';
+      if (el('cell-v-max-bar')) el('cell-v-max-bar').style.height = maxVPct + '%';
+
+      if (el('cell-v-min')) el('cell-v-min').textContent = battMinCellV.toFixed(3) + 'V';
+      if (el('cell-v-avg')) el('cell-v-avg').textContent = battAvgCellV.toFixed(3) + 'V';
+      if (el('cell-v-max')) el('cell-v-max').textContent = battMaxCellV.toFixed(3) + 'V';
+
+      // Voltage delta
+      const vDelta = (battMaxCellV - battMinCellV) * 1000;
+      const vDeltaEl = el('cell-v-delta');
+      if (vDeltaEl) {
+        vDeltaEl.textContent = 'Delta: ' + vDelta.toFixed(0) + ' mV';
+        vDeltaEl.classList.remove('good', 'warning', 'critical');
+        if (vDelta < 20) vDeltaEl.classList.add('good');
+        else if (vDelta < 50) vDeltaEl.classList.add('warning');
+        else vDeltaEl.classList.add('critical');
+      }
+
+      // Cell temperature bars (scale: 0-50°C range)
+      const tMin = 0, tMax = 50;
+      const tRange = tMax - tMin;
+
+      const minTPct = Math.max(0, Math.min(100, ((battMinCellT - tMin) / tRange) * 100));
+      const avgTPct = Math.max(0, Math.min(100, ((battAvgCellT - tMin) / tRange) * 100));
+      const maxTPct = Math.max(0, Math.min(100, ((battMaxCellT - tMin) / tRange) * 100));
+
+      if (el('cell-t-min-bar')) el('cell-t-min-bar').style.height = minTPct + '%';
+      if (el('cell-t-avg-bar')) el('cell-t-avg-bar').style.height = avgTPct + '%';
+      if (el('cell-t-max-bar')) el('cell-t-max-bar').style.height = maxTPct + '%';
+
+      if (el('cell-t-min')) el('cell-t-min').textContent = Math.round(battMinCellT) + '°C';
+      if (el('cell-t-avg')) el('cell-t-avg').textContent = Math.round(battAvgCellT) + '°C';
+      if (el('cell-t-max')) el('cell-t-max').textContent = Math.round(battMaxCellT) + '°C';
+
+      // Temp delta
+      const tDelta = battMaxCellT - battMinCellT;
+      const tDeltaEl = el('cell-t-delta');
+      if (tDeltaEl) {
+        tDeltaEl.textContent = 'Delta: ' + tDelta.toFixed(1) + ' °C';
+        tDeltaEl.classList.remove('good', 'warning', 'critical');
+        if (tDelta < 5) tDeltaEl.classList.add('good');
+        else if (tDelta < 10) tDeltaEl.classList.add('warning');
+        else tDeltaEl.classList.add('critical');
+      }
+    }
+
+    // Update operational status
+    function updateOperationalStatus() {
+      const el = (id) => document.getElementById(id);
+
+      // Current state
+      let state = 'Idle';
+      if (battPower > 10) state = 'Charging';
+      else if (battPower < -10) state = 'Discharging';
+      if (el('op-state')) el('op-state').textContent = state;
+
+      // Time to full
+      const ttf = getTimeToFull();
+      if (el('op-time-full')) el('op-time-full').textContent = ttf ? formatDuration(ttf) : '--';
+
+      // Time to empty
+      const tte = getTimeToEmpty();
+      if (el('op-time-empty')) el('op-time-empty').textContent = tte !== null ? formatDuration(tte) : '--';
+
+      // Usable energy (SOC minus 10% reserve)
+      battUsableEnergy = Math.max(0, ((battSoc - 10) / 100)) * BATTERY_CAPACITY_KWH;
+      if (el('op-usable-energy')) el('op-usable-energy').textContent = battUsableEnergy.toFixed(1) + ' kWh';
+
+      // Current utilization bar
+      const maxCurrent = battPower > 0 ? battMaxChargeI : battMaxDischargeI;
+      const utilPct = maxCurrent > 0 ? Math.min(100, (Math.abs(battCurrent) / maxCurrent) * 100) : 0;
+      if (el('utilization-pct')) el('utilization-pct').textContent = utilPct.toFixed(0) + '%';
+      const utilFill = el('utilization-fill');
+      if (utilFill) {
+        utilFill.style.width = utilPct + '%';
+        utilFill.classList.toggle('discharging', battPower < -10);
+      }
+    }
+
+    // Update module boxes
+    function updateModuleBoxes() {
+      const el = (id) => document.getElementById(id);
+
+      const mod1Box = el('module1-box');
+      const mod2Box = el('module2-box');
+      const mod1Status = el('module1-status');
+      const mod2Status = el('module2-status');
+
+      if (mod1Box) {
+        mod1Box.classList.toggle('offline', battModulesOnline < 1);
+      }
+      if (mod2Box) {
+        mod2Box.classList.toggle('offline', battModulesOnline < 2);
+      }
+      if (mod1Status) {
+        mod1Status.textContent = battModulesOnline >= 1 ? 'Online' : 'Offline';
+      }
+      if (mod2Status) {
+        mod2Status.textContent = battModulesOnline >= 2 ? 'Online' : 'Offline';
+      }
+    }
+
+    function updateBatteryTab() {
+      const el = (id) => document.getElementById(id);
+
+      // Evaluate alarms first
+      evaluateAlarms();
+
+      // Update all sub-components
+      updateGauge();
+      updateLEDs();
+      updateAlarmDisplay();
+      updateCellVizBars();
+      updateOperationalStatus();
+      updateModuleBoxes();
 
       // Cards - DC Electrical
       if (el('card-batt-voltage')) el('card-batt-voltage').textContent = battVoltage.toFixed(2) + ' V';
