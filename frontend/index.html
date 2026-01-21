@@ -7102,12 +7102,34 @@
       gridSetpoint: null,
       inputCurrentLimit: null,
       minSoc: null,
-      maxChargeCurrent: null
+      maxChargeCurrent: null,
+      batteryLifeState: null
     };
 
     // Mode name maps
     const inverterModeNames = { 1: 'Charger', 2: 'Inverter', 3: 'On', 4: 'Off' };
-    const essModeNames = { 1: 'Optimized', 2: 'Optimized + BatteryLife', 3: 'Keep Charged' };
+
+    // Get ESS mode display name from BatteryLife/State
+    // Hub4Mode: 1 = Optimized (phase comp), 2 = Optimized (no phase comp), 3 = External Control
+    // BatteryLife/State: 2-8 = BL enabled, 9 = Keep Charged, 10-12 = BL disabled
+    function getEssModeDisplay() {
+      const hub4Mode = systemSettings.essMode;
+      const blState = systemSettings.batteryLifeState;
+
+      if (hub4Mode === null && blState === null) return '--';
+
+      // Hub4Mode 3 = External Control (takes precedence)
+      if (hub4Mode === 3) return 'External Control';
+
+      // BatteryLife/State determines the actual ESS mode:
+      if (blState === 9) return 'Keep Charged';
+      if (blState >= 2 && blState <= 8) return 'Optimized (with BatteryLife)';
+      if (blState >= 10 && blState <= 12) return 'Optimized (without BatteryLife)';
+
+      // Fallback for hub4Mode without valid blState
+      if (hub4Mode === 1 || hub4Mode === 2) return 'Optimized';
+      return 'Unknown';
+    }
 
     // Settings modal functions
     function openSettingsModal() {
@@ -7137,9 +7159,7 @@
         ? inverterModeNames[systemSettings.inverterMode] || 'Unknown'
         : '--';
 
-      el('set-ess-mode').textContent = systemSettings.essMode !== null
-        ? essModeNames[systemSettings.essMode] || 'Unknown'
-        : '--';
+      el('set-ess-mode').textContent = getEssModeDisplay();
 
       el('set-grid-setpoint').textContent = systemSettings.gridSetpoint !== null
         ? Math.round(systemSettings.gridSetpoint) + ' W'
@@ -7168,6 +7188,10 @@
       }
       if (topic.endsWith('/Settings/CGwacs/Hub4Mode')) {
         systemSettings.essMode = value;
+        updated = true;
+      }
+      if (topic.endsWith('/BatteryLife/State')) {
+        systemSettings.batteryLifeState = value;
         updated = true;
       }
       if (topic.endsWith('/Settings/CGwacs/AcPowerSetPoint')) {

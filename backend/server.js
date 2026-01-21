@@ -24,6 +24,7 @@ const CONFIG = {
 const SETTINGS_TOPICS = [
   '/vebus/276/Mode',
   '/settings/0/Settings/CGwacs/Hub4Mode',
+  '/settings/0/Settings/CGwacs/BatteryLife/State',
   '/settings/0/Settings/CGwacs/AcPowerSetPoint',
   '/vebus/276/Ac/ActiveIn/CurrentLimit',
   '/settings/0/Settings/CGwacs/BatteryLife/MinimumSocLimit',
