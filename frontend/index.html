@@ -312,12 +312,6 @@
       font-weight: 500;
     }
 
-    .node-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
     .node-soc {
       font-size: 10px;
       color: var(--text-secondary);
@@ -2994,7 +2988,6 @@
               </div>
               <div class="node-value"><span id="solar">0.0</span> kW</div>
             </div>
-            <div class="node-label">Solar</div>
           </div>
 
           <!-- Home Node -->
@@ -3008,7 +3001,6 @@
               </div>
               <div class="node-value"><span id="home">0.0</span> kW</div>
             </div>
-            <div class="node-label">Home</div>
           </div>
 
           <!-- Battery Node -->
@@ -3023,7 +3015,6 @@
               <div class="node-value"><span id="battery-power">0.0</span> kW</div>
               <div class="node-soc"><span id="battery-soc">--</span>%</div>
             </div>
-            <div class="node-label">Battery</div>
           </div>
 
           <!-- Grid Node -->
@@ -3040,7 +3031,6 @@
               </div>
               <div class="node-value"><span id="grid">0.0</span> kW</div>
             </div>
-            <div class="node-label">Grid</div>
           </div>
         </div>
       </div>
@@ -3408,8 +3398,9 @@
             </g>
           </g>
 
-          <!-- Combined flow to battery -->
-          <path id="solar-flow-combined" class="solar-flow-line combined" d="M 225 350 L 225 420 L 450 420 L 675 420 L 675 350"/>
+          <!-- Combined flow to battery - split into two paths for correct animation direction -->
+          <path id="solar-flow-combined-left" class="solar-flow-line combined" d="M 225 350 L 225 420 L 450 420"/>
+          <path id="solar-flow-combined-right" class="solar-flow-line combined" d="M 675 350 L 675 420 L 450 420"/>
           <path id="solar-flow-to-battery" class="solar-flow-line combined" d="M 450 420 L 450 500"/>
           <circle id="solar-dot-combined" class="solar-flow-dot" r="4" cx="450" cy="420"/>
 
@@ -5100,12 +5091,14 @@
       // Update flow lines
       const flow1 = document.getElementById('solar-flow-1');
       const flow2 = document.getElementById('solar-flow-2');
-      const flowCombined = document.getElementById('solar-flow-combined');
+      const flowCombinedLeft = document.getElementById('solar-flow-combined-left');
+      const flowCombinedRight = document.getElementById('solar-flow-combined-right');
       const flowToBattery = document.getElementById('solar-flow-to-battery');
 
       if (flow1) flow1.classList.toggle('active', string1Active);
       if (flow2) flow2.classList.toggle('active', string2Active);
-      if (flowCombined) flowCombined.classList.toggle('active', string1Active || string2Active);
+      if (flowCombinedLeft) flowCombinedLeft.classList.toggle('active', string1Active);
+      if (flowCombinedRight) flowCombinedRight.classList.toggle('active', string2Active);
       if (flowToBattery) flowToBattery.classList.toggle('active', string1Active || string2Active);
 
       // Update flow dots
