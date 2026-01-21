@@ -149,9 +149,15 @@
     .stats-card {
       background: var(--bg-card);
       backdrop-filter: blur(10px);
-      border-radius: 16px;
+      border-radius: 12px;
       padding: 16px;
       border: 1px solid var(--border-color);
+      transition: transform 0.2s, border-color 0.3s;
+    }
+
+    .stats-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .stats-header {
@@ -414,7 +420,7 @@
     }
 
     /* Responsive */
-    @media (max-width: 1000px) {
+    @media (max-width: 1100px) {
       .top-section {
         flex-direction: column;
       }
@@ -425,6 +431,35 @@
       }
       .stats-card {
         width: 260px;
+      }
+      .bottom-section {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .alarms-summary-card {
+        min-width: 100%;
+        margin-top: 8px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .main-layout {
+        padding: 80px 16px 20px;
+      }
+      .left-column, .right-column {
+        flex-direction: column;
+        align-items: center;
+      }
+      .stats-card {
+        width: 100%;
+        max-width: 320px;
+      }
+      .bottom-section {
+        flex-direction: column;
+        align-items: center;
+      }
+      .alarms-summary-grid {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
 
@@ -675,6 +710,712 @@
       color: var(--battery-color);
     }
 
+    /* ========== Solar Tab Industrial Styles ========== */
+    /* Solar Header */
+    .solar-header {
+      background: linear-gradient(135deg, rgba(245, 197, 66, 0.1), rgba(30, 30, 30, 0.8));
+      border: 1px solid var(--solar-color);
+      border-radius: 8px;
+      padding: 12px 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .solar-header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--solar-color);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .solar-header-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Solar Primary Row */
+    .solar-primary-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Circular Power Gauge for Solar */
+    .solar-gauge-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .solar-gauge-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
+    .solar-gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .solar-gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 12;
+    }
+
+    .solar-gauge-fill {
+      fill: none;
+      stroke: var(--solar-color);
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .solar-gauge-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .solar-gauge-power-value {
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .solar-gauge-power-unit {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .solar-gauge-yield {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .solar-gauge-peak {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .solar-gauge-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .solar-gauge-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #333;
+    }
+
+    .solar-gauge-status-dot.producing { background: var(--solar-color); box-shadow: 0 0 6px var(--solar-color); }
+    .solar-gauge-status-dot.idle { background: var(--text-secondary); }
+    .solar-gauge-status-dot.night { background: #333; }
+
+    .solar-gauge-status-text {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Solar Status LEDs */
+    .solar-leds {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Solar Right Panel */
+    .solar-right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Solar Alarms Card */
+    .solar-alarms-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      flex: 1;
+    }
+
+    .solar-alarms-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .solar-alarms-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--text-secondary);
+    }
+
+    .solar-alarms-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+
+    .solar-alarms-count {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(245, 197, 66, 0.2);
+      color: var(--solar-color);
+    }
+
+    .solar-alarms-count.warning { background: rgba(245, 197, 66, 0.2); color: #f5c542; }
+    .solar-alarms-count.critical { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+    .solar-alarms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .solar-alarm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .solar-alarm-item.warning {
+      background: rgba(245, 197, 66, 0.1);
+      border: 1px solid rgba(245, 197, 66, 0.3);
+      color: #f5c542;
+    }
+
+    .solar-alarm-item.critical {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: #ff4444;
+    }
+
+    .solar-alarm-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .solar-alarm-item.warning .solar-alarm-dot { background: #f5c542; }
+    .solar-alarm-item.critical .solar-alarm-dot { background: #ff4444; }
+
+    .solar-alarms-ok {
+      color: var(--solar-color);
+      font-size: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    /* Solar Alarm History */
+    .solar-alarm-history {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .solar-history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .solar-history-title {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .solar-history-toggle {
+      font-size: 10px;
+      color: var(--text-secondary);
+      transition: transform 0.2s;
+    }
+
+    .solar-history-toggle.expanded {
+      transform: rotate(180deg);
+    }
+
+    .solar-history-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .solar-history-list.expanded {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .solar-history-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 8px;
+      margin-top: 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .solar-history-item.warning {
+      border-left: 2px solid rgba(245, 197, 66, 0.5);
+    }
+
+    .solar-history-item.critical {
+      border-left: 2px solid rgba(255, 68, 68, 0.5);
+    }
+
+    .solar-history-time {
+      color: var(--text-secondary);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .solar-history-msg {
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .solar-history-empty {
+      color: var(--text-secondary);
+      font-size: 10px;
+      padding: 8px;
+      text-align: center;
+      opacity: 0.6;
+    }
+
+    .solar-history-clear {
+      font-size: 9px;
+      color: var(--text-secondary);
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .solar-history-clear:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    /* String Status Card */
+    .solar-strings-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .solar-strings-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .solar-strings-grid {
+      display: flex;
+      gap: 12px;
+    }
+
+    .solar-string-box {
+      flex: 1;
+      background: rgba(245, 197, 66, 0.05);
+      border: 1px solid var(--solar-color);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .solar-string-box.offline {
+      background: rgba(255, 68, 68, 0.05);
+      border-color: #ff4444;
+    }
+
+    .solar-string-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .solar-string-panels {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .solar-string-status {
+      font-size: 10px;
+      color: var(--solar-color);
+      text-transform: uppercase;
+    }
+
+    .solar-string-box.offline .solar-string-status { color: #ff4444; }
+
+    .solar-string-power {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+
+    /* Solar Diagram Section */
+    .solar-diagram-section {
+      margin-bottom: 20px;
+    }
+
+    .solar-diagram-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Solar Detail Cards Row */
+    .solar-detail-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .solar-detail-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, border-color 0.3s;
+    }
+
+    .solar-detail-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(245, 197, 66, 0.3);
+    }
+
+    .solar-detail-card.highlight {
+      border-color: var(--solar-color);
+      background: rgba(245, 197, 66, 0.03);
+    }
+
+    .solar-detail-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .solar-detail-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(245, 197, 66, 0.15);
+      color: var(--solar-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .solar-detail-icon.total {
+      background: var(--solar-color);
+      color: #000;
+    }
+
+    .solar-detail-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .solar-detail-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .solar-detail-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .solar-detail-stat-label {
+      font-size: 9px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .solar-detail-stat-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .solar-detail-stat-value.solar { color: var(--solar-color); }
+    .solar-detail-stat-value.green { color: #44d62c; }
+
+    /* ========== Overview Tab Enhancements ========== */
+    /* Flow Power Labels */
+    .flow-power-label {
+      font-size: 11px;
+      font-weight: 500;
+      fill: var(--text-primary);
+      text-anchor: middle;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .flow-power-label.active {
+      opacity: 1;
+    }
+
+    .flow-power-label.solar { fill: var(--solar-color); }
+    .flow-power-label.battery { fill: var(--battery-color); }
+    .flow-power-label.grid { fill: var(--grid-color); }
+
+    .flow-power-bg {
+      fill: rgba(0, 0, 0, 0.7);
+      rx: 4;
+    }
+
+    /* Mini Status LEDs for Overview Cards */
+    .card-status-leds {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .mini-led {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mini-led-light {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #333;
+      border: 1px solid #444;
+      transition: all 0.3s;
+    }
+
+    .mini-led-light.green { background: #44d62c; box-shadow: 0 0 6px rgba(68, 214, 44, 0.5); }
+    .mini-led-light.yellow { background: #f5c542; box-shadow: 0 0 6px rgba(245, 197, 66, 0.5); }
+    .mini-led-light.red { background: #ff4444; box-shadow: 0 0 6px rgba(255, 68, 68, 0.5); }
+
+    .mini-led-label {
+      font-size: 8px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* System Alarms Summary Card */
+    .alarms-summary-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      min-width: 280px;
+    }
+
+    .alarms-summary-card.has-warnings {
+      border-color: rgba(245, 197, 66, 0.5);
+    }
+
+    .alarms-summary-card.has-critical {
+      border-color: rgba(255, 68, 68, 0.5);
+    }
+
+    .alarms-summary-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .alarms-summary-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--text-secondary);
+    }
+
+    .alarms-summary-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+
+    .alarms-summary-badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(68, 214, 44, 0.2);
+      color: #44d62c;
+    }
+
+    .alarms-summary-badge.warning { background: rgba(245, 197, 66, 0.2); color: #f5c542; }
+    .alarms-summary-badge.critical { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+    .alarms-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .alarm-source-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .alarm-source-box:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .alarm-source-box.has-alarm {
+      border-color: rgba(245, 197, 66, 0.4);
+      background: rgba(245, 197, 66, 0.05);
+    }
+
+    .alarm-source-box.has-critical {
+      border-color: rgba(255, 68, 68, 0.4);
+      background: rgba(255, 68, 68, 0.05);
+    }
+
+    .alarm-source-icon {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .alarm-source-icon.solar { color: var(--solar-color); }
+    .alarm-source-icon.battery { color: var(--battery-color); }
+    .alarm-source-icon.inverter { color: #00bfff; }
+
+    .alarm-source-name {
+      font-size: 9px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .alarm-source-count {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .alarm-source-count.warning { color: #f5c542; }
+    .alarm-source-count.critical { color: #ff4444; }
+
+    .alarm-source-status {
+      font-size: 8px;
+      color: #44d62c;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .alarm-source-box.has-alarm .alarm-source-status,
+    .alarm-source-box.has-critical .alarm-source-status {
+      color: inherit;
+    }
+
+    /* Responsive for solar tab industrial */
+    @media (max-width: 1100px) {
+      .solar-primary-row {
+        grid-template-columns: 1fr;
+      }
+      .solar-detail-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .solar-layout {
+        padding: 80px 16px 20px;
+      }
+      .solar-detail-row {
+        grid-template-columns: 1fr;
+      }
+      .solar-strings-grid {
+        flex-direction: column;
+      }
+    }
+
     /* Placeholder content for coming soon tabs */
     .placeholder-content {
       padding: 100px 40px;
@@ -690,21 +1431,6 @@
     .placeholder-content p {
       color: var(--text-secondary);
       font-size: 14px;
-    }
-
-    /* Responsive for solar tab */
-    @media (max-width: 900px) {
-      .solar-layout {
-        padding: 80px 20px 20px;
-      }
-      .solar-cards {
-        flex-direction: column;
-        align-items: center;
-      }
-      .solar-card {
-        width: 100%;
-        max-width: 400px;
-      }
     }
 
     /* ========== Inverter Tab Styles - Industrial Design ========== */
@@ -1315,6 +2041,12 @@
       border-radius: 12px;
       padding: 16px;
       border: 1px solid var(--border-color);
+      transition: transform 0.2s, border-color 0.3s;
+    }
+
+    .inverter-detail-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 191, 255, 0.3);
     }
 
     .inverter-detail-card.highlight {
@@ -1991,6 +2723,12 @@
       border-radius: 12px;
       padding: 16px;
       border: 1px solid var(--border-color);
+      transition: transform 0.2s, border-color 0.3s;
+    }
+
+    .battery-detail-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(68, 214, 44, 0.3);
     }
 
     .battery-detail-card.highlight {
@@ -2138,6 +2876,20 @@
             <span class="stat-label">Panel Voltage</span>
             <span class="stat-value" id="stat-solar-voltage">-- V</span>
           </div>
+          <div class="card-status-leds">
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-solar-led-sun"></div>
+              <span class="mini-led-label">SUN</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-solar-led-mppt"></div>
+              <span class="mini-led-label">MPPT</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-solar-led-alm"></div>
+              <span class="mini-led-label">ALM</span>
+            </div>
+          </div>
         </div>
 
         <!-- Grid Stats -->
@@ -2172,6 +2924,20 @@
             <span class="stat-label">Frequency</span>
             <span class="stat-value" id="stat-grid-frequency">-- Hz</span>
           </div>
+          <div class="card-status-leds">
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-grid-led-sync"></div>
+              <span class="mini-led-label">SYNC</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-grid-led-freq"></div>
+              <span class="mini-led-label">FREQ</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-grid-led-volt"></div>
+              <span class="mini-led-label">VOLT</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2194,6 +2960,24 @@
             <g id="dots-battery-home"></g>
             <g id="dots-grid-home"></g>
             <g id="dots-grid-battery"></g>
+
+            <!-- Power Labels on Flow Paths -->
+            <g id="flow-label-solar-home" class="flow-power-label-group">
+              <rect class="flow-power-bg" x="215" y="150" width="50" height="18"/>
+              <text id="label-solar-home" class="flow-power-label solar" x="240" y="163">0 W</text>
+            </g>
+            <g id="flow-label-solar-battery" class="flow-power-label-group">
+              <rect class="flow-power-bg" x="195" y="205" width="50" height="18"/>
+              <text id="label-solar-battery" class="flow-power-label solar" x="220" y="218">0 W</text>
+            </g>
+            <g id="flow-label-battery-home" class="flow-power-label-group">
+              <rect class="flow-power-bg" x="215" y="260" width="50" height="18"/>
+              <text id="label-battery-home" class="flow-power-label battery" x="240" y="273">0 W</text>
+            </g>
+            <g id="flow-label-grid-home" class="flow-power-label-group">
+              <rect class="flow-power-bg" x="140" y="195" width="50" height="18"/>
+              <text id="label-grid-home" class="flow-power-label grid" x="165" y="208">0 W</text>
+            </g>
           </svg>
 
           <!-- Solar Node -->
@@ -2288,6 +3072,20 @@
             <span class="stat-label">Self-Consumption</span>
             <span class="stat-value" id="stat-self-consumption">--%</span>
           </div>
+          <div class="card-status-leds">
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-home-led-pwr"></div>
+              <span class="mini-led-label">PWR</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-home-led-eff"></div>
+              <span class="mini-led-label">EFF</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-home-led-ok"></div>
+              <span class="mini-led-label">OK</span>
+            </div>
+          </div>
         </div>
 
         <!-- Battery Stats -->
@@ -2318,6 +3116,20 @@
           <div class="stat-row">
             <span class="stat-label">Status</span>
             <span class="stat-value" id="stat-battery-status">--</span>
+          </div>
+          <div class="card-status-leds">
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-batt-led-soc"></div>
+              <span class="mini-led-label">SOC</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-batt-led-chg"></div>
+              <span class="mini-led-label">CHG</span>
+            </div>
+            <div class="mini-led">
+              <div class="mini-led-light" id="ov-batt-led-alm"></div>
+              <span class="mini-led-label">ALM</span>
+            </div>
           </div>
         </div>
       </div>
@@ -2375,18 +3187,149 @@
           <span class="stat-value" id="stat-alarms">None</span>
         </div>
       </div>
+
+      <!-- System Alarms Summary -->
+      <div class="alarms-summary-card" id="alarms-summary-card">
+        <div class="alarms-summary-header">
+          <svg class="alarms-summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span class="alarms-summary-title">System Alarms</span>
+          <span class="alarms-summary-badge" id="alarms-summary-badge">0</span>
+        </div>
+        <div class="alarms-summary-grid">
+          <div class="alarm-source-box" id="alarm-box-solar">
+            <div class="alarm-source-icon solar">☀</div>
+            <div class="alarm-source-name">Solar</div>
+            <div class="alarm-source-count" id="alarm-count-solar">0</div>
+            <div class="alarm-source-status" id="alarm-status-solar">OK</div>
+          </div>
+          <div class="alarm-source-box" id="alarm-box-battery">
+            <div class="alarm-source-icon battery">🔋</div>
+            <div class="alarm-source-name">Battery</div>
+            <div class="alarm-source-count" id="alarm-count-battery">0</div>
+            <div class="alarm-source-status" id="alarm-status-battery">OK</div>
+          </div>
+          <div class="alarm-source-box" id="alarm-box-inverter">
+            <div class="alarm-source-icon inverter">⚡</div>
+            <div class="alarm-source-name">Inverter</div>
+            <div class="alarm-source-count" id="alarm-count-inverter">0</div>
+            <div class="alarm-source-status" id="alarm-status-inverter">OK</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   </div><!-- End Overview Tab -->
 
-  <!-- Solar Tab -->
+  <!-- Solar Tab - Industrial Design -->
   <div class="tab-content" id="tab-solar">
     <div class="solar-layout">
-      <h2 class="solar-title">Solar System Overview</h2>
-      <p class="solar-subtitle">2 Strings | 16 Panels | 7.4 kWp Total</p>
+      <!-- Header -->
+      <div class="solar-header">
+        <div class="solar-header-title">Solar System - SmartSolar MPPTs</div>
+        <div class="solar-header-subtitle">2 Strings | 16 Panels | 7.4 kWp Total Capacity</div>
+      </div>
 
-      <div class="solar-diagram">
-        <svg class="solar-svg" viewBox="0 0 900 600">
+      <!-- Primary Row: Gauge + Alarms/String Status -->
+      <div class="solar-primary-row">
+        <!-- Left: Circular Power Gauge -->
+        <div class="solar-gauge-card">
+          <div class="solar-gauge-container">
+            <svg class="solar-gauge-svg" viewBox="0 0 200 200">
+              <circle class="solar-gauge-bg" cx="100" cy="100" r="85"/>
+              <circle class="solar-gauge-fill" id="solar-gauge-arc" cx="100" cy="100" r="85"
+                      stroke-dasharray="534" stroke-dashoffset="534"/>
+            </svg>
+            <div class="solar-gauge-center">
+              <div class="solar-gauge-power-value"><span id="solar-gauge-power">--</span><span class="solar-gauge-power-unit"> kW</span></div>
+              <div class="solar-gauge-yield">Today: <span id="solar-gauge-yield">--</span> kWh</div>
+              <div class="solar-gauge-peak">Peak: <span id="solar-gauge-peak">--</span> W</div>
+            </div>
+          </div>
+          <div class="solar-gauge-status">
+            <div class="solar-gauge-status-dot" id="solar-status-dot"></div>
+            <span class="solar-gauge-status-text" id="solar-status-text">--</span>
+          </div>
+          <!-- Status LEDs -->
+          <div class="solar-leds">
+            <div class="led-indicator">
+              <div class="led-light" id="solar-led-sun"></div>
+              <span class="led-label">SUN</span>
+            </div>
+            <div class="led-indicator">
+              <div class="led-light" id="solar-led-mppt1"></div>
+              <span class="led-label">MPPT1</span>
+            </div>
+            <div class="led-indicator">
+              <div class="led-light" id="solar-led-mppt2"></div>
+              <span class="led-label">MPPT2</span>
+            </div>
+            <div class="led-indicator">
+              <div class="led-light" id="solar-led-alm"></div>
+              <span class="led-label">ALM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Alarms + String Status -->
+        <div class="solar-right-panel">
+          <!-- Alarms Card -->
+          <div class="solar-alarms-card">
+            <div class="solar-alarms-header">
+              <svg class="solar-alarms-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span class="solar-alarms-title">Alarms & Warnings</span>
+              <span class="solar-alarms-count" id="solar-alarms-count">0</span>
+            </div>
+            <div class="solar-alarms-list" id="solar-alarms-list">
+              <div class="solar-alarms-ok">All systems normal</div>
+            </div>
+            <!-- Alarm History -->
+            <div class="solar-alarm-history">
+              <div class="solar-history-header" onclick="toggleSolarAlarmHistory()">
+                <span class="solar-history-title">
+                  History <span id="solar-history-count">(0)</span>
+                </span>
+                <span class="solar-history-toggle" id="solar-history-toggle">▼</span>
+              </div>
+              <div class="solar-history-list" id="solar-history-list">
+                <div class="solar-history-empty">Click to expand</div>
+              </div>
+              <button class="solar-history-clear" id="solar-history-clear-btn" style="display:none;" onclick="clearSolarAlarmHistory()">Clear History</button>
+            </div>
+          </div>
+
+          <!-- String Status Card -->
+          <div class="solar-strings-card">
+            <div class="solar-strings-header">String Status</div>
+            <div class="solar-strings-grid">
+              <div class="solar-string-box" id="string1-box">
+                <div class="solar-string-name">Roof (MPPT 278)</div>
+                <div class="solar-string-panels">10 panels | 4.8 kWp</div>
+                <div class="solar-string-status" id="string1-status">--</div>
+                <div class="solar-string-power" id="string1-power">-- W</div>
+              </div>
+              <div class="solar-string-box" id="string2-box">
+                <div class="solar-string-name">Terrace (MPPT 279)</div>
+                <div class="solar-string-panels">6 panels | 2.6 kWp</div>
+                <div class="solar-string-status" id="string2-status">--</div>
+                <div class="solar-string-power" id="string2-power">-- W</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Diagram Section -->
+      <div class="solar-diagram-section">
+        <div class="solar-diagram-card">
+          <svg class="solar-svg" viewBox="0 0 900 600">
           <!-- String 1: Roof (10 panels in 2 rows of 5) -->
           <g class="string-group" id="string1-group">
             <text x="225" y="30" class="string-label">STRING 1: ROOF</text>
@@ -2478,97 +3421,101 @@
             <text class="battery-value" id="solar-battery-voltage" x="70" y="48">-- V</text>
           </g>
         </svg>
+        </div>
       </div>
 
       <!-- Detail Cards Row -->
-      <div class="solar-cards">
-        <div class="solar-card">
-          <div class="solar-card-header">
-            <span class="solar-card-icon">1</span>
-            <span class="solar-card-title">Roof String</span>
+      <div class="solar-detail-row">
+        <!-- String 1 (Roof) -->
+        <div class="solar-detail-card">
+          <div class="solar-detail-header">
+            <span class="solar-detail-icon">1</span>
+            <span class="solar-detail-title">Roof String (MPPT 278)</span>
           </div>
-          <div class="solar-card-stats">
-            <div class="solar-stat">
-              <span class="solar-stat-label">Current Power</span>
-              <span class="solar-stat-value solar" id="card-mppt1-power">-- W</span>
+          <div class="solar-detail-stats">
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Power</span>
+              <span class="solar-detail-stat-value solar" id="card-mppt1-power">-- W</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">PV Voltage</span>
-              <span class="solar-stat-value" id="card-mppt1-pv-voltage">-- V</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">PV Voltage</span>
+              <span class="solar-detail-stat-value" id="card-mppt1-pv-voltage">-- V</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Output Current</span>
-              <span class="solar-stat-value" id="card-mppt1-current">-- A</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Current</span>
+              <span class="solar-detail-stat-value" id="card-mppt1-current">-- A</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">State</span>
-              <span class="solar-stat-value" id="card-mppt1-state">--</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">State</span>
+              <span class="solar-detail-stat-value" id="card-mppt1-state">--</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Today's Yield</span>
-              <span class="solar-stat-value solar" id="card-mppt1-yield">-- kWh</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Today</span>
+              <span class="solar-detail-stat-value solar" id="card-mppt1-yield">-- kWh</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Peak Power</span>
-              <span class="solar-stat-value" id="card-mppt1-peak">-- W</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="solar-card">
-          <div class="solar-card-header">
-            <span class="solar-card-icon">2</span>
-            <span class="solar-card-title">Terrace String</span>
-          </div>
-          <div class="solar-card-stats">
-            <div class="solar-stat">
-              <span class="solar-stat-label">Current Power</span>
-              <span class="solar-stat-value solar" id="card-mppt2-power">-- W</span>
-            </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">PV Voltage</span>
-              <span class="solar-stat-value" id="card-mppt2-pv-voltage">-- V</span>
-            </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Output Current</span>
-              <span class="solar-stat-value" id="card-mppt2-current">-- A</span>
-            </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">State</span>
-              <span class="solar-stat-value" id="card-mppt2-state">--</span>
-            </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Today's Yield</span>
-              <span class="solar-stat-value solar" id="card-mppt2-yield">-- kWh</span>
-            </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Peak Power</span>
-              <span class="solar-stat-value" id="card-mppt2-peak">-- W</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Peak</span>
+              <span class="solar-detail-stat-value" id="card-mppt1-peak">-- W</span>
             </div>
           </div>
         </div>
 
-        <div class="solar-card solar-card-total">
-          <div class="solar-card-header">
-            <span class="solar-card-icon total">Σ</span>
-            <span class="solar-card-title">Combined Total</span>
+        <!-- String 2 (Terrace) -->
+        <div class="solar-detail-card">
+          <div class="solar-detail-header">
+            <span class="solar-detail-icon">2</span>
+            <span class="solar-detail-title">Terrace String (MPPT 279)</span>
           </div>
-          <div class="solar-card-stats">
-            <div class="solar-stat">
-              <span class="solar-stat-label">Total Power</span>
-              <span class="solar-stat-value solar" id="card-total-power">-- W</span>
+          <div class="solar-detail-stats">
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Power</span>
+              <span class="solar-detail-stat-value solar" id="card-mppt2-power">-- W</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Today's Yield</span>
-              <span class="solar-stat-value solar" id="card-total-yield">-- kWh</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">PV Voltage</span>
+              <span class="solar-detail-stat-value" id="card-mppt2-pv-voltage">-- V</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Lifetime</span>
-              <span class="solar-stat-value" id="card-total-lifetime">-- kWh</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Current</span>
+              <span class="solar-detail-stat-value" id="card-mppt2-current">-- A</span>
             </div>
-            <div class="solar-stat">
-              <span class="solar-stat-label">Efficiency</span>
-              <span class="solar-stat-value positive" id="card-efficiency">--%</span>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">State</span>
+              <span class="solar-detail-stat-value" id="card-mppt2-state">--</span>
+            </div>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Today</span>
+              <span class="solar-detail-stat-value solar" id="card-mppt2-yield">-- kWh</span>
+            </div>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Peak</span>
+              <span class="solar-detail-stat-value" id="card-mppt2-peak">-- W</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Summary -->
+        <div class="solar-detail-card highlight">
+          <div class="solar-detail-header">
+            <span class="solar-detail-icon total">Σ</span>
+            <span class="solar-detail-title">Production Summary</span>
+          </div>
+          <div class="solar-detail-stats">
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Total Power</span>
+              <span class="solar-detail-stat-value solar" id="card-total-power">-- W</span>
+            </div>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Today</span>
+              <span class="solar-detail-stat-value solar" id="card-total-yield">-- kWh</span>
+            </div>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Lifetime</span>
+              <span class="solar-detail-stat-value" id="card-total-lifetime">-- MWh</span>
+            </div>
+            <div class="solar-detail-stat">
+              <span class="solar-detail-stat-label">Efficiency</span>
+              <span class="solar-detail-stat-value green" id="card-efficiency">--%</span>
             </div>
           </div>
         </div>
@@ -3265,6 +4212,14 @@
     let invHistoryExpanded = false;
     const MAX_ALARM_HISTORY = 50;
 
+    // Solar tab alarm state
+    let solarAlarms = [];
+    let previousSolarAlarmKeys = new Set();
+    let solarAlarmHistory = [];
+    let solarHistoryExpanded = false;
+    const MAX_SOLAR_ALARM_HISTORY = 50;
+    const SOLAR_SYSTEM_CAPACITY_W = 7400; // 7.4 kWp total
+
     // Victron alarm values from MQTT (0=OK, 1=Warning, 2=Alarm)
     let victronAlarms = {
       l1Overload: 0,
@@ -3688,6 +4643,11 @@
 
       updatePathVisibility();
       updateCirclePulse();
+
+      // Update Overview tab enhancements
+      updateFlowPowerLabels();
+      updateOverviewLEDs();
+      updateAlarmsSummary();
     }
 
     function updatePathVisibility() {
@@ -3722,6 +4682,288 @@
         batteryCircle.classList.add('pulse');
       } else {
         batteryCircle.classList.remove('pulse');
+      }
+    }
+
+    // ========== Overview Tab Enhancement Functions ==========
+
+    // Update power labels on flow paths
+    function updateFlowPowerLabels() {
+      const el = (id) => document.getElementById(id);
+      const totalSolar = solarPower1 + solarPower2;
+      const threshold = 10;
+
+      // Solar to Home label
+      const labelSolarHome = el('label-solar-home');
+      const labelGroupSolarHome = el('flow-label-solar-home');
+      if (labelSolarHome && labelGroupSolarHome) {
+        if (flowPaths['solar-home']?.active && totalSolar > threshold) {
+          const power = Math.min(totalSolar, homePower);
+          labelSolarHome.textContent = formatPowerLabel(power);
+          labelSolarHome.classList.add('active');
+          labelGroupSolarHome.style.opacity = '1';
+        } else {
+          labelSolarHome.classList.remove('active');
+          labelGroupSolarHome.style.opacity = '0';
+        }
+      }
+
+      // Solar to Battery label
+      const labelSolarBattery = el('label-solar-battery');
+      const labelGroupSolarBattery = el('flow-label-solar-battery');
+      if (labelSolarBattery && labelGroupSolarBattery) {
+        if (flowPaths['solar-battery']?.active && batteryPower > threshold) {
+          labelSolarBattery.textContent = formatPowerLabel(batteryPower);
+          labelSolarBattery.classList.add('active');
+          labelGroupSolarBattery.style.opacity = '1';
+        } else {
+          labelSolarBattery.classList.remove('active');
+          labelGroupSolarBattery.style.opacity = '0';
+        }
+      }
+
+      // Battery to Home label
+      const labelBatteryHome = el('label-battery-home');
+      const labelGroupBatteryHome = el('flow-label-battery-home');
+      if (labelBatteryHome && labelGroupBatteryHome) {
+        if (flowPaths['battery-home']?.active && batteryPower < -threshold) {
+          labelBatteryHome.textContent = formatPowerLabel(Math.abs(batteryPower));
+          labelBatteryHome.classList.add('active');
+          labelGroupBatteryHome.style.opacity = '1';
+        } else {
+          labelBatteryHome.classList.remove('active');
+          labelGroupBatteryHome.style.opacity = '0';
+        }
+      }
+
+      // Grid to/from Home label
+      const labelGridHome = el('label-grid-home');
+      const labelGroupGridHome = el('flow-label-grid-home');
+      if (labelGridHome && labelGroupGridHome) {
+        if (flowPaths['grid-home']?.active && Math.abs(gridPower) > threshold) {
+          labelGridHome.textContent = formatPowerLabel(Math.abs(gridPower));
+          labelGridHome.classList.add('active');
+          labelGroupGridHome.style.opacity = '1';
+        } else {
+          labelGridHome.classList.remove('active');
+          labelGroupGridHome.style.opacity = '0';
+        }
+      }
+    }
+
+    function formatPowerLabel(watts) {
+      if (watts >= 1000) {
+        return (watts / 1000).toFixed(1) + ' kW';
+      }
+      return Math.round(watts) + ' W';
+    }
+
+    // Update mini LEDs on Overview cards
+    function updateOverviewLEDs() {
+      const el = (id) => document.getElementById(id);
+      const totalSolar = solarPower1 + solarPower2;
+
+      // Solar LEDs
+      const solarLedSun = el('ov-solar-led-sun');
+      const solarLedMppt = el('ov-solar-led-mppt');
+      const solarLedAlm = el('ov-solar-led-alm');
+
+      if (solarLedSun) {
+        solarLedSun.classList.remove('green', 'yellow', 'red');
+        if (totalSolar > 100) solarLedSun.classList.add('green');
+        else if (totalSolar > 10) solarLedSun.classList.add('yellow');
+      }
+      if (solarLedMppt) {
+        solarLedMppt.classList.remove('green', 'yellow', 'red');
+        if (solarState1 === 3 || solarState1 === 4 || solarState2 === 3 || solarState2 === 4) {
+          solarLedMppt.classList.add('green');
+        } else if (solarState1 === 5 || solarState2 === 5) {
+          solarLedMppt.classList.add('yellow');
+        }
+      }
+      if (solarLedAlm) {
+        solarLedAlm.classList.remove('green', 'yellow', 'red');
+        const solarCritical = solarAlarms.filter(a => a.severity === 'critical').length;
+        const solarWarning = solarAlarms.filter(a => a.severity === 'warning').length;
+        if (solarCritical > 0) solarLedAlm.classList.add('red');
+        else if (solarWarning > 0) solarLedAlm.classList.add('yellow');
+        else solarLedAlm.classList.add('green');
+      }
+
+      // Grid LEDs
+      const gridLedSync = el('ov-grid-led-sync');
+      const gridLedFreq = el('ov-grid-led-freq');
+      const gridLedVolt = el('ov-grid-led-volt');
+
+      if (gridLedSync) {
+        gridLedSync.classList.remove('green', 'yellow', 'red');
+        if (gridVoltage > 200 && gridVoltage < 260) {
+          gridLedSync.classList.add('green');
+        } else if (gridVoltage > 0) {
+          gridLedSync.classList.add('yellow');
+        }
+      }
+      if (gridLedFreq) {
+        gridLedFreq.classList.remove('green', 'yellow', 'red');
+        if (gridFrequency >= 49.5 && gridFrequency <= 50.5) {
+          gridLedFreq.classList.add('green');
+        } else if (gridFrequency > 0) {
+          gridLedFreq.classList.add('yellow');
+        }
+      }
+      if (gridLedVolt) {
+        gridLedVolt.classList.remove('green', 'yellow', 'red');
+        if (gridVoltage >= 220 && gridVoltage <= 240) {
+          gridLedVolt.classList.add('green');
+        } else if (gridVoltage > 0) {
+          gridLedVolt.classList.add('yellow');
+        }
+      }
+
+      // Home LEDs
+      const homeLedPwr = el('ov-home-led-pwr');
+      const homeLedEff = el('ov-home-led-eff');
+      const homeLedOk = el('ov-home-led-ok');
+
+      if (homeLedPwr) {
+        homeLedPwr.classList.remove('green', 'yellow', 'red');
+        if (homePower > 0) homeLedPwr.classList.add('green');
+      }
+      if (homeLedEff) {
+        homeLedEff.classList.remove('green', 'yellow', 'red');
+        // Efficiency based on self-sufficiency (solar+battery vs grid)
+        if (totalSolar > homePower * 0.8) {
+          homeLedEff.classList.add('green');
+        } else if (totalSolar > homePower * 0.3) {
+          homeLedEff.classList.add('yellow');
+        }
+      }
+      if (homeLedOk) {
+        homeLedOk.classList.remove('green', 'yellow', 'red');
+        homeLedOk.classList.add('green'); // Always OK if system running
+      }
+
+      // Battery LEDs
+      const battLedSoc = el('ov-batt-led-soc');
+      const battLedChg = el('ov-batt-led-chg');
+      const battLedAlm = el('ov-batt-led-alm');
+
+      if (battLedSoc) {
+        battLedSoc.classList.remove('green', 'yellow', 'red');
+        if (batterySoc > 50) battLedSoc.classList.add('green');
+        else if (batterySoc > 20) battLedSoc.classList.add('yellow');
+        else if (batterySoc > 0) battLedSoc.classList.add('red');
+      }
+      if (battLedChg) {
+        battLedChg.classList.remove('green', 'yellow', 'red');
+        if (batteryPower > 50) battLedChg.classList.add('green'); // Charging
+        else if (batteryPower < -50) battLedChg.classList.add('yellow'); // Discharging
+      }
+      if (battLedAlm) {
+        battLedAlm.classList.remove('green', 'yellow', 'red');
+        const battCritical = batteryAlarms.filter(a => a.severity === 'critical').length;
+        const battWarning = batteryAlarms.filter(a => a.severity === 'warning').length;
+        if (battCritical > 0) battLedAlm.classList.add('red');
+        else if (battWarning > 0) battLedAlm.classList.add('yellow');
+        else battLedAlm.classList.add('green');
+      }
+    }
+
+    // Update system alarms summary panel
+    function updateAlarmsSummary() {
+      const el = (id) => document.getElementById(id);
+
+      // Count alarms by source
+      const solarCritical = solarAlarms.filter(a => a.severity === 'critical').length;
+      const solarWarning = solarAlarms.filter(a => a.severity === 'warning').length;
+      const solarTotal = solarAlarms.length;
+
+      const battCritical = batteryAlarms.filter(a => a.severity === 'critical').length;
+      const battWarning = batteryAlarms.filter(a => a.severity === 'warning').length;
+      const battTotal = batteryAlarms.length;
+
+      const invCritical = inverterAlarms.filter(a => a.severity === 'critical').length;
+      const invWarning = inverterAlarms.filter(a => a.severity === 'warning').length;
+      const invTotal = inverterAlarms.length;
+
+      const totalAlarms = solarTotal + battTotal + invTotal;
+      const totalCritical = solarCritical + battCritical + invCritical;
+      const totalWarning = solarWarning + battWarning + invWarning;
+
+      // Update summary badge
+      const badge = el('alarms-summary-badge');
+      if (badge) {
+        badge.textContent = totalAlarms;
+        badge.classList.remove('warning', 'critical');
+        if (totalCritical > 0) badge.classList.add('critical');
+        else if (totalWarning > 0) badge.classList.add('warning');
+      }
+
+      // Update summary card border
+      const card = el('alarms-summary-card');
+      if (card) {
+        card.classList.remove('has-warnings', 'has-critical');
+        if (totalCritical > 0) card.classList.add('has-critical');
+        else if (totalWarning > 0) card.classList.add('has-warnings');
+      }
+
+      // Update Solar box
+      updateAlarmSourceBox('solar', solarTotal, solarCritical, solarWarning);
+
+      // Update Battery box
+      updateAlarmSourceBox('battery', battTotal, battCritical, battWarning);
+
+      // Update Inverter box
+      updateAlarmSourceBox('inverter', invTotal, invCritical, invWarning);
+
+      // Update stat-alarms text
+      const statAlarms = el('stat-alarms');
+      if (statAlarms) {
+        if (totalAlarms === 0) {
+          statAlarms.textContent = 'None';
+          statAlarms.className = 'stat-value positive';
+        } else if (totalCritical > 0) {
+          statAlarms.textContent = totalCritical + ' Critical';
+          statAlarms.className = 'stat-value';
+          statAlarms.style.color = '#ff4444';
+        } else {
+          statAlarms.textContent = totalWarning + ' Warning';
+          statAlarms.className = 'stat-value';
+          statAlarms.style.color = '#f5c542';
+        }
+      }
+    }
+
+    function updateAlarmSourceBox(source, total, critical, warning) {
+      const el = (id) => document.getElementById(id);
+      const box = el('alarm-box-' + source);
+      const count = el('alarm-count-' + source);
+      const status = el('alarm-status-' + source);
+
+      if (box) {
+        box.classList.remove('has-alarm', 'has-critical');
+        if (critical > 0) {
+          box.classList.add('has-critical');
+        } else if (warning > 0) {
+          box.classList.add('has-alarm');
+        }
+      }
+
+      if (count) {
+        count.textContent = total;
+        count.classList.remove('warning', 'critical');
+        if (critical > 0) count.classList.add('critical');
+        else if (warning > 0) count.classList.add('warning');
+      }
+
+      if (status) {
+        if (critical > 0) {
+          status.textContent = 'CRITICAL';
+        } else if (warning > 0) {
+          status.textContent = 'WARNING';
+        } else {
+          status.textContent = 'OK';
+        }
       }
     }
 
@@ -3833,6 +5075,13 @@
 
       // Update panel glow and flow animations based on power
       updateSolarFlowAnimations();
+
+      // Update industrial UI components
+      updateSolarGauge();
+      updateSolarLEDs();
+      updateSolarStringStatus();
+      evaluateSolarAlarms();
+      updateSolarAlarmDisplay();
     }
 
     function updateSolarFlowAnimations() {
@@ -3916,6 +5165,325 @@
 
     // Start solar animations when DOM is ready
     animateSolarDots();
+
+    // ========== Solar Tab Industrial Functions ==========
+
+    // Evaluate solar alarm conditions
+    function evaluateSolarAlarms() {
+      solarAlarms = [];
+      const totalPower = solarPower1 + solarPower2;
+      const hour = new Date().getHours();
+      const isDaylight = hour >= 7 && hour <= 19; // Assume daylight between 7am and 7pm
+
+      // MPPT offline during daylight (one producing, other not)
+      if (isDaylight && solarPower1 > 50 && solarPower2 < 10) {
+        solarAlarms.push({ key: 'mppt2_offline', msg: 'MPPT 279 Offline - String 2 not producing', severity: 'critical' });
+      }
+      if (isDaylight && solarPower2 > 50 && solarPower1 < 10) {
+        solarAlarms.push({ key: 'mppt1_offline', msg: 'MPPT 278 Offline - String 1 not producing', severity: 'critical' });
+      }
+
+      // Low PV voltage during daylight (when there's some power)
+      if (isDaylight && solarPower1 > 10 && solarVoltage1 < 100 && solarVoltage1 > 0) {
+        solarAlarms.push({ key: 'low_pv_voltage1', msg: 'Low PV Voltage String 1: ' + solarVoltage1.toFixed(0) + 'V', severity: 'warning' });
+      }
+      if (isDaylight && solarPower2 > 10 && solarVoltage2 < 80 && solarVoltage2 > 0) {
+        solarAlarms.push({ key: 'low_pv_voltage2', msg: 'Low PV Voltage String 2: ' + solarVoltage2.toFixed(0) + 'V', severity: 'warning' });
+      }
+
+      // String imbalance (>50% difference when both producing)
+      if (solarPower1 > 100 && solarPower2 > 100) {
+        const maxPower = Math.max(solarPower1, solarPower2);
+        const minPower = Math.min(solarPower1, solarPower2);
+        const imbalance = (maxPower - minPower) / maxPower * 100;
+        // Account for different string sizes (10 vs 6 panels = ~1.67 ratio expected)
+        const expectedRatio = 4800 / 2600; // 1.85
+        const actualRatio = solarPower1 / solarPower2;
+        const ratioDeviation = Math.abs(actualRatio - expectedRatio) / expectedRatio * 100;
+        if (ratioDeviation > 40) {
+          solarAlarms.push({ key: 'string_imbalance', msg: 'String Imbalance: ' + imbalance.toFixed(0) + '%', severity: 'warning' });
+        }
+      }
+
+      // Zero production during peak daylight
+      if (hour >= 10 && hour <= 15 && totalPower < 10) {
+        solarAlarms.push({ key: 'zero_production', msg: 'Zero Production During Peak Hours', severity: 'warning' });
+      }
+
+      // Check for new alarms and track history
+      const currentAlarmKeys = new Set(solarAlarms.map(a => a.key));
+      let hasNewCritical = false;
+      let hasNewWarning = false;
+
+      for (const alarm of solarAlarms) {
+        if (!previousSolarAlarmKeys.has(alarm.key)) {
+          if (alarm.severity === 'critical') {
+            hasNewCritical = true;
+          } else {
+            hasNewWarning = true;
+          }
+          addToSolarAlarmHistory(alarm, 'TRIGGERED');
+        }
+      }
+
+      // Check for cleared alarms
+      for (const key of previousSolarAlarmKeys) {
+        if (!currentAlarmKeys.has(key)) {
+          addToSolarAlarmHistory({ key, msg: key.replace(/_/g, ' '), severity: 'warning' }, 'CLEARED');
+        }
+      }
+
+      // Play alarm sound for new alarms
+      if (hasNewCritical) {
+        playAlarmSound('critical');
+      } else if (hasNewWarning) {
+        playAlarmSound('warning');
+      }
+
+      previousSolarAlarmKeys = currentAlarmKeys;
+    }
+
+    // Update solar alarms display
+    function updateSolarAlarmDisplay() {
+      const el = (id) => document.getElementById(id);
+      const alarmsList = el('solar-alarms-list');
+      const alarmsCount = el('solar-alarms-count');
+
+      if (!alarmsList || !alarmsCount) return;
+
+      const criticalCount = solarAlarms.filter(a => a.severity === 'critical').length;
+      const warningCount = solarAlarms.filter(a => a.severity === 'warning').length;
+      const totalCount = solarAlarms.length;
+
+      // Update count badge
+      alarmsCount.textContent = totalCount;
+      alarmsCount.classList.remove('warning', 'critical');
+      if (criticalCount > 0) {
+        alarmsCount.classList.add('critical');
+      } else if (warningCount > 0) {
+        alarmsCount.classList.add('warning');
+      }
+
+      // Update alarm list
+      if (totalCount === 0) {
+        alarmsList.innerHTML = '<div class="solar-alarms-ok">All systems normal</div>';
+      } else {
+        alarmsList.innerHTML = solarAlarms.map(alarm =>
+          `<div class="solar-alarm-item ${alarm.severity}"><span class="solar-alarm-dot"></span>${alarm.msg}</div>`
+        ).join('');
+      }
+
+      // Update ALM LED
+      const ledAlm = el('solar-led-alm');
+      if (ledAlm) {
+        ledAlm.classList.remove('green', 'yellow', 'red');
+        if (criticalCount > 0) {
+          ledAlm.classList.add('red');
+        } else if (warningCount > 0) {
+          ledAlm.classList.add('yellow');
+        } else {
+          ledAlm.classList.add('green');
+        }
+      }
+
+      updateSolarAlarmHistoryDisplay();
+    }
+
+    // Add entry to solar alarm history
+    function addToSolarAlarmHistory(alarm, action) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      solarAlarmHistory.unshift({
+        time: now,
+        timeStr: timeStr,
+        message: alarm.msg,
+        severity: alarm.severity,
+        action: action
+      });
+
+      if (solarAlarmHistory.length > MAX_SOLAR_ALARM_HISTORY) {
+        solarAlarmHistory = solarAlarmHistory.slice(0, MAX_SOLAR_ALARM_HISTORY);
+      }
+    }
+
+    // Update solar alarm history display
+    function updateSolarAlarmHistoryDisplay() {
+      const el = (id) => document.getElementById(id);
+      const historyList = el('solar-history-list');
+      const historyCount = el('solar-history-count');
+      const clearBtn = el('solar-history-clear-btn');
+
+      if (!historyList) return;
+
+      historyCount.textContent = `(${solarAlarmHistory.length})`;
+
+      if (solarAlarmHistory.length === 0) {
+        historyList.innerHTML = '<div class="solar-history-empty">No alarm history yet</div>';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+
+      clearBtn.style.display = solarHistoryExpanded ? 'block' : 'none';
+
+      if (solarHistoryExpanded) {
+        historyList.innerHTML = solarAlarmHistory.map(entry => `
+          <div class="solar-history-item ${entry.severity}">
+            <span class="solar-history-time">${entry.timeStr}</span>
+            <span class="solar-history-msg">${entry.message} - ${entry.action}</span>
+          </div>
+        `).join('');
+      } else {
+        historyList.innerHTML = '<div class="solar-history-empty">Click to expand</div>';
+      }
+    }
+
+    // Toggle solar alarm history
+    function toggleSolarAlarmHistory() {
+      solarHistoryExpanded = !solarHistoryExpanded;
+      const el = (id) => document.getElementById(id);
+      const historyList = el('solar-history-list');
+      const toggle = el('solar-history-toggle');
+
+      if (historyList) historyList.classList.toggle('expanded', solarHistoryExpanded);
+      if (toggle) toggle.classList.toggle('expanded', solarHistoryExpanded);
+
+      updateSolarAlarmHistoryDisplay();
+    }
+
+    // Clear solar alarm history
+    function clearSolarAlarmHistory() {
+      solarAlarmHistory = [];
+      updateSolarAlarmHistoryDisplay();
+    }
+
+    // Update solar gauge display
+    function updateSolarGauge() {
+      const el = (id) => document.getElementById(id);
+      const totalPower = solarPower1 + solarPower2;
+      const totalYield = solarYield1 + solarYield2;
+      const peakPower = Math.max(solarPeak1, solarPeak2, totalPower);
+
+      // Update gauge arc
+      const gaugeArc = el('solar-gauge-arc');
+      if (gaugeArc) {
+        const maxPower = SOLAR_SYSTEM_CAPACITY_W;
+        const percentage = Math.min(totalPower / maxPower, 1);
+        const circumference = 534; // 2 * PI * 85
+        const offset = circumference - (percentage * circumference);
+        gaugeArc.style.strokeDashoffset = offset;
+      }
+
+      // Update gauge values
+      const gaugePower = el('solar-gauge-power');
+      const gaugeYield = el('solar-gauge-yield');
+      const gaugePeak = el('solar-gauge-peak');
+
+      if (gaugePower) gaugePower.textContent = (totalPower / 1000).toFixed(1);
+      if (gaugeYield) gaugeYield.textContent = totalYield.toFixed(2);
+      if (gaugePeak) gaugePeak.textContent = Math.round(peakPower);
+
+      // Update status
+      const statusDot = el('solar-status-dot');
+      const statusText = el('solar-status-text');
+      const hour = new Date().getHours();
+      const isNight = hour < 6 || hour > 20;
+
+      if (statusDot && statusText) {
+        statusDot.classList.remove('producing', 'idle', 'night');
+        if (isNight) {
+          statusDot.classList.add('night');
+          statusText.textContent = 'Night';
+        } else if (totalPower > 10) {
+          statusDot.classList.add('producing');
+          statusText.textContent = 'Producing';
+        } else {
+          statusDot.classList.add('idle');
+          statusText.textContent = 'Idle';
+        }
+      }
+    }
+
+    // Update solar LEDs
+    function updateSolarLEDs() {
+      const el = (id) => document.getElementById(id);
+      const totalPower = solarPower1 + solarPower2;
+
+      // SUN LED - based on total production
+      const ledSun = el('solar-led-sun');
+      if (ledSun) {
+        ledSun.classList.remove('green', 'yellow', 'red');
+        if (totalPower > 100) {
+          ledSun.classList.add('green');
+        } else if (totalPower > 10) {
+          ledSun.classList.add('yellow');
+        }
+        // No class = dim (night/no production)
+      }
+
+      // MPPT1 LED - based on MPPT state
+      const ledMppt1 = el('solar-led-mppt1');
+      if (ledMppt1) {
+        ledMppt1.classList.remove('green', 'yellow', 'red');
+        // State: 0=Off, 2=Fault, 3=Bulk, 4=Absorption, 5=Float
+        if (solarState1 === 3 || solarState1 === 4) {
+          ledMppt1.classList.add('green'); // Bulk or Absorption = active charging
+        } else if (solarState1 === 5) {
+          ledMppt1.classList.add('yellow'); // Float = maintaining
+        } else if (solarState1 === 2) {
+          ledMppt1.classList.add('red'); // Fault
+        }
+        // 0 = Off = dim
+      }
+
+      // MPPT2 LED - based on MPPT state
+      const ledMppt2 = el('solar-led-mppt2');
+      if (ledMppt2) {
+        ledMppt2.classList.remove('green', 'yellow', 'red');
+        if (solarState2 === 3 || solarState2 === 4) {
+          ledMppt2.classList.add('green');
+        } else if (solarState2 === 5) {
+          ledMppt2.classList.add('yellow');
+        } else if (solarState2 === 2) {
+          ledMppt2.classList.add('red');
+        }
+      }
+    }
+
+    // Update string status boxes
+    function updateSolarStringStatus() {
+      const el = (id) => document.getElementById(id);
+
+      // String 1 (Roof)
+      const string1Box = el('string1-box');
+      const string1Status = el('string1-status');
+      const string1Power = el('string1-power');
+
+      if (string1Box) {
+        string1Box.classList.toggle('offline', solarPower1 < 10 && solarPower2 > 50);
+      }
+      if (string1Status) {
+        string1Status.textContent = getMpptState(solarState1);
+      }
+      if (string1Power) {
+        string1Power.textContent = Math.round(solarPower1) + ' W';
+      }
+
+      // String 2 (Terrace)
+      const string2Box = el('string2-box');
+      const string2Status = el('string2-status');
+      const string2Power = el('string2-power');
+
+      if (string2Box) {
+        string2Box.classList.toggle('offline', solarPower2 < 10 && solarPower1 > 50);
+      }
+      if (string2Status) {
+        string2Status.textContent = getMpptState(solarState2);
+      }
+      if (string2Power) {
+        string2Power.textContent = Math.round(solarPower2) + ' W';
+      }
+    }
 
     // ========== Inverter Tab Functions ==========
 
