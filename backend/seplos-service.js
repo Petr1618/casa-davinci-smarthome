@@ -97,6 +97,8 @@ class SeplosService extends EventEmitter {
 
   /**
    * Parse response frame
+   * Response format: SOI + VER + ADR + CID1 + RTN + LENGTH + INFO + CHKSUM + EOI
+   * Note: Response has RTN (return code) where request has CID2
    */
   parseResponse(frame) {
     // Validate frame markers
@@ -118,44 +120,47 @@ class SeplosService extends EventEmitter {
     }
 
     // Parse header fields
+    // Response: VER(2) + ADR(2) + CID1(2) + RTN(2) + LENGTH(4) + INFO(variable)
     const ver = payload.slice(0, 2);
     const adr = parseInt(payload.slice(2, 4), 16);
     const cid1 = payload.slice(4, 6);
-    const cid2 = payload.slice(6, 8);
+    const rtn = parseInt(payload.slice(6, 8), 16);  // RTN (return code), 0x00 = success
     const lenId = payload.slice(8, 12);
-    const info = payload.slice(12);
+    const info = payload.slice(12);  // Data starts after LENGTH field
 
-    // Extract length value
+    // Extract length value (lower 12 bits)
     const lenValue = parseInt(lenId, 16) & 0xFFF;
-
-    // Return code (RTN) is first 2 chars of info for responses
-    const rtn = parseInt(info.slice(0, 2), 16);
-    const dataInfo = info.slice(2);
 
     return {
       ver,
       adr,
       cid1,
-      cid2,
       rtn,
-      info: dataInfo,
+      info,
       lenValue
     };
   }
 
   /**
    * Parse telemetry response (CID2 = 0x42)
+   * INFO format: [INFOFLAG(1)] [PACK_ADDR(1)] [CELL_COUNT(1)] [CELL_DATA...] [TEMP_COUNT(1)] [TEMP_DATA...] ...
    */
   parseTelemetry(info) {
-    if (!info || info.length < 4) {
+    if (!info || info.length < 10) {
       throw new Error('Telemetry data too short');
     }
 
     let idx = 0;
 
-    // Number of packs
-    const packCount = parseInt(info.slice(idx, idx + 2), 16);
+    // Skip INFOFLAG (command echo) and pack address
+    const infoFlag = parseInt(info.slice(idx, idx + 2), 16);
     idx += 2;
+
+    const packAddr = parseInt(info.slice(idx, idx + 2), 16);
+    idx += 2;
+
+    // We'll treat this as a single pack response
+    const packCount = 1;
 
     const packs = [];
 
@@ -189,16 +194,18 @@ class SeplosService extends EventEmitter {
       const tempCount = parseInt(info.slice(idx, idx + 2), 16);
       idx += 2;
 
-      // Temperatures (2 bytes each, value - 2731 = 0.1°C)
+      // Temperatures (2 bytes each, value - 2731 = 0.1°C, Kelvin offset)
       for (let t = 0; t < tempCount; t++) {
         const raw = parseInt(info.slice(idx, idx + 4), 16);
         pack.temperatures.push((raw - 2731) / 10); // Convert to °C
         idx += 4;
       }
 
-      // Pack current (2 bytes, signed, in 10mA, offset 30000)
+      // Pack current (2 bytes, offset 30000 = 0A)
+      // V2 uses ~40mA per unit (not 10mA as documented)
+      // Convention: positive = charging, negative = discharging
       const rawCurrent = parseInt(info.slice(idx, idx + 4), 16);
-      pack.current = (rawCurrent - 30000) / 100; // Convert to A
+      pack.current = (30000 - rawCurrent) / 400; // Convert to A
       idx += 4;
 
       // Pack voltage (2 bytes, in 10mV)
@@ -221,8 +228,12 @@ class SeplosService extends EventEmitter {
       pack.cycleCount = parseInt(info.slice(idx, idx + 4), 16);
       idx += 4;
 
-      // SOC (2 bytes, in 0.1%)
-      pack.soc = parseInt(info.slice(idx, idx + 4), 16) / 10;
+      // Design capacity / rated capacity (2 bytes, in 10mAh) - V2 specific
+      pack.designCapacity = parseInt(info.slice(idx, idx + 4), 16) / 100;
+      idx += 4;
+
+      // Protection/warning status (2 bytes)
+      pack.protectionStatus = parseInt(info.slice(idx, idx + 4), 16);
       idx += 4;
 
       // SOH (2 bytes, in 0.1%)
@@ -232,6 +243,13 @@ class SeplosService extends EventEmitter {
       // Port voltage (2 bytes, in 10mV)
       pack.portVoltage = parseInt(info.slice(idx, idx + 4), 16) / 100;
       idx += 4;
+
+      // SOC (2 bytes, in 1% for V2) - after port voltage in V2 protocol
+      pack.soc = parseInt(info.slice(idx, idx + 4), 16);
+      idx += 4;
+
+      // Skip remaining V2 fields (reserved/unknown - 12 hex chars)
+      idx += 12;
 
       packs.push(pack);
     }
@@ -487,19 +505,24 @@ class SeplosService extends EventEmitter {
       try {
         const parsed = this.parseResponse(frame);
 
-        // Check return code
+        // Check return code (RTN) - position where CID2 would be in request is RTN in response
+        // RTN of 0x00 means success
         if (parsed.rtn !== 0) {
           const error = new Error(`BMS returned error code: 0x${parsed.rtn.toString(16)}`);
           if (this.pendingCallback) {
             this.pendingCallback(error, null);
             this.pendingCallback = null;
+            this.pendingCommand = null;
           }
           return;
         }
 
-        // Route to appropriate parser based on CID2
+        // Route to appropriate parser based on the command we sent (not response CID2)
         let result;
-        switch (parsed.cid2) {
+        const cmd = this.pendingCommand;
+        this.pendingCommand = null;
+
+        switch (cmd) {
           case PROTOCOL.CMD.TELEMETRY:
             result = this.parseTelemetry(parsed.info);
             this.lastTelemetry = result;
@@ -540,9 +563,13 @@ class SeplosService extends EventEmitter {
 
       const frame = this.buildCommand(cid2, info);
 
+      // Store pending command type for response parsing
+      this.pendingCommand = cid2;
+
       // Set response timeout
       this.responseTimeout = setTimeout(() => {
         this.pendingCallback = null;
+        this.pendingCommand = null;
         reject(new Error('Response timeout'));
       }, timeout);
 
@@ -557,6 +584,7 @@ class SeplosService extends EventEmitter {
         if (err) {
           clearTimeout(this.responseTimeout);
           this.pendingCallback = null;
+          this.pendingCommand = null;
           reject(err);
         }
       });
