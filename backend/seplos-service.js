@@ -263,11 +263,10 @@ class SeplosService extends EventEmitter {
         idx += 4;
       }
 
-      // Pack current (2 bytes, offset 30000 = 0A)
-      // Scaling: ~22mA per unit (calibrated against Victron readings)
-      // Convention: positive = charging, negative = discharging
+      // Pack current (2 bytes, in 10mA units, no offset)
+      // Positive = charging, negative = discharging (signed value)
       const rawCurrent = parseInt(info.slice(idx, idx + 4), 16);
-      pack.current = (30000 - rawCurrent) / 220; // Convert to A
+      pack.current = rawCurrent / 100; // Convert to A
       idx += 4;
 
       // Pack voltage (2 bytes, in 10mV)
