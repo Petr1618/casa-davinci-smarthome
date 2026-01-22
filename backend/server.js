@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const mqtt = require('mqtt');
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
+const SeplosService = require('./seplos-service');
 
 // Configuration
 const CONFIG = {
@@ -17,6 +18,12 @@ const CONFIG = {
     token: 'uo4-ieF7EucCPn_9kkTzb7FaCda6u9-a8M9PuGwnBy3QtRbhnHWqLspEPTQVIm9DkLdrwf8RXoMZsmHxsOKEew==',
     org: 'casa-davinci',
     bucket: 'energy-data'
+  },
+  seplos: {
+    enabled: false,            // Set to true when USB-RS485 adapter is connected
+    portPath: '/dev/ttyUSB0',  // Default RS485 adapter path
+    address: 0x00,             // BMS address (default 0)
+    pollInterval: 5000         // Poll every 5 seconds
   }
 };
 
@@ -72,8 +79,66 @@ app.use(express.static('../frontend'));
 // Store latest values for new client connections
 const latestData = {
   victron: {},
-  sensors: {}
+  sensors: {},
+  seplos: {
+    telemetry: null,
+    alarms: null
+  }
 };
+
+// Seplos BMS Service Mode
+let seplosService = null;
+
+async function initSeplosService() {
+  if (!CONFIG.seplos.enabled) {
+    console.log('→ Seplos Service Mode: Disabled (enable in config when RS485 adapter is connected)');
+    return;
+  }
+
+  try {
+    // List available ports
+    const ports = await SeplosService.listPorts();
+    console.log('→ Seplos: Available serial ports:', ports.map(p => p.path).join(', ') || 'none');
+
+    seplosService = new SeplosService({
+      portPath: CONFIG.seplos.portPath,
+      address: CONFIG.seplos.address
+    });
+
+    // Event handlers
+    seplosService.on('connected', () => {
+      io.emit('seplos-status', { connected: true, portPath: CONFIG.seplos.portPath });
+    });
+
+    seplosService.on('disconnected', () => {
+      io.emit('seplos-status', { connected: false });
+    });
+
+    seplosService.on('telemetry', (data) => {
+      latestData.seplos.telemetry = data;
+      io.emit('seplos-telemetry', data);
+    });
+
+    seplosService.on('alarms', (data) => {
+      latestData.seplos.alarms = data;
+      io.emit('seplos-alarms', data);
+    });
+
+    seplosService.on('error', (err) => {
+      console.error('✗ Seplos error:', err.message);
+      io.emit('seplos-error', { message: err.message });
+    });
+
+    // Connect and start polling
+    await seplosService.connect();
+    seplosService.startPolling(CONFIG.seplos.pollInterval);
+
+    console.log('✓ Seplos Service Mode: Initialized');
+  } catch (err) {
+    console.error('✗ Seplos Service Mode: Failed to initialize -', err.message);
+    console.log('  Make sure USB-RS485 adapter is connected and path is correct');
+  }
+}
 
 // Daily energy tracking (resets at midnight)
 const dailyEnergy = {
@@ -330,10 +395,97 @@ io.on('connection', (socket) => {
   // Send daily energy metrics immediately
   socket.emit('daily-energy', getDailyMetrics());
 
+  // Send Seplos status and data if available
+  if (seplosService) {
+    socket.emit('seplos-status', seplosService.getStatus());
+    if (latestData.seplos.telemetry) {
+      socket.emit('seplos-telemetry', latestData.seplos.telemetry);
+    }
+    if (latestData.seplos.alarms) {
+      socket.emit('seplos-alarms', latestData.seplos.alarms);
+    }
+  } else {
+    socket.emit('seplos-status', { connected: false, enabled: CONFIG.seplos.enabled });
+  }
+
   // Request fresh settings data for new client
   SETTINGS_TOPICS.forEach(topic => {
     const readTopic = `R/${CONFIG.mqtt.cerboSerial}${topic}`;
     cerboClient.publish(readTopic, '');
+  });
+
+  // Seplos Service Mode events
+  socket.on('seplos-connect', async (data) => {
+    if (seplosService && seplosService.connected) {
+      socket.emit('seplos-status', seplosService.getStatus());
+      return;
+    }
+
+    // Allow runtime configuration
+    const portPath = data?.portPath || CONFIG.seplos.portPath;
+    const address = data?.address ?? CONFIG.seplos.address;
+
+    try {
+      if (seplosService) {
+        await seplosService.disconnect();
+      }
+
+      seplosService = new SeplosService({ portPath, address });
+
+      seplosService.on('connected', () => {
+        io.emit('seplos-status', { connected: true, portPath });
+      });
+
+      seplosService.on('disconnected', () => {
+        io.emit('seplos-status', { connected: false });
+      });
+
+      seplosService.on('telemetry', (telemetryData) => {
+        latestData.seplos.telemetry = telemetryData;
+        io.emit('seplos-telemetry', telemetryData);
+      });
+
+      seplosService.on('alarms', (alarmsData) => {
+        latestData.seplos.alarms = alarmsData;
+        io.emit('seplos-alarms', alarmsData);
+      });
+
+      seplosService.on('error', (err) => {
+        io.emit('seplos-error', { message: err.message });
+      });
+
+      await seplosService.connect();
+      seplosService.startPolling(CONFIG.seplos.pollInterval);
+      socket.emit('seplos-status', seplosService.getStatus());
+    } catch (err) {
+      socket.emit('seplos-error', { message: err.message });
+    }
+  });
+
+  socket.on('seplos-disconnect', async () => {
+    if (seplosService) {
+      await seplosService.disconnect();
+      socket.emit('seplos-status', { connected: false });
+    }
+  });
+
+  socket.on('seplos-refresh', async () => {
+    if (seplosService && seplosService.connected) {
+      try {
+        await seplosService.poll();
+      } catch (err) {
+        socket.emit('seplos-error', { message: err.message });
+      }
+    }
+  });
+
+  socket.on('seplos-list-ports', async () => {
+    try {
+      const ports = await SeplosService.listPorts();
+      socket.emit('seplos-ports', ports);
+    } catch (err) {
+      socket.emit('seplos-error', { message: err.message });
+    }
   });
 
   socket.on('disconnect', () => {
@@ -364,9 +516,41 @@ app.get('/api/victron', (req, res) => {
   res.json(latestData.victron);
 });
 
+// Seplos Service Mode API endpoints
+app.get('/api/seplos/status', (req, res) => {
+  if (seplosService) {
+    res.json(seplosService.getStatus());
+  } else {
+    res.json({ connected: false, enabled: CONFIG.seplos.enabled });
+  }
+});
+
+app.get('/api/seplos/telemetry', (req, res) => {
+  res.json(latestData.seplos.telemetry || null);
+});
+
+app.get('/api/seplos/alarms', (req, res) => {
+  res.json(latestData.seplos.alarms || null);
+});
+
+app.get('/api/seplos/ports', async (req, res) => {
+  try {
+    const ports = await SeplosService.listPorts();
+    res.json(ports);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('Shutting down...');
+
+  // Disconnect Seplos if connected
+  if (seplosService) {
+    await seplosService.disconnect();
+  }
+
   writeApi.close().then(() => {
     cerboClient.end();
     server.close(() => {
@@ -376,11 +560,14 @@ process.on('SIGTERM', () => {
 });
 
 // Start server
-server.listen(CONFIG.port, () => {
+server.listen(CONFIG.port, async () => {
   console.log('=====================================');
   console.log('   Casa DaVinci Smart Home Server');
   console.log('=====================================');
   console.log(`Dashboard: http://casa-davinci.local:${CONFIG.port}`);
   console.log(`API Health: http://casa-davinci.local:${CONFIG.port}/api/health`);
   console.log('=====================================');
+
+  // Initialize Seplos Service Mode
+  await initSeplosService();
 });
