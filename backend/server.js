@@ -20,9 +20,9 @@ const CONFIG = {
     bucket: 'energy-data'
   },
   seplos: {
-    enabled: false,            // Set to true when USB-RS485 adapter is connected
+    enabled: true,             // Set to true when USB-RS485 adapter is connected
     portPath: '/dev/ttyUSB0',  // Default RS485 adapter path
-    address: 0x00,             // BMS address (default 0)
+    packAddresses: [0x00, 0x01], // BMS pack addresses (0x00 = pack 1, 0x01 = pack 2, etc.)
     pollInterval: 5000         // Poll every 5 seconds
   }
 };
@@ -102,7 +102,7 @@ async function initSeplosService() {
 
     seplosService = new SeplosService({
       portPath: CONFIG.seplos.portPath,
-      address: CONFIG.seplos.address
+      packAddresses: CONFIG.seplos.packAddresses
     });
 
     // Event handlers
@@ -246,6 +246,31 @@ let currentPower = {
   solar2: 0
 };
 
+// BMS protection state tracking
+let bmsProtectionState = {
+  maxDischargeCurrent: null,
+  maxChargeCurrent: null,
+  activeProtections: [], // Current active protections
+  history: [] // Recent protection events (last 20)
+};
+
+// Add protection event to history
+function addProtectionEvent(event) {
+  bmsProtectionState.history.unshift({
+    ...event,
+    timestamp: Date.now()
+  });
+  // Keep only last 20 events
+  if (bmsProtectionState.history.length > 20) {
+    bmsProtectionState.history.pop();
+  }
+  // Emit updated protection status
+  io.emit('bms-protection-status', {
+    active: bmsProtectionState.activeProtections,
+    history: bmsProtectionState.history
+  });
+}
+
 // MQTT Client for Cerbo GX
 const cerboClient = mqtt.connect(CONFIG.mqtt.cerboGx);
 
@@ -327,6 +352,80 @@ cerboClient.on('message', (topic, message) => {
       if (topic.endsWith('/solarcharger/279/Yield/Power')) {
         currentPower.solar2 = data.value;
         updateDailyEnergy(currentPower.grid, currentPower.home, currentPower.solar1 + currentPower.solar2);
+      }
+
+      // BMS Protection Detection - MaxDischargeCurrent going to 0
+      if (topic.endsWith('/battery/512/Info/MaxDischargeCurrent') ||
+          topic.endsWith('/vebus/276/BatteryOperationalLimits/MaxDischargeCurrent')) {
+        const prevValue = bmsProtectionState.maxDischargeCurrent;
+        bmsProtectionState.maxDischargeCurrent = data.value;
+
+        // Detect transition to 0 (protection activated)
+        if (data.value === 0 && prevValue !== 0 && prevValue !== null) {
+          // Add to active protections
+          if (!bmsProtectionState.activeProtections.includes('discharge_disabled')) {
+            bmsProtectionState.activeProtections.push('discharge_disabled');
+          }
+          const event = {
+            type: 'discharge_disabled',
+            severity: 'warning',
+            title: 'Discharge Protection Active',
+            message: 'Battery discharge disabled - low cell voltage'
+          };
+          addProtectionEvent(event);
+          io.emit('system-notification', { ...event, timestamp: Date.now() });
+          console.log('⚠️  BMS Protection: Discharge disabled (MaxDischargeCurrent = 0)');
+        }
+        // Detect transition from 0 (protection cleared)
+        else if (data.value > 0 && prevValue === 0) {
+          // Remove from active protections
+          bmsProtectionState.activeProtections = bmsProtectionState.activeProtections.filter(p => p !== 'discharge_disabled');
+          const event = {
+            type: 'discharge_enabled',
+            severity: 'info',
+            title: 'Discharge Protection Cleared',
+            message: `Battery discharge enabled (${data.value}A max)`
+          };
+          addProtectionEvent(event);
+          io.emit('system-notification', { ...event, timestamp: Date.now() });
+          console.log(`✓ BMS Protection cleared: MaxDischargeCurrent = ${data.value}A`);
+        }
+      }
+
+      // BMS Protection Detection - MaxChargeCurrent going to 0
+      if (topic.endsWith('/battery/512/Info/MaxChargeCurrent') ||
+          topic.endsWith('/vebus/276/BatteryOperationalLimits/MaxChargeCurrent')) {
+        const prevValue = bmsProtectionState.maxChargeCurrent;
+        bmsProtectionState.maxChargeCurrent = data.value;
+
+        if (data.value === 0 && prevValue !== 0 && prevValue !== null) {
+          // Add to active protections
+          if (!bmsProtectionState.activeProtections.includes('charge_disabled')) {
+            bmsProtectionState.activeProtections.push('charge_disabled');
+          }
+          const event = {
+            type: 'charge_disabled',
+            severity: 'warning',
+            title: 'Charge Protection Active',
+            message: 'Battery charging disabled - high voltage or temperature'
+          };
+          addProtectionEvent(event);
+          io.emit('system-notification', { ...event, timestamp: Date.now() });
+          console.log('⚠️  BMS Protection: Charge disabled (MaxChargeCurrent = 0)');
+        }
+        else if (data.value > 0 && prevValue === 0) {
+          // Remove from active protections
+          bmsProtectionState.activeProtections = bmsProtectionState.activeProtections.filter(p => p !== 'charge_disabled');
+          const event = {
+            type: 'charge_enabled',
+            severity: 'info',
+            title: 'Charge Protection Cleared',
+            message: `Battery charging enabled (${data.value}A max)`
+          };
+          addProtectionEvent(event);
+          io.emit('system-notification', { ...event, timestamp: Date.now() });
+          console.log(`✓ BMS Protection cleared: MaxChargeCurrent = ${data.value}A`);
+        }
       }
 
       // Store in InfluxDB (only essential metrics + all alarms)
@@ -423,14 +522,14 @@ io.on('connection', (socket) => {
 
     // Allow runtime configuration
     const portPath = data?.portPath || CONFIG.seplos.portPath;
-    const address = data?.address ?? CONFIG.seplos.address;
+    const packAddresses = data?.packAddresses || CONFIG.seplos.packAddresses;
 
     try {
       if (seplosService) {
         await seplosService.disconnect();
       }
 
-      seplosService = new SeplosService({ portPath, address });
+      seplosService = new SeplosService({ portPath, packAddresses });
 
       seplosService.on('connected', () => {
         io.emit('seplos-status', { connected: true, portPath });
@@ -540,6 +639,16 @@ app.get('/api/seplos/ports', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// BMS Protection Status API
+app.get('/api/bms/protection', (req, res) => {
+  res.json({
+    active: bmsProtectionState.activeProtections,
+    history: bmsProtectionState.history,
+    maxDischargeCurrent: bmsProtectionState.maxDischargeCurrent,
+    maxChargeCurrent: bmsProtectionState.maxChargeCurrent
+  });
 });
 
 // Graceful shutdown

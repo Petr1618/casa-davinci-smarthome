@@ -3542,6 +3542,53 @@
       margin-bottom: 20px;
     }
 
+    .pack-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 4px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .pack-tab {
+      flex: 1;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pack-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .pack-tab.active {
+      background: var(--accent-color);
+      color: #000;
+    }
+
+    .pack-tab.offline {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pack-tab .pack-status {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      margin-top: 2px;
+      opacity: 0.8;
+    }
+
     .cells-section-header {
       display: flex;
       justify-content: space-between;
@@ -3784,6 +3831,55 @@
       font-size: 12px;
     }
 
+    .service-alarm-item.protection {
+      background: rgba(255, 68, 68, 0.15);
+      border-color: rgba(255, 68, 68, 0.4);
+    }
+
+    .protection-history {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .protection-history-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .protection-history-item {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 11px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .protection-history-item:last-child {
+      border-bottom: none;
+    }
+
+    .protection-history-item.warning .protection-msg {
+      color: #ffa500;
+    }
+
+    .protection-history-item.info .protection-msg {
+      color: #00d4aa;
+    }
+
+    .protection-time {
+      color: var(--text-muted);
+      min-width: 70px;
+    }
+
+    .protection-msg {
+      color: var(--text-secondary);
+    }
+
     /* MOS Status */
     .mos-status-grid {
       display: grid;
@@ -3885,9 +3981,129 @@
         width: 100%;
       }
     }
+
+    /* Notification Toast Styles */
+    #notification-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 400px;
+    }
+
+    .notification-toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .notification-toast.warning {
+      border-color: #ffa500;
+      background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), var(--card-bg));
+    }
+
+    .notification-toast.error {
+      border-color: #ff4444;
+      background: linear-gradient(135deg, rgba(255, 68, 68, 0.1), var(--card-bg));
+    }
+
+    .notification-toast.info {
+      border-color: #00d4aa;
+      background: linear-gradient(135deg, rgba(0, 212, 170, 0.1), var(--card-bg));
+    }
+
+    .notification-toast.fade-out {
+      animation: fadeOut 0.3s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    .notification-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .notification-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .notification-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .notification-close:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 480px) {
+      #notification-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Notification Container -->
+  <div id="notification-container"></div>
+
   <div class="header">
     <div class="logo">Casa DaVinci</div>
     <nav class="tab-nav">
@@ -5263,10 +5479,16 @@
 
       <!-- Data Content (hidden when disconnected) -->
       <div id="service-data-content" style="display: none;">
+        <!-- Pack Selector Tabs -->
+        <div class="pack-selector" id="pack-selector">
+          <div class="pack-tab active" data-pack="0" onclick="selectPack(0)">Pack 1</div>
+          <div class="pack-tab" data-pack="1" onclick="selectPack(1)">Pack 2</div>
+        </div>
+
         <!-- Cell Voltages Section -->
         <div class="service-cells-section">
           <div class="cells-section-header">
-            <span class="cells-section-title">Cell Voltages (Pack 1)</span>
+            <span class="cells-section-title" id="service-cells-title">Cell Voltages (Pack 1)</span>
             <span class="cells-delta good" id="service-cells-delta">Delta: -- mV</span>
           </div>
           <div class="cells-grid" id="service-cells-grid">
@@ -5694,6 +5916,70 @@
       document.getElementById('stat-self-consumption').textContent = data.selfConsumption + '%';
       document.getElementById('stat-summary-consumed').textContent = data.homeConsumedKwh + ' kWh';
     });
+
+    // System notifications (BMS protection, etc.)
+    socket.on('system-notification', (notification) => {
+      showNotification(notification);
+    });
+
+    // Notification display function
+    function showNotification(notification) {
+      const container = document.getElementById('notification-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = `notification-toast ${notification.severity || 'info'}`;
+
+      const icon = notification.severity === 'warning' ? '⚠️' :
+                   notification.severity === 'error' ? '🔴' : 'ℹ️';
+
+      toast.innerHTML = `
+        <div class="notification-icon">${icon}</div>
+        <div class="notification-content">
+          <div class="notification-title">${notification.title}</div>
+          <div class="notification-message">${notification.message}</div>
+          <div class="notification-time">${new Date(notification.timestamp).toLocaleTimeString()}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+      `;
+
+      container.appendChild(toast);
+
+      // Auto-remove after 10 seconds for info, 30 seconds for warnings
+      const timeout = notification.severity === 'warning' ? 30000 : 10000;
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.classList.add('fade-out');
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, timeout);
+
+      // Play sound for warnings
+      if (notification.severity === 'warning') {
+        playNotificationSound();
+      }
+    }
+
+    function playNotificationSound() {
+      // Simple beep using Web Audio API
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.1;
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.2);
+      } catch (e) {
+        // Audio not supported
+      }
+    }
 
     function processVictronData(topic, value) {
       // Update control panel current values
@@ -8026,10 +8312,70 @@
     // ==========================================
 
     let seplosConnected = false;
+    let selectedPackIndex = 0;
     let seplosData = {
       telemetry: null,
       alarms: null
     };
+    let bmsProtectionData = {
+      active: [],
+      history: []
+    };
+
+    // Select pack to display
+    function selectPack(index) {
+      selectedPackIndex = index;
+
+      // Update tab styles
+      document.querySelectorAll('.pack-tab').forEach((tab, i) => {
+        tab.classList.toggle('active', i === index);
+      });
+
+      // Update title
+      const title = document.getElementById('service-cells-title');
+      if (title) {
+        title.textContent = `Cell Voltages (Pack ${index + 1})`;
+      }
+
+      // Refresh display with selected pack data
+      if (seplosData.telemetry && seplosData.telemetry.packs && seplosData.telemetry.packs[index]) {
+        displayPackData(index);
+      }
+    }
+
+    // Update pack selector tabs based on available packs
+    function updatePackSelector(packCount) {
+      const selector = document.getElementById('pack-selector');
+      if (!selector) return;
+
+      selector.innerHTML = '';
+      for (let i = 0; i < packCount; i++) {
+        const tab = document.createElement('div');
+        tab.className = 'pack-tab' + (i === selectedPackIndex ? ' active' : '');
+        tab.setAttribute('data-pack', i);
+        tab.onclick = () => selectPack(i);
+        tab.innerHTML = `Pack ${i + 1}<span class="pack-status" id="pack-${i}-status">--</span>`;
+        selector.appendChild(tab);
+      }
+    }
+
+    // Display data for selected pack
+    function displayPackData(index) {
+      if (!seplosData.telemetry || !seplosData.telemetry.packs) return;
+
+      const pack = seplosData.telemetry.packs[index];
+      if (!pack) return;
+
+      updateCellVoltages(pack);
+      updateTemperatures(pack);
+      updatePackStatus(pack);
+
+      // Update pack status in tab
+      const statusEl = document.getElementById(`pack-${index}-status`);
+      if (statusEl) {
+        statusEl.textContent = `${pack.soc}% | ${pack.voltage.toFixed(1)}V`;
+      }
+    }
 
     // Initialize cell grid with 16 cell boxes
     function initCellGrid() {
@@ -8215,18 +8561,59 @@
 
     // Update alarms display
     function updateAlarmsDisplay(alarms) {
-      if (!alarms || !alarms.packs || !alarms.packs[0]) return;
-
-      const pack = alarms.packs[0];
       const list = document.getElementById('service-alarms-list');
+      if (!list) return;
 
-      if (pack.activeAlarms && pack.activeAlarms.length > 0) {
-        list.innerHTML = pack.activeAlarms.map(alarm =>
-          `<div class="service-alarm-item">
-            <span class="service-alarm-icon">⚠</span>
-            <span class="service-alarm-text">${alarm}</span>
+      // Get pack data if available
+      let pack = null;
+      if (alarms && alarms.packs && alarms.packs.length > 0) {
+        const packIndex = selectedPackIndex < alarms.packs.length ? selectedPackIndex : 0;
+        pack = alarms.packs[packIndex];
+      }
+
+      // Combine BMS alarms with protection events
+      const allAlarms = [];
+
+      // Add Seplos pack alarms (if pack data available)
+      if (pack && pack.activeAlarms && pack.activeAlarms.length > 0) {
+        pack.activeAlarms.forEach(alarm => {
+          allAlarms.push({ type: 'cell', icon: '⚠️', text: alarm });
+        });
+      }
+
+      // Add BMS protection alarms (always check, regardless of Seplos data)
+      if (bmsProtectionData.active.includes('discharge_disabled')) {
+        allAlarms.push({ type: 'protection', icon: '🔴', text: 'Discharge Protection Active - Low Cell Voltage' });
+      }
+      if (bmsProtectionData.active.includes('charge_disabled')) {
+        allAlarms.push({ type: 'protection', icon: '🔴', text: 'Charge Protection Active - High Voltage/Temp' });
+      }
+
+      if (allAlarms.length > 0 || bmsProtectionData.history.length > 0) {
+        // Show active alarms
+        let html = allAlarms.map(alarm =>
+          `<div class="service-alarm-item ${alarm.type}">
+            <span class="service-alarm-icon">${alarm.icon}</span>
+            <span class="service-alarm-text">${alarm.text}</span>
           </div>`
         ).join('');
+
+        // Add protection history if any
+        if (bmsProtectionData.history.length > 0) {
+          html += `
+            <div class="protection-history">
+              <div class="protection-history-title">Recent Protection Events</div>
+              ${bmsProtectionData.history.slice(0, 5).map(event => `
+                <div class="protection-history-item ${event.severity}">
+                  <span class="protection-time">${new Date(event.timestamp).toLocaleTimeString()}</span>
+                  <span class="protection-msg">${event.message}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        list.innerHTML = html;
       } else {
         list.innerHTML = `
           <div class="service-alarms-ok">
@@ -8236,7 +8623,7 @@
         `;
       }
 
-      // Update MOS status
+      // Update MOS status (only if pack data available)
       const updateMosLed = (id, state) => {
         const led = document.getElementById(id);
         if (led) {
@@ -8244,15 +8631,15 @@
         }
       };
 
-      if (pack.onOffStateFlags) {
+      if (pack && pack.onOffStateFlags) {
         updateMosLed('mos-discharge', pack.onOffStateFlags.dischargeMos);
         updateMosLed('mos-charge', pack.onOffStateFlags.chargeMos);
         updateMosLed('mos-current-limit', pack.onOffStateFlags.currentLimit);
         updateMosLed('mos-heater', pack.onOffStateFlags.heater);
       }
 
-      // Update balancing status
-      if (pack.balancingCells && pack.balancingCells.length > 0) {
+      // Update balancing status (only if pack data available)
+      if (pack && pack.balancingCells && pack.balancingCells.length > 0) {
         document.getElementById('service-balancing-cells').textContent = pack.balancingCells.join(', ');
 
         // Highlight balancing cells in the grid
@@ -8263,11 +8650,12 @@
           }
         });
       } else {
-        document.getElementById('service-balancing-cells').textContent = 'None';
+        const balancingEl = document.getElementById('service-balancing-cells');
+        if (balancingEl) balancingEl.textContent = 'None';
       }
 
-      // Update system state
-      if (pack.systemStateFlags) {
+      // Update system state (only if pack data available)
+      if (pack && pack.systemStateFlags) {
         let state = 'Idle';
         if (pack.systemStateFlags.charge) state = 'Charging';
         if (pack.systemStateFlags.discharge) state = 'Discharging';
@@ -8282,7 +8670,21 @@
       if (!data || !data.packs || data.packs.length === 0) return;
 
       seplosData.telemetry = data;
-      const pack = data.packs[0];
+
+      // Update pack selector if pack count changed
+      const currentPackCount = document.querySelectorAll('.pack-tab').length;
+      if (currentPackCount !== data.packs.length) {
+        updatePackSelector(data.packs.length);
+      }
+
+      // Get selected pack (fallback to first if invalid)
+      if (selectedPackIndex >= data.packs.length) {
+        selectedPackIndex = 0;
+        selectPack(0);
+      }
+
+      const pack = data.packs[selectedPackIndex];
+      if (!pack) return;
 
       // Ensure cell grid is initialized with correct count
       const grid = document.getElementById('service-cells-grid');
@@ -8300,17 +8702,27 @@
         }
       }
 
-      updateCellVoltages(pack);
-      updateTemperatures(pack);
-      updatePackStatus(pack);
+      // Display selected pack
+      displayPackData(selectedPackIndex);
+
+      // Update all pack statuses in tabs
+      data.packs.forEach((p, i) => {
+        const statusEl = document.getElementById(`pack-${i}-status`);
+        if (statusEl) {
+          statusEl.textContent = `${p.soc}% | ${p.voltage.toFixed(1)}V`;
+        }
+      });
 
       // Update last update time
       const time = new Date(data.timestamp);
       document.getElementById('service-last-update').textContent = time.toLocaleTimeString();
 
-      // Update subtitle
+      // Update subtitle with combined info
+      const totalPacks = data.packs.length;
+      const totalVoltage = data.packs.reduce((sum, p) => sum + p.voltage, 0);
+      const avgSoc = Math.round(data.packs.reduce((sum, p) => sum + p.soc, 0) / totalPacks);
       document.getElementById('service-subtitle').textContent =
-        `Pack 1 | ${pack.cells.length} Cells | SOC: ${pack.soc.toFixed(0)}% | ${pack.voltage.toFixed(1)}V`;
+        `${totalPacks} Pack${totalPacks > 1 ? 's' : ''} | SOC: ${avgSoc}% | Total: ${totalVoltage.toFixed(1)}V`;
     }
 
     // Socket.io event handlers for Seplos
@@ -8318,6 +8730,14 @@
       updateServiceModeUI(status.connected);
       if (status.portPath) {
         document.getElementById('service-subtitle').textContent = `Connected: ${status.portPath}`;
+      }
+      // Initialize pack selector based on configured pack count
+      if (status.packCount) {
+        updatePackSelector(status.packCount);
+      }
+      // Update from last telemetry if available
+      if (status.lastTelemetry && status.lastTelemetry.packs) {
+        processSeploseTelemetry(status.lastTelemetry);
       }
     });
 
@@ -8328,6 +8748,14 @@
     socket.on('seplos-alarms', (data) => {
       seplosData.alarms = data;
       updateAlarmsDisplay(data);
+    });
+
+    // BMS Protection Status updates
+    socket.on('bms-protection-status', (data) => {
+      bmsProtectionData = data;
+      // Refresh alarms display to include protection events
+      // Pass empty object if no Seplos alarms - updateAlarmsDisplay handles this
+      updateAlarmsDisplay(seplosData.alarms || { packs: [] });
     });
 
     socket.on('seplos-error', (error) => {

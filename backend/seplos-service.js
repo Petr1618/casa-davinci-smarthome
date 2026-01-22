@@ -36,7 +36,8 @@ class SeplosService extends EventEmitter {
     super();
 
     this.portPath = options.portPath || '/dev/ttyUSB0';
-    this.address = options.address || 0x00;
+    this.packAddresses = options.packAddresses || [0x00]; // Support multiple packs
+    this.address = this.packAddresses[0]; // Current address for commands
     this.config = { ...DEFAULT_CONFIG, ...options.config };
 
     this.port = null;
@@ -44,9 +45,19 @@ class SeplosService extends EventEmitter {
     this.buffer = '';
     this.lastTelemetry = null;
     this.lastAlarms = null;
+    this.packTelemetry = {}; // Store telemetry per pack address
+    this.packAlarms = {}; // Store alarms per pack address
     this.pollInterval = null;
     this.responseTimeout = null;
     this.pendingCallback = null;
+  }
+
+  /**
+   * Set pack addresses to poll
+   */
+  setPackAddresses(addresses) {
+    this.packAddresses = addresses;
+    console.log(`→ Seplos: Configured ${addresses.length} pack(s): ${addresses.map(a => '0x' + a.toString(16).padStart(2, '0')).join(', ')}`);
   }
 
   /**
@@ -78,9 +89,12 @@ class SeplosService extends EventEmitter {
 
   /**
    * Build a Seplos ASCII command frame
+   * @param {string} cid2 - Command code
+   * @param {string} info - Info payload
+   * @param {number} address - Pack address (optional, defaults to this.address)
    */
-  buildCommand(cid2, info = '') {
-    const adr = this.address.toString(16).toUpperCase().padStart(2, '0');
+  buildCommand(cid2, info = '', address = null) {
+    const adr = (address !== null ? address : this.address).toString(16).toUpperCase().padStart(2, '0');
     const lenId = this.calculateLenId(info.length);
 
     // Data portion (VER + ADR + CID1 + CID2 + LENID + INFO)
@@ -244,12 +258,16 @@ class SeplosService extends EventEmitter {
       pack.portVoltage = parseInt(info.slice(idx, idx + 4), 16) / 100;
       idx += 4;
 
-      // SOC (2 bytes, in 1% for V2) - after port voltage in V2 protocol
-      pack.soc = parseInt(info.slice(idx, idx + 4), 16);
-      idx += 4;
+      // Skip remaining V2 fields - SOC field position is unreliable
+      // Calculate SOC from remaining/full capacity instead (more accurate)
+      idx += 16; // Skip 16 hex chars of remaining fields
 
-      // Skip remaining V2 fields (reserved/unknown - 12 hex chars)
-      idx += 12;
+      // Calculate SOC from capacity values (more reliable than parsed SOC field)
+      if (pack.fullCapacity > 0) {
+        pack.soc = Math.round((pack.remainingCapacity / pack.fullCapacity) * 100);
+      } else {
+        pack.soc = 0;
+      }
 
       packs.push(pack);
     }
@@ -553,23 +571,30 @@ class SeplosService extends EventEmitter {
 
   /**
    * Send command and wait for response
+   * @param {string} cid2 - Command code
+   * @param {string} info - Info payload
+   * @param {number} address - Pack address
+   * @param {number} timeout - Response timeout in ms
    */
-  async sendCommand(cid2, info = '', timeout = 3000) {
+  async sendCommand(cid2, info = '', address = null, timeout = 3000) {
     return new Promise((resolve, reject) => {
       if (!this.connected || !this.port) {
         reject(new Error('Not connected'));
         return;
       }
 
-      const frame = this.buildCommand(cid2, info);
+      const targetAddress = address !== null ? address : this.address;
+      const frame = this.buildCommand(cid2, info, targetAddress);
 
-      // Store pending command type for response parsing
+      // Store pending command type and address for response parsing
       this.pendingCommand = cid2;
+      this.pendingAddress = targetAddress;
 
       // Set response timeout
       this.responseTimeout = setTimeout(() => {
         this.pendingCallback = null;
         this.pendingCommand = null;
+        this.pendingAddress = null;
         reject(new Error('Response timeout'));
       }, timeout);
 
@@ -585,6 +610,7 @@ class SeplosService extends EventEmitter {
           clearTimeout(this.responseTimeout);
           this.pendingCallback = null;
           this.pendingCommand = null;
+          this.pendingAddress = null;
           reject(err);
         }
       });
@@ -592,19 +618,89 @@ class SeplosService extends EventEmitter {
   }
 
   /**
-   * Request telemetry data
+   * Request telemetry data for a specific pack
+   * @param {number} address - Pack address (optional)
    */
-  async getTelemetry() {
-    const packNum = this.address.toString(16).toUpperCase().padStart(2, '0');
-    return this.sendCommand(PROTOCOL.CMD.TELEMETRY, packNum);
+  async getTelemetry(address = null) {
+    const targetAddress = address !== null ? address : this.address;
+    const packNum = targetAddress.toString(16).toUpperCase().padStart(2, '0');
+    return this.sendCommand(PROTOCOL.CMD.TELEMETRY, packNum, targetAddress);
   }
 
   /**
-   * Request alarm status
+   * Request alarm status for a specific pack
+   * @param {number} address - Pack address (optional)
    */
-  async getAlarms() {
-    const packNum = this.address.toString(16).toUpperCase().padStart(2, '0');
-    return this.sendCommand(PROTOCOL.CMD.TELECONTROL, packNum);
+  async getAlarms(address = null) {
+    const targetAddress = address !== null ? address : this.address;
+    const packNum = targetAddress.toString(16).toUpperCase().padStart(2, '0');
+    return this.sendCommand(PROTOCOL.CMD.TELECONTROL, packNum, targetAddress);
+  }
+
+  /**
+   * Get telemetry for all configured packs
+   */
+  async getAllTelemetry() {
+    const results = [];
+    for (const addr of this.packAddresses) {
+      try {
+        const result = await this.getTelemetry(addr);
+        if (result && result.packs && result.packs[0]) {
+          result.packs[0].address = addr;
+          this.packTelemetry[addr] = result.packs[0];
+          results.push(result.packs[0]);
+        }
+      } catch (err) {
+        console.error(`✗ Seplos: Failed to get telemetry for pack 0x${addr.toString(16).padStart(2, '0')}:`, err.message);
+      }
+      // Small delay between pack queries
+      if (this.packAddresses.indexOf(addr) < this.packAddresses.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    }
+
+    // Update combined telemetry
+    this.lastTelemetry = {
+      packCount: results.length,
+      packs: results,
+      timestamp: Date.now()
+    };
+
+    this.emit('telemetry', this.lastTelemetry);
+    return this.lastTelemetry;
+  }
+
+  /**
+   * Get alarms for all configured packs
+   */
+  async getAllAlarms() {
+    const results = [];
+    for (const addr of this.packAddresses) {
+      try {
+        const result = await this.getAlarms(addr);
+        if (result && result.packs && result.packs[0]) {
+          result.packs[0].address = addr;
+          this.packAlarms[addr] = result.packs[0];
+          results.push(result.packs[0]);
+        }
+      } catch (err) {
+        console.error(`✗ Seplos: Failed to get alarms for pack 0x${addr.toString(16).padStart(2, '0')}:`, err.message);
+      }
+      // Small delay between pack queries
+      if (this.packAddresses.indexOf(addr) < this.packAddresses.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    }
+
+    // Update combined alarms
+    this.lastAlarms = {
+      packCount: results.length,
+      packs: results,
+      timestamp: Date.now()
+    };
+
+    this.emit('alarms', this.lastAlarms);
+    return this.lastAlarms;
   }
 
   /**
@@ -638,16 +734,16 @@ class SeplosService extends EventEmitter {
   }
 
   /**
-   * Poll for telemetry and alarms
+   * Poll for telemetry and alarms from all packs
    */
   async poll() {
     if (!this.connected) return;
 
     try {
-      await this.getTelemetry();
-      // Small delay between commands
+      await this.getAllTelemetry();
+      // Small delay between telemetry and alarms
       await new Promise(resolve => setTimeout(resolve, 200));
-      await this.getAlarms();
+      await this.getAllAlarms();
     } catch (err) {
       console.error('✗ Seplos: Poll error:', err.message);
       this.emit('error', err);
@@ -683,7 +779,8 @@ class SeplosService extends EventEmitter {
     return {
       connected: this.connected,
       portPath: this.portPath,
-      address: this.address,
+      packAddresses: this.packAddresses,
+      packCount: this.packAddresses.length,
       polling: this.pollInterval !== null,
       lastTelemetry: this.lastTelemetry,
       lastAlarms: this.lastAlarms
