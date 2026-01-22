@@ -1,5 +1,7 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
+const fs = require('fs');
 const { Server } = require('socket.io');
 const mqtt = require('mqtt');
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
@@ -22,7 +24,8 @@ const CONFIG = {
   seplos: {
     enabled: true,             // Set to true when USB-RS485 adapter is connected
     portPath: '/dev/ttyUSB0',  // Default RS485 adapter path
-    packAddresses: [0x00, 0x01], // BMS pack addresses (0x00 = pack 1, 0x01 = pack 2, etc.)
+    autoScan: true,            // Auto-detect connected packs on startup
+    maxPackAddress: 0x03,      // Max address to scan (0x00-0x03 = 4 packs max)
     pollInterval: 5000         // Poll every 5 seconds
   }
 };
@@ -74,7 +77,11 @@ const influxDB = new InfluxDB({
 const writeApi = influxDB.getWriteApi(CONFIG.influx.org, CONFIG.influx.bucket);
 
 // Serve static files from frontend folder
-app.use(express.static('../frontend'));
+// Support both /opt/casa-davinci (flat) and /home/pi/casa-davinci/backend (nested) structures
+const frontendPath = fs.existsSync(path.join(__dirname, 'frontend'))
+  ? path.join(__dirname, 'frontend')
+  : path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
 
 // Store latest values for new client connections
 const latestData = {
@@ -102,7 +109,8 @@ async function initSeplosService() {
 
     seplosService = new SeplosService({
       portPath: CONFIG.seplos.portPath,
-      packAddresses: CONFIG.seplos.packAddresses
+      autoScan: CONFIG.seplos.autoScan,
+      maxPackAddress: CONFIG.seplos.maxPackAddress
     });
 
     // Event handlers
@@ -127,6 +135,36 @@ async function initSeplosService() {
     seplosService.on('error', (err) => {
       console.error('✗ Seplos error:', err.message);
       io.emit('seplos-error', { message: err.message });
+    });
+
+    seplosService.on('packs-discovered', (packs) => {
+      console.log(`✓ Seplos: Discovered ${packs.length} pack(s)`);
+      io.emit('seplos-packs-discovered', {
+        packCount: packs.length,
+        addresses: packs.map(a => '0x' + a.toString(16).padStart(2, '0'))
+      });
+    });
+
+    seplosService.on('communication-lost', (data) => {
+      console.error('✗ Seplos: Communication lost');
+      io.emit('seplos-status', { connected: false, error: data.message });
+      io.emit('system-notification', {
+        type: 'error',
+        title: 'Seplos BMS Disconnected',
+        message: data.message,
+        severity: 'warning'
+      });
+    });
+
+    seplosService.on('communication-restored', () => {
+      console.log('✓ Seplos: Communication restored');
+      io.emit('seplos-status', { connected: true, portPath: CONFIG.seplos.portPath });
+      io.emit('system-notification', {
+        type: 'info',
+        title: 'Seplos BMS Connected',
+        message: 'Communication with BMS restored',
+        severity: 'info'
+      });
     });
 
     // Connect and start polling
@@ -522,14 +560,15 @@ io.on('connection', (socket) => {
 
     // Allow runtime configuration
     const portPath = data?.portPath || CONFIG.seplos.portPath;
-    const packAddresses = data?.packAddresses || CONFIG.seplos.packAddresses;
+    const autoScan = data?.autoScan !== undefined ? data.autoScan : CONFIG.seplos.autoScan;
+    const maxPackAddress = data?.maxPackAddress || CONFIG.seplos.maxPackAddress;
 
     try {
       if (seplosService) {
         await seplosService.disconnect();
       }
 
-      seplosService = new SeplosService({ portPath, packAddresses });
+      seplosService = new SeplosService({ portPath, autoScan, maxPackAddress });
 
       seplosService.on('connected', () => {
         io.emit('seplos-status', { connected: true, portPath });
@@ -551,6 +590,13 @@ io.on('connection', (socket) => {
 
       seplosService.on('error', (err) => {
         io.emit('seplos-error', { message: err.message });
+      });
+
+      seplosService.on('packs-discovered', (packs) => {
+        io.emit('seplos-packs-discovered', {
+          packCount: packs.length,
+          addresses: packs.map(a => '0x' + a.toString(16).padStart(2, '0'))
+        });
       });
 
       await seplosService.connect();

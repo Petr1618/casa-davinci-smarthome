@@ -37,6 +37,8 @@ class SeplosService extends EventEmitter {
 
     this.portPath = options.portPath || '/dev/ttyUSB0';
     this.packAddresses = options.packAddresses || [0x00]; // Support multiple packs
+    this.maxPackAddress = options.maxPackAddress || 0x0F; // Max address to scan (0x00-0x0F = 16 packs)
+    this.autoScan = options.autoScan !== false; // Auto-scan for packs by default
     this.address = this.packAddresses[0]; // Current address for commands
     this.config = { ...DEFAULT_CONFIG, ...options.config };
 
@@ -47,9 +49,15 @@ class SeplosService extends EventEmitter {
     this.lastAlarms = null;
     this.packTelemetry = {}; // Store telemetry per pack address
     this.packAlarms = {}; // Store alarms per pack address
+    this.discoveredPacks = []; // Packs found during scan
     this.pollInterval = null;
     this.responseTimeout = null;
     this.pendingCallback = null;
+
+    // Communication health tracking
+    this.consecutiveFailures = 0;
+    this.maxFailuresBeforeAlert = 3; // Alert after 3 consecutive failures
+    this.communicationLost = false;
   }
 
   /**
@@ -58,6 +66,46 @@ class SeplosService extends EventEmitter {
   setPackAddresses(addresses) {
     this.packAddresses = addresses;
     console.log(`→ Seplos: Configured ${addresses.length} pack(s): ${addresses.map(a => '0x' + a.toString(16).padStart(2, '0')).join(', ')}`);
+  }
+
+  /**
+   * Scan for connected packs by trying addresses 0x00 to maxPackAddress
+   * Updates packAddresses with only responding packs
+   */
+  async scanForPacks() {
+    console.log(`→ Seplos: Scanning for packs (addresses 0x00 to 0x${this.maxPackAddress.toString(16).padStart(2, '0')})...`);
+
+    const foundPacks = [];
+
+    for (let addr = 0x00; addr <= this.maxPackAddress; addr++) {
+      try {
+        // Try to get telemetry with short timeout
+        const packNum = addr.toString(16).toUpperCase().padStart(2, '0');
+        const result = await this.sendCommand(PROTOCOL.CMD.TELEMETRY, packNum, addr, 1500);
+
+        if (result && result.packs && result.packs[0]) {
+          foundPacks.push(addr);
+          console.log(`  ✓ Pack found at address 0x${addr.toString(16).padStart(2, '0')}`);
+        }
+      } catch (err) {
+        // No response at this address - that's fine, just not present
+      }
+
+      // Small delay between scans
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    if (foundPacks.length > 0) {
+      this.discoveredPacks = foundPacks;
+      this.packAddresses = foundPacks;
+      this.address = foundPacks[0];
+      console.log(`✓ Seplos: Found ${foundPacks.length} pack(s): ${foundPacks.map(a => '0x' + a.toString(16).padStart(2, '0')).join(', ')}`);
+    } else {
+      console.log('✗ Seplos: No packs found during scan');
+    }
+
+    this.emit('packs-discovered', foundPacks);
+    return foundPacks;
   }
 
   /**
@@ -216,10 +264,10 @@ class SeplosService extends EventEmitter {
       }
 
       // Pack current (2 bytes, offset 30000 = 0A)
-      // V2 uses ~40mA per unit (not 10mA as documented)
+      // Scaling: ~22mA per unit (calibrated against Victron readings)
       // Convention: positive = charging, negative = discharging
       const rawCurrent = parseInt(info.slice(idx, idx + 4), 16);
-      pack.current = (30000 - rawCurrent) / 400; // Convert to A
+      pack.current = (30000 - rawCurrent) / 220; // Convert to A
       idx += 4;
 
       // Pack voltage (2 bytes, in 10mV)
@@ -473,11 +521,19 @@ class SeplosService extends EventEmitter {
         stopBits: this.config.stopBits
       });
 
-      this.port.on('open', () => {
+      this.port.on('open', async () => {
         console.log(`✓ Seplos: Connected to ${this.portPath}`);
         this.connected = true;
         this.buffer = '';
         this.emit('connected');
+
+        // Auto-scan for packs if enabled
+        if (this.autoScan) {
+          // Small delay to let serial port stabilize
+          await new Promise(r => setTimeout(r, 500));
+          await this.scanForPacks();
+        }
+
         resolve();
       });
 
@@ -739,14 +795,42 @@ class SeplosService extends EventEmitter {
   async poll() {
     if (!this.connected) return;
 
+    let success = false;
+
     try {
-      await this.getAllTelemetry();
+      const telemetry = await this.getAllTelemetry();
+      // Check if we got any data
+      if (telemetry && telemetry.packs && telemetry.packs.length > 0) {
+        success = true;
+      }
+
       // Small delay between telemetry and alarms
       await new Promise(resolve => setTimeout(resolve, 200));
       await this.getAllAlarms();
     } catch (err) {
       console.error('✗ Seplos: Poll error:', err.message);
       this.emit('error', err);
+    }
+
+    // Track communication health
+    if (success) {
+      if (this.communicationLost) {
+        // Communication restored
+        this.communicationLost = false;
+        console.log('✓ Seplos: Communication restored');
+        this.emit('communication-restored');
+      }
+      this.consecutiveFailures = 0;
+    } else {
+      this.consecutiveFailures++;
+      if (this.consecutiveFailures >= this.maxFailuresBeforeAlert && !this.communicationLost) {
+        this.communicationLost = true;
+        console.error('✗ Seplos: Communication lost - no response from BMS');
+        this.emit('communication-lost', {
+          failures: this.consecutiveFailures,
+          message: 'No response from BMS - check RS485 connection'
+        });
+      }
     }
   }
 
@@ -776,14 +860,21 @@ class SeplosService extends EventEmitter {
    * Get current status
    */
   getStatus() {
+    // Connected means: serial port open AND BMS responding
+    const effectiveConnected = this.connected && !this.communicationLost;
+
     return {
-      connected: this.connected,
+      connected: effectiveConnected,
+      portConnected: this.connected,
+      communicationLost: this.communicationLost,
       portPath: this.portPath,
       packAddresses: this.packAddresses,
-      packCount: this.packAddresses.length,
+      discoveredPacks: this.discoveredPacks.length,
+      packCount: this.discoveredPacks.length || this.packAddresses.length,
       polling: this.pollInterval !== null,
       lastTelemetry: this.lastTelemetry,
-      lastAlarms: this.lastAlarms
+      lastAlarms: this.lastAlarms,
+      error: this.communicationLost ? 'No response from BMS - check RS485 connection' : null
     };
   }
 

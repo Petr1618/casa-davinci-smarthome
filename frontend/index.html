@@ -8728,8 +8728,13 @@
     // Socket.io event handlers for Seplos
     socket.on('seplos-status', (status) => {
       updateServiceModeUI(status.connected);
-      if (status.portPath) {
-        document.getElementById('service-subtitle').textContent = `Connected: ${status.portPath}`;
+      const subtitle = document.getElementById('service-subtitle');
+      if (status.connected && status.portPath) {
+        subtitle.textContent = `Connected: ${status.portPath}`;
+        subtitle.style.color = '';
+      } else if (status.error) {
+        subtitle.textContent = `Disconnected: ${status.error}`;
+        subtitle.style.color = '#ff6b6b';
       }
       // Initialize pack selector based on configured pack count
       if (status.packCount) {
