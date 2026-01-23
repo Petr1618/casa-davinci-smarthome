@@ -24,9 +24,9 @@ const CONFIG = {
   seplos: {
     enabled: true,             // Set to true when USB-RS485 adapter is connected
     portPath: '/dev/ttyUSB0',  // Default RS485 adapter path
-    autoScan: true,            // Auto-detect connected packs on startup
-    maxPackAddress: 0x03,      // Max address to scan (0x00-0x03 = 4 packs max)
-    pollInterval: 5000         // Poll every 5 seconds
+    autoScan: true,            // Scan for connected pack (service mode - single pack diagnostics)
+    maxPackAddress: 0x0F,      // Scan range 0x00-0x0F
+    pollInterval: 10000        // Poll every 10 seconds (less frequent for diagnostics)
   }
 };
 
@@ -110,7 +110,8 @@ async function initSeplosService() {
     seplosService = new SeplosService({
       portPath: CONFIG.seplos.portPath,
       autoScan: CONFIG.seplos.autoScan,
-      maxPackAddress: CONFIG.seplos.maxPackAddress
+      maxPackAddress: CONFIG.seplos.maxPackAddress || 0x0F,
+      packAddresses: CONFIG.seplos.packAddresses
     });
 
     // Event handlers

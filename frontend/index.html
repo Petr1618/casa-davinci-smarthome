@@ -5212,6 +5212,11 @@
                 <div class="module-status" id="module2-status">Online</div>
                 <div class="module-detail" id="module2-detail"></div>
               </div>
+              <div class="module-box" id="module3-box">
+                <div class="module-name">Pack-03</div>
+                <div class="module-status" id="module3-status">Online</div>
+                <div class="module-detail" id="module3-detail"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -8107,10 +8112,13 @@
 
       const mod1Box = el('module1-box');
       const mod2Box = el('module2-box');
+      const mod3Box = el('module3-box');
       const mod1Status = el('module1-status');
       const mod2Status = el('module2-status');
+      const mod3Status = el('module3-status');
       const mod1Detail = el('module1-detail');
       const mod2Detail = el('module2-detail');
+      const mod3Detail = el('module3-detail');
 
       if (mod1Box) {
         mod1Box.classList.toggle('offline', battModulesOnline < 1);
@@ -8118,11 +8126,17 @@
       if (mod2Box) {
         mod2Box.classList.toggle('offline', battModulesOnline < 2);
       }
+      if (mod3Box) {
+        mod3Box.classList.toggle('offline', battModulesOnline < 3);
+      }
       if (mod1Status) {
         mod1Status.textContent = battModulesOnline >= 1 ? 'Online' : 'Offline';
       }
       if (mod2Status) {
         mod2Status.textContent = battModulesOnline >= 2 ? 'Online' : 'Offline';
+      }
+      if (mod3Status) {
+        mod3Status.textContent = battModulesOnline >= 3 ? 'Online' : 'Offline';
       }
 
       // Update module details with min/max indicators
@@ -8141,6 +8155,14 @@
         if (battMinTempCellId && battMinTempCellId.indexOf('02') >= 0) d.push('Min T');
         if (battMaxTempCellId && battMaxTempCellId.indexOf('02') >= 0) d.push('Max T');
         mod2Detail.textContent = d.join(' | ') || '';
+      }
+      if (mod3Detail) {
+        const d = [];
+        if (battMinVoltageCellId && battMinVoltageCellId.indexOf('03') >= 0) d.push('Min V');
+        if (battMaxVoltageCellId && battMaxVoltageCellId.indexOf('03') >= 0) d.push('Max V');
+        if (battMinTempCellId && battMinTempCellId.indexOf('03') >= 0) d.push('Min T');
+        if (battMaxTempCellId && battMaxTempCellId.indexOf('03') >= 0) d.push('Max T');
+        mod3Detail.textContent = d.join(' | ') || '';
       }
     }
 
