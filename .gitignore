@@ -1,6 +1,13 @@
 # Credentials and sensitive files
 docs/
 
+# Python
+python/venv/
+python/.env
+__pycache__/
+*.pyc
+*.png
+
 # Dependencies
 node_modules/
 
@@ -24,3 +31,8 @@ npm-debug.log*
 # Build artifacts
 dist/
 build/
+CREDENTIALS.md
+HETZNER-SETUP-COMPLETE.md
+MIGRATION-PLAN.md
+CLAUDE.md
+wireguard/*.conf
