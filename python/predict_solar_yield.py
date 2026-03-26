@@ -87,10 +87,10 @@ def query_daily_yields(client: InfluxDBClient, days: int = 90) -> pd.DataFrame:
         |> range(start: -{days}d)
         |> filter(fn: (r) => r["_measurement"] == "victron")
         |> filter(fn: (r) => 
-            r["topic"] =~ /solarcharger\\/27[89]\\/Yield\\/Power/
+            r["topic"] =~ /solarcharger\\/278\\/Yield\\/Power/ or
+            r["topic"] =~ /solarcharger\\/279\\/Yield\\/Power/
         )
         |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)
-        |> pivot(rowKey: ["_time"], columnKey: ["topic"], valueColumn: "_value")
     '''
     
     try:
@@ -115,6 +115,8 @@ def compute_solar_features(dates: pd.Series) -> pd.DataFrame:
     For spacecraft: equivalent to computing beta angle
     and eclipse fraction from orbital elements.
     """
+    if isinstance(dates, pd.DatetimeIndex):
+        dates = dates.to_series()
     doy = dates.dt.dayofyear
     
     # Approximate day length using sinusoidal model for latitude ~50°N
@@ -238,10 +240,11 @@ def main(history_days: int = 90, forecast_days: int = 7):
     print("\n[1/3] Querying historical solar data...")
     df = query_daily_yields(client, history_days)
     
-    # Combine both MPPT outputs
-    power_cols = [c for c in df.columns if 'Power' in str(c) or 'power' in str(c)]
-    if power_cols:
-        df['total_power'] = df[power_cols].sum(axis=1)
+    # Combine both MPPT outputs by summing per timestamp
+    if not df.empty and '_value' in df.columns:
+        df['_time'] = pd.to_datetime(df['_time'])
+        df = df.groupby(df['_time'].dt.date).agg({'_value': 'sum', '_time': 'first'}).reset_index(drop=True)
+        df.rename(columns={'_value': 'total_power'}, inplace=True)
     print(f"  → {len(df)} daily records")
     
     # Train model
