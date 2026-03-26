@@ -7,6 +7,33 @@ Monitors InfluxDB for threshold violations and generates alerts.
 Designed as a polling daemon that checks latest readings against
 configurable limits.
 
+HOW IT WORKS (for non-programmers):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is a watchdog — it periodically checks the latest sensor readings
+and compares them against predefined safe limits (thresholds).
+
+1. THRESHOLD MONITORING (Out-of-Limits detection)
+   - Each metric has a safe range, e.g.:
+     - Battery voltage: 48.0V – 56.0V
+     - Cell temperature: 5°C – 45°C
+     - State of Charge: 10% – 100%
+   - Every N seconds, the script queries InfluxDB for the latest value.
+   - If a value is outside its safe range → alert is triggered.
+   - Alerts have severity levels (WARNING, CRITICAL) based on how far
+     the value is from the limit.
+
+2. HYSTERESIS (avoiding alert storms)
+   - Without hysteresis, a value flickering around a threshold
+     (e.g., 47.9V → 48.1V → 47.9V) would trigger dozens of alerts.
+   - Hysteresis adds a "dead zone": once an alert fires, the value
+     must return well within the safe range before the alert clears.
+   - This is the same principle as a thermostat — it doesn't turn
+     on/off at exactly the same temperature.
+
+3. OPERATING MODES
+   - Single-shot: Check once, print results, exit (for cron jobs).
+   - Daemon: Run continuously, check every N seconds (for monitoring).
+
 Satellite parallel: Identical to satellite housekeeping monitoring —
 autonomous onboard alerting when telemetry exceeds safe operating
 limits (voltage, temperature, current). In orbit, this triggers

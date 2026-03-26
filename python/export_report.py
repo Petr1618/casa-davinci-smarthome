@@ -6,6 +6,30 @@ Casa DaVinci — Automated PDF Report Generator
 Generates daily/weekly energy reports from InfluxDB data
 as PDF documents with charts and statistics.
 
+HOW IT WORKS (for non-programmers):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script creates a professional PDF report summarizing
+the solar system's performance over a given time period.
+
+1. DATA QUERY
+   - Connects to InfluxDB (time-series database) where all sensor
+     data is stored.
+   - Fetches summary statistics: average solar power, grid usage,
+     home consumption, battery state of charge, and voltage.
+
+2. CHART GENERATION
+   - Creates a time-series chart showing energy flows over time.
+   - Solar production (yellow), home consumption (blue) plotted
+     with hourly averages to show daily patterns (peaks at noon).
+   - Uses Matplotlib — the standard Python plotting library.
+
+3. PDF ASSEMBLY
+   - Uses ReportLab to build a structured A4 document with:
+     - Summary table with key metrics
+     - Energy flow chart
+     - System hardware configuration reference
+   - Output: A single PDF file ready to share or archive.
+
 Satellite parallel: Automated pass report generation —
 after each ground station contact, a summary report is
 generated with telemetry statistics, anomalies, and trends.

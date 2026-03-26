@@ -6,10 +6,33 @@ Casa DaVinci — Solar Yield Prediction
 Predicts daily solar energy production using historical data
 from InfluxDB and simple ML regression models.
 
-Uses:
-- Historical daily yield from Victron MPPT charge controllers
-- Time-of-year features (day length, solar elevation proxy)
-- Rolling averages for weather pattern estimation
+HOW IT WORKS (for non-programmers):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script learns from past solar production data to predict
+how much energy the panels will produce tomorrow.
+
+1. DATA COLLECTION
+   - Gathers daily solar yield (kWh) from Victron MPPT charge controllers.
+   - Collects data over weeks/months to build a history.
+
+2. FEATURE ENGINEERING (turning dates into useful numbers)
+   - Day of year → tells the model about seasons (summer = more sun).
+   - Sin/cos of day-of-year → captures the cyclical nature of seasons
+     (day 365 is close to day 1, not far from it).
+   - Rolling averages (3-day, 7-day) → captures recent weather patterns
+     (if last 3 days were cloudy, tomorrow might be too).
+
+3. RIDGE REGRESSION (the prediction model)
+   - Ridge regression is a simple machine learning algorithm.
+   - It finds a formula: predicted_yield = a×feature1 + b×feature2 + ...
+   - "Ridge" means it includes a penalty for extreme coefficients,
+     which prevents overfitting (memorizing noise instead of patterns).
+   - Think of it as drawing the best straight line through a scatter
+     plot, but with a preference for simpler (flatter) lines.
+
+4. OUTPUT
+   - Predicted yield for the next day in kWh.
+   - Confidence based on how similar recent days were to training data.
 
 Satellite parallel: Energy budget prediction is critical for
 spacecraft operations — predicting solar panel output based on

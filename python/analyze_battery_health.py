@@ -6,10 +6,43 @@ Casa DaVinci — Battery Health Anomaly Detection
 Analyzes Seplos BMS cell voltage and temperature data from InfluxDB
 to detect anomalies that could indicate degradation or failure.
 
-Techniques:
-- Z-score analysis for cell voltage imbalance detection
-- Rolling statistics for drift/degradation trends
-- IQR-based outlier detection for temperature anomalies
+HOW IT WORKS (for non-programmers):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script uses three statistical methods to find problems in battery data:
+
+1. Z-SCORE ANALYSIS (cell voltage imbalance detection)
+   - Z-score tells us "how unusual is this value compared to normal?"
+   - It measures how many standard deviations a value is from the average.
+   - Formula: Z = (value - mean) / standard_deviation
+   - If Z > 2, the value is in the top ~2.5% = unusual.
+   - If Z > 3, the value is in the top ~0.1% = very likely a problem.
+   - Example: If cells average 3.30V with std 0.01V, a cell at 3.35V
+     has Z = (3.35 - 3.30) / 0.01 = 5.0 → definite anomaly.
+   - USE: Detects cells that behave differently from their peers,
+     which indicates degradation, internal resistance issues, or failure.
+
+2. ROLLING STATISTICS (drift/degradation trends)
+   - Instead of looking at single values, we compute moving averages
+     over a time window (e.g., 24 hours).
+   - This smooths out noise and reveals slow trends — like a cell
+     that gradually drifts lower over days/weeks.
+   - A healthy battery pack has stable, parallel cell voltages.
+     If one cell's rolling average diverges, it's degrading.
+
+3. IQR-BASED OUTLIER DETECTION (temperature anomalies)
+   - IQR = Interquartile Range = Q3 - Q1 (the "middle 50%" of data).
+   - Step by step:
+     a) Sort all temperature readings from lowest to highest.
+     b) Find Q1 (25th percentile) and Q3 (75th percentile).
+     c) Calculate IQR = Q3 - Q1.
+     d) Set fences:
+        - Lower fence = Q1 - 1.5 × IQR
+        - Upper fence = Q3 + 1.5 × IQR
+     e) Any temperature below lower fence or above upper fence = anomaly.
+   - Example: If temperatures are mostly 20-30°C (Q1=22, Q3=28, IQR=6),
+     then upper fence = 28 + 9 = 37°C. A reading of 40°C = anomaly.
+   - WHY IQR instead of fixed thresholds? Because it adapts to seasonal
+     changes — what's normal in summer differs from winter.
 
 Satellite parallel: Same approach applies to spacecraft battery
 housekeeping — detecting cell degradation in orbit where physical
