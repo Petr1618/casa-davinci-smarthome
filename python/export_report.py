@@ -49,11 +49,11 @@ def query_energy_summary(client: InfluxDBClient, hours: int = 24) -> dict:
     summary = {}
     
     metrics = {
-        'solar': ('solarcharger/27[89]/Yield/Power', 'sum'),
-        'grid': ('grid/30/Ac/Power', 'mean'),
-        'consumption': ('vebus/276/Ac/Out/P', 'mean'),
-        'battery_soc': ('battery/512/Soc', 'mean'),
-        'battery_voltage': ('battery/512/Dc/0/Voltage', 'mean'),
+        'solar': ('solarcharger\\/27[89]\\/Yield\\/Power', 'mean'),
+        'grid': ('vebus\\/276\\/Ac\\/ActiveIn\\/L1\\/P', 'mean'),
+        'consumption': ('system\\/0\\/Ac\\/Consumption\\/L1\\/Power', 'mean'),
+        'battery_soc': ('battery\\/512\\/Soc', 'mean'),
+        'battery_voltage': ('battery\\/512\\/Dc\\/0\\/Voltage', 'mean'),
     }
     
     for name, (topic_pattern, agg) in metrics.items():
@@ -61,7 +61,7 @@ def query_energy_summary(client: InfluxDBClient, hours: int = 24) -> dict:
         from(bucket: "{INFLUXDB_BUCKET}")
             |> range(start: -{hours}h)
             |> filter(fn: (r) => r["_measurement"] == "victron")
-            |> filter(fn: (r) => r["topic"] =~ /{topic_pattern.replace("/", "\\/")}/)
+            |> filter(fn: (r) => r["topic"] =~ /{topic_pattern}/)
             |> {agg}()
         '''
         try:
@@ -87,12 +87,12 @@ def create_energy_chart(client: InfluxDBClient, hours: int = 24) -> BytesIO:
         |> range(start: -{hours}h)
         |> filter(fn: (r) => r["_measurement"] == "victron")
         |> filter(fn: (r) => 
-            r["topic"] =~ /solarcharger\\/27[89]\\/Yield\\/Power/ or
-            r["topic"] =~ /grid\\/30\\/Ac\\/Power/ or
-            r["topic"] =~ /vebus\\/276\\/Ac\\/Out\\/P/
+            r["topic"] =~ /solarcharger\\/278\\/Yield\\/Power/ or
+            r["topic"] =~ /solarcharger\\/279\\/Yield\\/Power/ or
+            r["topic"] =~ /system\\/0\\/Ac\\/Consumption\\/L1\\/Power/ or
+            r["topic"] =~ /system\\/0\\/Dc\\/Pv\\/Power/
         )
-        |> aggregateWindow(every: 15m, fn: mean, createEmpty: false)
-        |> pivot(rowKey: ["_time"], columnKey: ["topic"], valueColumn: "_value")
+        |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
     '''
     
     try:
@@ -104,18 +104,30 @@ def create_energy_chart(client: InfluxDBClient, hours: int = 24) -> BytesIO:
     
     fig, ax = plt.subplots(figsize=(8, 4))
     
-    if not df.empty and '_time' in df.columns:
-        times = pd.to_datetime(df['_time'])
+    if not df.empty and '_time' in df.columns and 'topic' in df.columns:
+        df['_time'] = pd.to_datetime(df['_time'])
         
-        # Find and plot available columns
-        for col in df.columns:
-            if 'solarcharger' in str(col) and 'Power' in str(col):
-                ax.fill_between(times, df[col].fillna(0), alpha=0.3, color='#f1c40f', label='Solar')
-                ax.plot(times, df[col].fillna(0), color='#f39c12', linewidth=0.8)
-            elif 'grid' in str(col):
-                ax.plot(times, df[col].fillna(0), color='#e74c3c', linewidth=1, label='Grid')
-            elif 'vebus' in str(col):
-                ax.plot(times, df[col].fillna(0), color='#3498db', linewidth=1, label='Consumption')
+        # Plot each topic series
+        colors = {
+            'solar': ('#f39c12', '#f1c40f'),
+            'consumption': ('#3498db', '#85c1e9'),
+            'pv_total': ('#27ae60', '#82e0aa'),
+        }
+        
+        for topic_val, group in df.groupby('topic'):
+            topic_str = str(topic_val)
+            times = group['_time']
+            vals = group['_value'].fillna(0)
+            
+            if 'solarcharger' in topic_str and 'Yield/Power' in topic_str:
+                charger_id = '278' if '278' in topic_str else '279'
+                ax.plot(times, vals, color='#f39c12', linewidth=0.8, label=f'MPPT {charger_id}', alpha=0.7)
+            elif 'Consumption' in topic_str:
+                ax.fill_between(times, vals, alpha=0.2, color='#3498db')
+                ax.plot(times, vals, color='#3498db', linewidth=1, label='Consumption')
+            elif 'Dc/Pv/Power' in topic_str:
+                ax.fill_between(times, vals, alpha=0.2, color='#f1c40f')
+                ax.plot(times, vals, color='#f39c12', linewidth=1, label='Solar Total')
     
     ax.set_xlabel('Time')
     ax.set_ylabel('Power (W)')
