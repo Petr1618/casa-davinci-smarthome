@@ -5707,6 +5707,7 @@
     let solarLifetime1 = 0, solarLifetime2 = 0;
     let batteryPower = 0, batterySoc = 0, batteryVoltage = 0, batteryTemp = 0;
     let gridPower = 0, gridVoltage = 0, gridFrequency = 0;
+    let gridPowerLastUpdate = Date.now();
     let homePower = 0;
     let peakSolarToday = 0;
 
@@ -5922,6 +5923,17 @@
       document.getElementById('stat-summary-consumed').textContent = data.homeConsumedKwh + ' kWh';
     });
 
+    // Stale-data detection: zero out grid power if no MQTT update for 30s
+    setInterval(() => {
+      const STALE_TIMEOUT_MS = 30000;
+      if (gridPower !== 0 && (Date.now() - gridPowerLastUpdate) > STALE_TIMEOUT_MS) {
+        gridPower = 0;
+        document.getElementById('grid').textContent = '0.0';
+        document.getElementById('stat-grid-power').textContent = '0 W';
+        updateFlows();
+      }
+    }, 5000);
+
     // System notifications (BMS protection, etc.)
     socket.on('system-notification', (notification) => {
       showNotification(notification);
@@ -6082,6 +6094,7 @@
       // Grid
       if (topic.includes('/grid/30/Ac/Power')) {
         gridPower = value;
+        gridPowerLastUpdate = Date.now();
         document.getElementById('grid').textContent = (Math.abs(value) / 1000).toFixed(1);
         document.getElementById('stat-grid-power').textContent = Math.round(value) + ' W';
         updateFlows();
