@@ -62,6 +62,99 @@ const ESSENTIAL_METRICS = [
   '/vebus/276/State'
 ];
 
+// ============================================================
+// MQTT Watchdog
+// ------------------------------------------------------------
+// Detects when a previously-working Victron service silently
+// disappears from the MQTT bus. On 2026-05-29 the Roof MPPT
+// (solarcharger/278, VE.Can) dropped off the Cerbo's dbus→MQTT
+// export and stayed gone for 8 days — the dashboard just showed
+// a silent 0 W. This watchdog raises an alert instead.
+//
+// Grid is intentionally NOT watched: this site runs off-grid and
+// grid/30 is absent by design (would false-positive forever).
+// ============================================================
+const WATCHDOG = {
+  staleMs: 10 * 60 * 1000,        // offline after 10 min of silence
+  checkIntervalMs: 2 * 60 * 1000, // evaluate every 2 min
+  startupGraceMs: 3 * 60 * 1000,  // ignore first 3 min (connect + first keepalive dump)
+  startedAt: Date.now(),
+  watched: [
+    { suffix: '/solarcharger/278/Yield/Power', label: 'Roof MPPT (278)' },
+    { suffix: '/solarcharger/279/Yield/Power', label: 'Terrace MPPT (279)' },
+    { suffix: '/battery/512/Soc',              label: 'Battery BMS (512)' },
+    { suffix: '/vebus/276/Ac/Out/P',           label: 'Inverter (vebus 276)' }
+  ],
+  lastSeen: {}, // suffix -> timestamp (ms)
+  offline: {}   // suffix -> bool (currently flagged offline)
+};
+
+// Update last-seen time when a watched topic arrives
+function markTopicSeen(topic) {
+  for (const w of WATCHDOG.watched) {
+    if (topic.endsWith(w.suffix)) {
+      WATCHDOG.lastSeen[w.suffix] = Date.now();
+      break;
+    }
+  }
+}
+
+// Build current watchdog status (for new clients + API)
+function getWatchdogStatus() {
+  const now = Date.now();
+  return WATCHDOG.watched.map(w => {
+    const last = WATCHDOG.lastSeen[w.suffix] || null;
+    return {
+      label: w.label,
+      topic: w.suffix,
+      lastSeen: last,
+      ageSeconds: last ? Math.round((now - last) / 1000) : null,
+      offline: !!WATCHDOG.offline[w.suffix]
+    };
+  });
+}
+
+// Periodic check: flag offline/restored transitions (emit once each)
+function checkWatchdog() {
+  const now = Date.now();
+  if (now - WATCHDOG.startedAt < WATCHDOG.startupGraceMs) return;
+
+  for (const w of WATCHDOG.watched) {
+    const last = WATCHDOG.lastSeen[w.suffix];
+    // Measure silence from last sighting, or from startup if never seen
+    const reference = last || WATCHDOG.startedAt;
+    const stale = (now - reference) > WATCHDOG.staleMs;
+    const wasOffline = !!WATCHDOG.offline[w.suffix];
+
+    if (stale && !wasOffline) {
+      WATCHDOG.offline[w.suffix] = true;
+      const minutes = Math.round((now - reference) / 60000);
+      const event = {
+        type: 'mqtt_topic_offline',
+        severity: 'warning',
+        title: `${w.label} offline`,
+        message: last
+          ? `Žádná MQTT data z ${w.label} už ${minutes} min — služba zřejmě vypadla ze sběrnice Cerba.`
+          : `Žádná MQTT data z ${w.label} od startu — zkontroluj Cerbo / připojení zařízení.`
+      };
+      io.emit('system-notification', { ...event, timestamp: now });
+      io.emit('mqtt-watchdog', getWatchdogStatus());
+      console.log(`⚠️  Watchdog: ${w.label} OFFLINE (ticho ${minutes} min)`);
+    } else if (!stale && wasOffline) {
+      WATCHDOG.offline[w.suffix] = false;
+      const event = {
+        type: 'mqtt_topic_restored',
+        severity: 'info',
+        title: `${w.label} obnoveno`,
+        message: `MQTT data z ${w.label} zase tečou.`
+      };
+      io.emit('system-notification', { ...event, timestamp: now });
+      io.emit('mqtt-watchdog', getWatchdogStatus());
+      console.log(`✓ Watchdog: ${w.label} obnoveno`);
+    }
+  }
+}
+
 // Initialize Express & Socket.io
 const app = express();
 const server = http.createServer(app);
@@ -372,6 +465,9 @@ cerboClient.on('message', (topic, message) => {
       // Store latest value
       latestData.victron[topic] = data.value;
 
+      // Watchdog: record that this topic is still alive
+      markTopicSeen(topic);
+
       // Emit to connected web clients
       io.emit('victron-data', { topic, value: data.value });
 
@@ -533,6 +629,9 @@ io.on('connection', (socket) => {
   // Send daily energy metrics immediately
   socket.emit('daily-energy', getDailyMetrics());
 
+  // Send current MQTT watchdog status
+  socket.emit('mqtt-watchdog', getWatchdogStatus());
+
   // Send Seplos status and data if available
   if (seplosService) {
     socket.emit('seplos-status', seplosService.getStatus());
@@ -644,6 +743,9 @@ setInterval(() => {
   io.emit('daily-energy', getDailyMetrics());
 }, 30000);
 
+// Run MQTT watchdog checks
+setInterval(checkWatchdog, WATCHDOG.checkIntervalMs);
+
 // API Endpoints
 app.get('/api/health', (req, res) => {
   res.json({
@@ -660,6 +762,14 @@ app.get('/api/sensors', (req, res) => {
 
 app.get('/api/victron', (req, res) => {
   res.json(latestData.victron);
+});
+
+// MQTT Watchdog status
+app.get('/api/mqtt/watchdog', (req, res) => {
+  res.json({
+    staleThresholdSeconds: WATCHDOG.staleMs / 1000,
+    topics: getWatchdogStatus()
+  });
 });
 
 // Seplos Service Mode API endpoints
