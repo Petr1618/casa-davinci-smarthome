@@ -183,8 +183,70 @@ const latestData = {
   seplos: {
     telemetry: null,
     alarms: null
+  },
+  // Well pump (Shelly Plus 1) — see PUMP section below
+  pump: {
+    online: null,      // bool — Shelly connected to broker
+    on: null,          // bool — relay output state
+    temperature: null, // °C — Shelly internal temperature
+    source: null,      // what triggered the last change (timer/MQTT/...)
+    lastUpdate: null   // ms
   }
 };
+
+// ============================================================
+// Well pump — Shelly Plus 1 over MQTT
+// ------------------------------------------------------------
+// The Shelly publishes to the SAME Cerbo broker under prefix
+// "casa/pump" (configured on the device):
+//   status:  casa/pump/online           -> "true" / "false"
+//            casa/pump/status/switch:0   -> {"output":bool,"temperature":{tC},...}
+//   control: casa/pump/command/switch:0  <- "on" | "off" | "toggle"
+//   rpc:     casa/pump/rpc               <- JSON-RPC (used to prime initial state)
+// Garage was a 1 s pulse; for the pump the timing (1 min / hour)
+// lives locally in the Shelly schedule. Here we only mirror state
+// and allow manual on/off + monitoring.
+// ============================================================
+const PUMP = {
+  prefix: 'casa/pump',
+  replyTopic: 'casa/pump/server/reply'
+};
+
+// Parse an incoming Shelly pump topic and broadcast state
+function handlePumpMessage(topic, msgStr) {
+  const sub = topic.slice(PUMP.prefix.length + 1); // strip "casa/pump/"
+  try {
+    if (sub === 'online') {
+      latestData.pump.online = (msgStr === 'true');
+    } else if (sub === 'status/switch:0' || sub === 'server/reply/rpc') {
+      const d = JSON.parse(msgStr);
+      const s = d.result || d; // RPC reply wraps status in .result (replies land on <src>/rpc)
+      if (typeof s.output === 'boolean') latestData.pump.on = s.output;
+      if (s.temperature && typeof s.temperature.tC === 'number') {
+        latestData.pump.temperature = s.temperature.tC;
+      }
+      if (s.source) latestData.pump.source = s.source;
+    } else {
+      return; // ignore status/sys, events/rpc, etc.
+    }
+    latestData.pump.lastUpdate = Date.now();
+    io.emit('pump-status', latestData.pump);
+  } catch (e) { /* non-JSON, ignore */ }
+}
+
+// Send on/off command to the pump Shelly
+function setPump(on) {
+  cerboClient.publish(`${PUMP.prefix}/command/switch:0`, on ? 'on' : 'off');
+  console.log(`→ Pump command: ${on ? 'ON' : 'OFF'}`);
+}
+
+// Ask the Shelly for its current relay state (read-only) to prime the UI
+function primePumpStatus() {
+  const req = JSON.stringify({
+    id: 1, src: PUMP.replyTopic, method: 'Switch.GetStatus', params: { id: 0 }
+  });
+  cerboClient.publish(`${PUMP.prefix}/rpc`, req);
+}
 
 // Seplos BMS Service Mode
 let seplosService = null;
@@ -415,6 +477,12 @@ cerboClient.on('connect', () => {
   // Subscribe to ESP32 sensor data
   cerboClient.subscribe('home/#');
 
+  // Subscribe to Shelly well-pump topics (same broker)
+  cerboClient.subscribe(`${PUMP.prefix}/#`);
+  console.log('✓ Subscribed to Shelly pump topics (casa/pump/#)');
+  // Prime current relay state once the subscription is active
+  setTimeout(primePumpStatus, 1500);
+
   // Subscribe to settings topics for control panel current values
   SETTINGS_TOPICS.forEach(topic => {
     const fullTopic = `N/${CONFIG.mqtt.cerboSerial}${topic}`;
@@ -456,6 +524,12 @@ cerboClient.on('error', (error) => {
 
 cerboClient.on('message', (topic, message) => {
   const msgStr = message.toString();
+
+  // Handle Shelly well-pump data (casa/pump/...)
+  if (topic.startsWith(`${PUMP.prefix}/`)) {
+    handlePumpMessage(topic, msgStr);
+    return;
+  }
 
   // Handle Victron data (N/... topics)
   if (topic.startsWith('N/')) {
@@ -632,6 +706,15 @@ io.on('connection', (socket) => {
   // Send current MQTT watchdog status
   socket.emit('mqtt-watchdog', getWatchdogStatus());
 
+  // Send current pump status + refresh it from the device
+  socket.emit('pump-status', latestData.pump);
+  primePumpStatus();
+
+  // Pump manual control from dashboard
+  socket.on('pump-control', (data) => {
+    setPump(!!(data && data.on));
+  });
+
   // Send Seplos status and data if available
   if (seplosService) {
     socket.emit('seplos-status', seplosService.getStatus());
@@ -770,6 +853,19 @@ app.get('/api/mqtt/watchdog', (req, res) => {
     staleThresholdSeconds: WATCHDOG.staleMs / 1000,
     topics: getWatchdogStatus()
   });
+});
+
+// Well pump — status + manual control
+app.get('/api/pump', (req, res) => {
+  res.json(latestData.pump);
+});
+app.get('/api/pump/on', (req, res) => {
+  setPump(true);
+  res.json({ sent: 'on' });
+});
+app.get('/api/pump/off', (req, res) => {
+  setPump(false);
+  res.json({ sent: 'off' });
 });
 
 // Seplos Service Mode API endpoints
