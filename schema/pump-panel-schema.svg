@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840" font-family="Helvetica, Arial, sans-serif">
+  <!-- background -->
+  <rect x="0" y="0" width="1200" height="840" fill="#ffffff"/>
+  <rect x="8" y="8" width="1184" height="824" fill="none" stroke="#bbbbbb" stroke-width="1.5"/>
+
+  <!-- title -->
+  <text x="600" y="36" text-anchor="middle" font-size="22" font-weight="bold" fill="#111">Casa DaVinci — Skříň ovládání čerpadla (studna → jímka)</text>
+  <text x="600" y="58" text-anchor="middle" font-size="13" fill="#555">Shelly Plus 1 → stykač → čerpadlo 1,5 kW / 230 V  •  připraveno pro budoucí dry-run ochranu (Var. 1)</text>
+
+  <!-- ===================== COMMON RAILS ===================== -->
+  <!-- N rail -->
+  <line x1="30" y1="655" x2="1185" y2="655" stroke="#1F6FEB" stroke-width="3"/>
+  <text x="36" y="648" font-size="12" fill="#1F6FEB" font-weight="bold">N — svorkovnice (trvalý nulák)</text>
+  <!-- PE rail -->
+  <line x1="30" y1="745" x2="1185" y2="745" stroke="#2E8B2E" stroke-width="3"/>
+  <text x="36" y="738" font-size="12" fill="#2E8B2E" font-weight="bold">PE — svorkovnice (zem)</text>
+
+  <!-- ===================== INCOMING L ===================== -->
+  <text x="20" y="154" font-size="13" font-weight="bold" fill="#7B3F00">L</text>
+  <text x="20" y="660" font-size="13" font-weight="bold" fill="#1F6FEB">N</text>
+  <text x="18" y="750" font-size="13" font-weight="bold" fill="#2E8B2E">PE</text>
+
+  <!-- L horizontal in + distribution riser -->
+  <line x1="30" y1="150" x2="90" y2="150" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="90" y1="150" x2="90" y2="485" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="90" y1="150" x2="150" y2="150" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="90" y1="485" x2="150" y2="485" stroke="#7B3F00" stroke-width="3"/>
+  <circle cx="90" cy="150" r="3.5" fill="#7B3F00"/>
+  <circle cx="90" cy="485" r="3.5" fill="#7B3F00"/>
+
+  <!-- ===================== MCB (control supply) ===================== -->
+  <rect x="150" y="125" width="120" height="50" rx="4" fill="#fafafa" stroke="#333" stroke-width="1.5"/>
+  <text x="210" y="148" text-anchor="middle" font-size="13" font-weight="bold" fill="#111">MCB B10</text>
+  <text x="210" y="165" text-anchor="middle" font-size="10" fill="#666">jištění ovládání</text>
+  <line x1="270" y1="150" x2="410" y2="150" stroke="#7B3F00" stroke-width="3"/>
+  <text x="330" y="143" text-anchor="middle" font-size="11" fill="#7B3F00">Lc (fáze ovládání)</text>
+  <!-- branch down to Shelly I -->
+  <line x1="370" y1="150" x2="370" y2="235" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="370" y1="235" x2="410" y2="235" stroke="#7B3F00" stroke-width="3"/>
+  <circle cx="370" cy="150" r="3.5" fill="#7B3F00"/>
+
+  <!-- ===================== SHELLY ===================== -->
+  <rect x="410" y="110" width="200" height="175" rx="6" fill="#eef2ff" stroke="#333" stroke-width="1.5"/>
+  <text x="510" y="132" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b3a8a">Shelly Plus 1</text>
+  <text x="510" y="148" text-anchor="middle" font-size="10" fill="#555">mozek: časovač + povel + stav</text>
+  <!-- terminals -->
+  <circle cx="410" cy="150" r="4" fill="#7B3F00"/><text x="420" y="154" font-size="12" font-weight="bold" fill="#111">L</text>
+  <circle cx="410" cy="235" r="4" fill="#7B3F00"/><text x="420" y="239" font-size="12" font-weight="bold" fill="#111">I</text>
+  <circle cx="610" cy="150" r="4" fill="#1F6FEB"/><text x="588" y="154" font-size="12" font-weight="bold" fill="#111">N</text>
+  <circle cx="610" cy="235" r="4" fill="#7B3F00"/><text x="588" y="239" font-size="12" font-weight="bold" fill="#111">O</text>
+  <circle cx="510" cy="285" r="4" fill="#888"/><text x="520" y="289" font-size="11" fill="#555">SW (volný → později stav „běží")</text>
+  <text x="510" y="205" text-anchor="middle" font-size="10" fill="#888">relé I → O</text>
+  <text x="510" y="218" text-anchor="middle" font-size="10" fill="#888">(suchý kontakt)</text>
+
+  <!-- Shelly N -> N rail -->
+  <line x1="610" y1="150" x2="665" y2="150" stroke="#1F6FEB" stroke-width="3"/>
+  <line x1="665" y1="150" x2="665" y2="655" stroke="#1F6FEB" stroke-width="3"/>
+  <circle cx="665" cy="655" r="3.5" fill="#1F6FEB"/>
+
+  <!-- Shelly O -> dry-run (in, left edge) -->
+  <line x1="610" y1="235" x2="632" y2="235" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="632" y1="235" x2="632" y2="329" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="632" y1="329" x2="650" y2="329" stroke="#7B3F00" stroke-width="3"/>
+
+  <!-- ===================== DRY-RUN (future) ===================== -->
+  <rect x="650" y="300" width="150" height="58" rx="6" fill="#fff5f5" stroke="#b00000" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="725" y="320" text-anchor="middle" font-size="11" font-weight="bold" fill="#b00000">DRY-RUN (budoucí)</text>
+  <text x="725" y="335" text-anchor="middle" font-size="9.5" fill="#b00000">teď: rozpojitelný můstek</text>
+  <text x="725" y="349" text-anchor="middle" font-size="9.5" fill="#b00000">později: NC podproud. relé</text>
+  <!-- dry-run out (right edge) -> coil A1 -->
+  <line x1="800" y1="329" x2="815" y2="329" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="815" y1="329" x2="815" y2="210" stroke="#7B3F00" stroke-width="3"/>
+  <line x1="815" y1="210" x2="830" y2="210" stroke="#7B3F00" stroke-width="3"/>
+
+  <!-- ===================== CONTACTOR ===================== -->
+  <rect x="830" y="110" width="220" height="505" rx="6" fill="#fafafa" stroke="#333" stroke-width="1.8"/>
+  <text x="940" y="132" text-anchor="middle" font-size="14" font-weight="bold" fill="#111">STYKAČ Eaton DILM17-10</text>
+  <text x="940" y="148" text-anchor="middle" font-size="10" fill="#666">18 A AC-3 • cívka 230 V AC • 3 póly + 1 NO</text>
+
+  <!-- coil -->
+  <rect x="895" y="185" width="90" height="60" rx="4" fill="#ffffff" stroke="#444" stroke-width="1.4"/>
+  <text x="940" y="210" text-anchor="middle" font-size="11" font-weight="bold" fill="#111">cívka</text>
+  <text x="940" y="226" text-anchor="middle" font-size="10" fill="#666">230 V AC</text>
+  <circle cx="830" cy="210" r="4" fill="#7B3F00"/><text x="840" y="205" font-size="11" font-weight="bold" fill="#111">A1</text>
+  <circle cx="830" cy="250" r="4" fill="#1F6FEB"/><text x="840" y="263" font-size="11" font-weight="bold" fill="#111">A2</text>
+  <line x1="845" y1="210" x2="895" y2="210" stroke="#444" stroke-width="1.4"/>
+  <line x1="845" y1="250" x2="845" y2="245" stroke="#444" stroke-width="1.4"/>
+  <line x1="845" y1="245" x2="895" y2="245" stroke="#444" stroke-width="1.4"/>
+  <!-- A2 -> N rail -->
+  <line x1="830" y1="250" x2="808" y2="250" stroke="#1F6FEB" stroke-width="3"/>
+  <line x1="808" y1="250" x2="808" y2="655" stroke="#1F6FEB" stroke-width="3"/>
+  <circle cx="808" cy="655" r="3.5" fill="#1F6FEB"/>
+  <text x="812" y="300" font-size="10" fill="#1F6FEB">A2 → trvalý N</text>
+
+  <!-- main poles -->
+  <text x="940" y="440" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">hlavní kontakty (silnoproud)</text>
+  <!-- pole 1 -->
+  <circle cx="830" cy="480" r="4" fill="#7B3F00"/><text x="838" y="475" font-size="11" font-weight="bold" fill="#111">1/L1</text>
+  <circle cx="1050" cy="480" r="4" fill="#7B3F00"/><text x="1012" y="475" font-size="11" font-weight="bold" fill="#111">2/T1</text>
+  <line x1="830" y1="480" x2="905" y2="480" stroke="#7B3F00" stroke-width="2.2"/>
+  <line x1="905" y1="480" x2="975" y2="465" stroke="#333" stroke-width="2.2"/>
+  <line x1="975" y1="480" x2="1050" y2="480" stroke="#7B3F00" stroke-width="2.2"/>
+  <!-- pole 2 -->
+  <circle cx="830" cy="545" r="4" fill="#1F6FEB"/><text x="838" y="540" font-size="11" font-weight="bold" fill="#111">3/L2</text>
+  <circle cx="1050" cy="545" r="4" fill="#1F6FEB"/><text x="1012" y="540" font-size="11" font-weight="bold" fill="#111">4/T2</text>
+  <line x1="830" y1="545" x2="905" y2="545" stroke="#1F6FEB" stroke-width="2.2"/>
+  <line x1="905" y1="545" x2="975" y2="530" stroke="#333" stroke-width="2.2"/>
+  <line x1="975" y1="545" x2="1050" y2="545" stroke="#1F6FEB" stroke-width="2.2"/>
+  <!-- mechanical link dashed -->
+  <line x1="940" y1="472" x2="940" y2="537" stroke="#999" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="940" y1="245" x2="940" y2="455" stroke="#999" stroke-width="1.2" stroke-dasharray="3 3"/>
+
+  <!-- aux contact -->
+  <circle cx="830" cy="595" r="4" fill="#888"/><text x="838" y="590" font-size="10" fill="#555">13</text>
+  <circle cx="1050" cy="595" r="4" fill="#888"/><text x="1024" y="590" font-size="10" fill="#555">14</text>
+  <line x1="830" y1="595" x2="1050" y2="595" stroke="#888" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="940" y="610" text-anchor="middle" font-size="10" fill="#888">aux NO → Shelly SW (stav „běží", později)</text>
+
+  <!-- ===================== MPCB ===================== -->
+  <rect x="150" y="453" width="130" height="55" rx="4" fill="#fafafa" stroke="#333" stroke-width="1.5"/>
+  <text x="215" y="476" text-anchor="middle" font-size="13" font-weight="bold" fill="#111">MPCB 9–14 A</text>
+  <text x="215" y="494" text-anchor="middle" font-size="10" fill="#666">nadproud + zkrat</text>
+  <!-- MPCB out -> 1/L1 -->
+  <line x1="280" y1="480" x2="830" y2="480" stroke="#7B3F00" stroke-width="3"/>
+  <text x="540" y="473" text-anchor="middle" font-size="11" fill="#7B3F00">L (silová) → stykač</text>
+
+  <!-- N -> 3/L2 -->
+  <line x1="770" y1="655" x2="770" y2="545" stroke="#1F6FEB" stroke-width="3"/>
+  <line x1="770" y1="545" x2="830" y2="545" stroke="#1F6FEB" stroke-width="3"/>
+  <circle cx="770" cy="655" r="3.5" fill="#1F6FEB"/>
+
+  <!-- ===================== PUMP ===================== -->
+  <rect x="1088" y="450" width="98" height="135" rx="6" fill="#f3fbff" stroke="#0a6aa0" stroke-width="1.8"/>
+  <text x="1137" y="476" text-anchor="middle" font-size="13" font-weight="bold" fill="#0a6aa0">ČERPADLO</text>
+  <text x="1137" y="492" text-anchor="middle" font-size="11" fill="#0a6aa0">1,5 kW</text>
+  <text x="1137" y="507" text-anchor="middle" font-size="11" fill="#0a6aa0">230 V ~</text>
+  <text x="1137" y="540" text-anchor="middle" font-size="9" fill="#666">+ Cb běhový</text>
+  <text x="1137" y="551" text-anchor="middle" font-size="9" fill="#666">kondenzátor</text>
+  <text x="1137" y="562" text-anchor="middle" font-size="9" fill="#666">dle štítku</text>
+  <!-- 2/T1 -> pump L -->
+  <line x1="1050" y1="480" x2="1088" y2="480" stroke="#7B3F00" stroke-width="3"/>
+  <!-- 4/T2 -> pump N -->
+  <line x1="1050" y1="545" x2="1070" y2="545" stroke="#1F6FEB" stroke-width="3"/>
+  <line x1="1070" y1="545" x2="1070" y2="568" stroke="#1F6FEB" stroke-width="3"/>
+  <line x1="1070" y1="568" x2="1088" y2="568" stroke="#1F6FEB" stroke-width="3"/>
+  <!-- PE -> pump -->
+  <line x1="1137" y1="745" x2="1137" y2="585" stroke="#2E8B2E" stroke-width="3"/>
+  <circle cx="1137" cy="745" r="3.5" fill="#2E8B2E"/>
+
+  <!-- ===================== LEGEND ===================== -->
+  <rect x="40" y="770" width="470" height="58" rx="6" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+  <text x="52" y="788" font-size="12" font-weight="bold" fill="#111">Legenda</text>
+  <line x1="56" y1="800" x2="86" y2="800" stroke="#7B3F00" stroke-width="3"/><text x="92" y="804" font-size="11" fill="#333">L (fáze)</text>
+  <line x1="160" y1="800" x2="190" y2="800" stroke="#1F6FEB" stroke-width="3"/><text x="196" y="804" font-size="11" fill="#333">N (nulák)</text>
+  <line x1="270" y1="800" x2="300" y2="800" stroke="#2E8B2E" stroke-width="3"/><text x="306" y="804" font-size="11" fill="#333">PE (zem)</text>
+  <line x1="360" y1="800" x2="390" y2="800" stroke="#b00000" stroke-width="2" stroke-dasharray="6 4"/><text x="396" y="804" font-size="11" fill="#333">budoucí (Var. 1)</text>
+  <text x="52" y="822" font-size="10" fill="#666">časování 1 min/hod: lokálně ve Shelly (schedule + Auto-OFF 60 s)</text>
+
+  <!-- ===================== NOTES ===================== -->
+  <rect x="525" y="770" width="660" height="58" rx="6" fill="#fffef2" stroke="#d9c97a" stroke-width="1"/>
+  <text x="537" y="788" font-size="12" font-weight="bold" fill="#7a6a16">Pozor</text>
+  <text x="537" y="803" font-size="10.5" fill="#5f5410">• Cívka A2 na TRVALÝ nulák (NE přes stykač).   • Nepleť I/O (relé) s L/N (napájení Shelly).</text>
+  <text x="537" y="818" font-size="10.5" fill="#5f5410">• Auto-OFF 60 s = jediná pojistka proti suchoběhu, dokud není dry-run relé.   • Silnoproud = elektrikář.</text>
+</svg>

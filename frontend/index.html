@@ -4,20 +4,262 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Casa DaVinci - Energy</title>
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23000'/><path d='M5 14 L12 5 L19 14 L19 19 L13 19 L13 14 L11 14 L11 19 L5 19 Z' fill='%23ffffff'/></svg>">
+  <script>
+    (function () {
+      var STORAGE_KEY = 'casa-davinci-theme';
+      var VALID = { dark: 1, light: 1, spacex: 1 };
+      var theme = null;
+      try {
+        var stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && VALID[stored]) theme = stored;
+      } catch (e) { /* localStorage blocked — fall through */ }
+      if (!theme) {
+        try {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light' : 'dark';
+        } catch (e) { theme = 'dark'; }
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    /* =========================================================
+       THEME TOKENS
+       Default = dark. Switch via data-theme attribute on <html>:
+         <html data-theme="dark"|"light"|"spacex">
+       Anti-flash inline script in <head> resolves the theme from
+       localStorage ('casa-davinci-theme') or prefers-color-scheme.
+       ========================================================= */
     :root {
+      /* Surfaces */
       --bg-primary: #000000;
       --bg-card: rgba(30, 30, 30, 0.8);
+      --bg-card-solid: #1e1e1e;
+      --bg-elevated: #1a1a1a;
+      --bg-input: rgba(0, 0, 0, 0.3);
+      --card-bg: rgba(30, 30, 30, 0.8);
+
+      /* Text */
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-muted: #666666;
+
+      /* Borders */
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.2);
+
+      /* Semantic accent colors (kept under existing names for compatibility) */
       --solar-color: #f5c542;
       --home-color: #3b9eff;
       --battery-color: #44d62c;
       --grid-color: #888888;
+      --warning-color: #ffa500;
+      --danger-color: #ff4444;
+      --cool-color: #00b4d8;
+      --summary-color: #a855f7;
+      --accent-color: #ffa500;
+      --accent-hover: #ffb733;
+
+      /* Phase colors (electrical L1/L2/L3) */
+      --color-l1: #ff6347;
+      --color-l2: #ffd700;
+      --color-l3: #00bfff;
+
+      /* Soft variants — for badge backgrounds, alarm fills */
+      --solar-soft: rgba(245, 197, 66, 0.15);
+      --battery-soft: rgba(68, 214, 44, 0.15);
+      --home-soft: rgba(59, 158, 255, 0.15);
+      --grid-soft: rgba(136, 136, 136, 0.15);
+      --warning-soft: rgba(255, 165, 0, 0.15);
+      --danger-soft: rgba(255, 68, 68, 0.10);
+      --cool-soft: rgba(0, 180, 216, 0.15);
+
+      /* Glow variants — for box-shadow halos and pulses */
+      --solar-glow: rgba(245, 197, 66, 0.35);
+      --battery-glow: rgba(68, 214, 44, 0.35);
+      --home-glow: rgba(59, 158, 255, 0.35);
+      --grid-glow: rgba(136, 136, 136, 0.30);
+      --warning-glow: rgba(255, 165, 0, 0.35);
+      --danger-glow: rgba(255, 68, 68, 0.35);
+
+      /* Surfaces / elevation */
+      --overlay-bg: rgba(0, 0, 0, 0.8);
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+      --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
+      --header-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+
+      /* Radii */
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-pill: 20px;
+
+      /* Typography */
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+      --tracking-display: 0;
+    }
+
+    /* =========================================================
+       LIGHT THEME — daylight, calm, AA-contrast safe
+       ========================================================= */
+    [data-theme="light"] {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --bg-card-solid: #ffffff;
+      --bg-elevated: #ffffff;
+      --bg-input: #f0f1f4;
+      --card-bg: #ffffff;
+
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+
+      --border-color: rgba(15, 23, 42, 0.10);
+      --border-hover: rgba(15, 23, 42, 0.22);
+
+      --solar-color: #b8860b;
+      --home-color: #1e6fd9;
+      --battery-color: #16a34a;
+      --grid-color: #64748b;
+      --warning-color: #c2410c;
+      --danger-color: #dc2626;
+      --cool-color: #0284c7;
+      --summary-color: #7c3aed;
+      --accent-color: #1e6fd9;
+      --accent-hover: #1d4ed8;
+
+      --color-l1: #dc2626;
+      --color-l2: #a16207;
+      --color-l3: #0284c7;
+
+      --solar-soft: rgba(184, 134, 11, 0.10);
+      --battery-soft: rgba(22, 163, 74, 0.10);
+      --home-soft: rgba(30, 111, 217, 0.10);
+      --grid-soft: rgba(100, 116, 139, 0.10);
+      --warning-soft: rgba(194, 65, 12, 0.10);
+      --danger-soft: rgba(220, 38, 38, 0.10);
+      --cool-soft: rgba(2, 132, 199, 0.10);
+
+      --solar-glow: rgba(184, 134, 11, 0.18);
+      --battery-glow: rgba(22, 163, 74, 0.18);
+      --home-glow: rgba(30, 111, 217, 0.18);
+      --grid-glow: rgba(100, 116, 139, 0.18);
+      --warning-glow: rgba(194, 65, 12, 0.18);
+      --danger-glow: rgba(220, 38, 38, 0.18);
+
+      --overlay-bg: rgba(15, 23, 42, 0.40);
+      --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-modal: 0 20px 60px rgba(15, 23, 42, 0.18);
+      --header-gradient: linear-gradient(to bottom, rgba(245, 246, 248, 0.92), transparent);
+    }
+
+    /* =========================================================
+       SPACEX / STARLINK THEME — minimal, technical, monochrome-leaning,
+       desaturated semantic colors, no neon glows, hairline borders,
+       wide-tracked condensed display type, near-zero radii.
+       ========================================================= */
+    /* =========================================================
+       SPACEX / STARLINK — strictly monochromatic.
+       Brand reference: SpaceX & Starlink officially document their
+       palette as black + white only; no hue is allowed in product UI.
+       Color in this theme is reserved for STATUS and only status:
+         - amber (#f5a524) = warning
+         - red   (#e0382d) = critical
+       Energy "semantic" identity is encoded by tiered grayscale opacity
+       (dominant=full white, secondary=78%, passive=45%) plus the existing
+       icons. No yellow for solar, no green for battery, no blue for home.
+       ========================================================= */
+    [data-theme="spacex"] {
+      /* Surfaces — three near-black tiers, sampled from spacex.com */
+      --bg-primary: #000000;
+      --bg-card: #0a0a0a;
+      --bg-card-solid: #0a0a0a;
+      --bg-elevated: #141414;
+      --bg-input: #050505;
+      --card-bg: #0a0a0a;
+
+      /* Text — alpha-based grayscale tiers (Starlink uses ~0.62 for body) */
       --text-primary: #ffffff;
-      --text-secondary: #888888;
+      --text-secondary: rgba(255, 255, 255, 0.62);
+      --text-muted: rgba(255, 255, 255, 0.38);
+
+      /* Borders — hairlines, slightly more visible than dark theme */
       --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.24);
+
+      /* Energy "semantic" colors — ALL collapse to grayscale tiers.
+         Differentiation is by ICON + opacity tier, never by hue. */
+      --solar-color: #ffffff;                    /* dominant tier */
+      --home-color: rgba(255, 255, 255, 0.78);   /* secondary tier */
+      --battery-color: rgba(255, 255, 255, 0.78); /* secondary tier */
+      --grid-color: rgba(255, 255, 255, 0.45);   /* passive tier */
+      --cool-color: rgba(255, 255, 255, 0.78);   /* inverter accent — mono */
+      --summary-color: #ffffff;
+
+      /* Status colors — the ONLY hues in the entire theme */
+      --warning-color: #f5a524;   /* amber, sodium-lamp tone */
+      --danger-color: #e0382d;    /* signal red, restrained */
+      --accent-color: #ffffff;
+      --accent-hover: #ffffff;
+
+      /* Phase legs L1/L2/L3 — grayscale tiers, no traffic-light convention.
+         L1 brightest (most visible), L3 faintest. Electrical convention is
+         carried by labels "L1/L2/L3", not by color. */
+      --color-l1: rgba(255, 255, 255, 0.95);
+      --color-l2: rgba(255, 255, 255, 0.65);
+      --color-l3: rgba(255, 255, 255, 0.40);
+
+      /* Soft variants — uniform white wash for energy classes,
+         only warning/danger keep their hue tint. */
+      --solar-soft: rgba(255, 255, 255, 0.04);
+      --battery-soft: rgba(255, 255, 255, 0.04);
+      --home-soft: rgba(255, 255, 255, 0.04);
+      --grid-soft: rgba(255, 255, 255, 0.04);
+      --cool-soft: rgba(255, 255, 255, 0.04);
+      --warning-soft: rgba(245, 165, 36, 0.10);
+      --danger-soft: rgba(224, 56, 45, 0.12);
+
+      /* Glows — ALL OFF for energy. SpaceX UI does not glow.
+         Only warning/danger keep a halo, used by alarm pulse animations. */
+      --solar-glow: transparent;
+      --battery-glow: transparent;
+      --home-glow: transparent;
+      --grid-glow: transparent;
+      --warning-glow: rgba(245, 165, 36, 0.55);
+      --danger-glow: rgba(224, 56, 45, 0.70);
+
+      --overlay-bg: rgba(0, 0, 0, 0.92);
+      --shadow-card: none;
+      --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.85);
+      --header-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.94), transparent);
+
+      --radius-sm: 0;
+      --radius-md: 2px;
+      --radius-lg: 2px;
+      --radius-pill: 0;
+
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Barlow Condensed', 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+      --tracking-display: 0.14em;
+    }
+
+    /* Smooth transitions on theme switch (skip on layout-affecting props) */
+    body, .stats-card, .card, .btn, .modal-dialog, .node-circle,
+    .tab-btn, .theme-btn, .tab-nav, .theme-switcher, .data-box,
+    .alert-item, .notification-toast, .sensor-card, .status-indicator {
+      transition: background-color 0.25s ease, border-color 0.25s ease,
+                  color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
     }
 
     * {
@@ -142,12 +384,80 @@
     }
 
     .settings-btn:hover {
-      border-color: #ffa500;
-      background: rgba(255, 165, 0, 0.1);
+      border-color: var(--accent-color);
+      background: var(--warning-soft);
     }
 
     .settings-btn:hover svg {
-      color: #ffa500;
+      color: var(--accent-color);
+    }
+
+    /* Theme Switcher */
+    .theme-switcher {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    [data-theme="spacex"] .theme-switcher {
+      border-radius: 2px;
+    }
+
+    .theme-btn {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    [data-theme="spacex"] .theme-btn {
+      border-radius: 0;
+    }
+
+    .theme-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.8;
+    }
+
+    .theme-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    [data-theme="light"] .theme-btn:hover {
+      background: rgba(15, 23, 42, 0.06);
+    }
+
+    .theme-btn[aria-pressed="true"] {
+      color: var(--text-primary);
+      background: var(--border-hover);
+    }
+
+    [data-theme="spacex"] .theme-btn[aria-pressed="true"] {
+      color: var(--bg-primary);
+      background: var(--accent-color);
+    }
+
+    [data-theme="light"] .theme-btn[aria-pressed="true"] {
+      color: #ffffff;
+      background: var(--accent-color);
+    }
+
+    .theme-btn:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 1px;
     }
 
     /* Main Layout */
@@ -288,21 +598,21 @@
 
     .node-circle.solar {
       border-color: var(--solar-color);
-      box-shadow: 0 0 15px rgba(245, 197, 66, 0.15);
+      box-shadow: 0 0 15px var(--solar-soft);
     }
     .node-circle.solar.pulse {
       animation: pulseSolar 2.5s ease-in-out infinite;
     }
     .node-circle.home {
       border-color: var(--home-color);
-      box-shadow: 0 0 15px rgba(59, 158, 255, 0.15);
+      box-shadow: 0 0 15px var(--home-soft);
     }
     .node-circle.home.pulse {
       animation: pulseHome 2.5s ease-in-out infinite;
     }
     .node-circle.battery {
       border-color: var(--battery-color);
-      box-shadow: 0 0 15px rgba(68, 214, 44, 0.15);
+      box-shadow: 0 0 15px var(--battery-soft);
     }
     .node-circle.battery.pulse {
       animation: pulseBattery 2.5s ease-in-out infinite;
@@ -316,20 +626,38 @@
     }
 
     @keyframes pulseSolar {
-      0%, 100% { box-shadow: 0 0 15px rgba(245, 197, 66, 0.15); }
-      50% { box-shadow: 0 0 25px rgba(245, 197, 66, 0.35), 0 0 45px rgba(245, 197, 66, 0.15); }
+      0%, 100% { box-shadow: 0 0 15px var(--solar-soft); }
+      50% { box-shadow: 0 0 25px var(--solar-glow), 0 0 45px var(--solar-soft); }
     }
     @keyframes pulseHome {
-      0%, 100% { box-shadow: 0 0 15px rgba(59, 158, 255, 0.15); }
-      50% { box-shadow: 0 0 25px rgba(59, 158, 255, 0.35), 0 0 45px rgba(59, 158, 255, 0.15); }
+      0%, 100% { box-shadow: 0 0 15px var(--home-soft); }
+      50% { box-shadow: 0 0 25px var(--home-glow), 0 0 45px var(--home-soft); }
     }
     @keyframes pulseBattery {
-      0%, 100% { box-shadow: 0 0 15px rgba(68, 214, 44, 0.15); }
-      50% { box-shadow: 0 0 25px rgba(68, 214, 44, 0.35), 0 0 45px rgba(68, 214, 44, 0.15); }
+      0%, 100% { box-shadow: 0 0 15px var(--battery-soft); }
+      50% { box-shadow: 0 0 25px var(--battery-glow), 0 0 45px var(--battery-soft); }
     }
     @keyframes pulseGrid {
-      0%, 100% { box-shadow: 0 0 10px rgba(136, 136, 136, 0.15); }
-      50% { box-shadow: 0 0 20px rgba(136, 136, 136, 0.3), 0 0 35px rgba(136, 136, 136, 0.1); }
+      0%, 100% { box-shadow: 0 0 10px var(--grid-soft); }
+      50% { box-shadow: 0 0 20px var(--grid-glow), 0 0 35px var(--grid-soft); }
+    }
+
+    /* In light & spacex modes: replace pulsing neon halos with a subtle static lift. */
+    [data-theme="light"] .node-circle.solar.pulse,
+    [data-theme="light"] .node-circle.home.pulse,
+    [data-theme="light"] .node-circle.battery.pulse,
+    [data-theme="light"] .node-circle.grid.active,
+    [data-theme="spacex"] .node-circle.solar.pulse,
+    [data-theme="spacex"] .node-circle.home.pulse,
+    [data-theme="spacex"] .node-circle.battery.pulse,
+    [data-theme="spacex"] .node-circle.grid.active {
+      animation: none;
+    }
+    [data-theme="light"] .node-circle {
+      box-shadow: var(--shadow-card);
+    }
+    [data-theme="spacex"] .node-circle {
+      box-shadow: none;
     }
 
     .node-icon {
@@ -4098,6 +4426,813 @@
         max-width: none;
       }
     }
+
+    /* =========================================================================
+       THEME OVERRIDES — high specificity to defeat hardcoded values
+       Source order matters: keep this block at the very END of the stylesheet
+       so it wins ties against earlier rules. The attribute selector
+       [data-theme="..."] also raises specificity over plain class rules.
+       ========================================================================= */
+
+    /* ---- LIGHT THEME OVERRIDES ---- */
+    [data-theme="light"] body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    [data-theme="light"] .header {
+      background: var(--header-gradient);
+    }
+
+    [data-theme="light"] .tab-nav,
+    [data-theme="light"] .settings-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+
+    [data-theme="light"] .settings-btn {
+      box-shadow: var(--shadow-card);
+    }
+
+    [data-theme="light"] .stats-card,
+    [data-theme="light"] .alarms-summary-card,
+    [data-theme="light"] .sensor-card,
+    [data-theme="light"] .solar-diagram,
+    [data-theme="light"] .solar-card,
+    [data-theme="light"] .solar-gauge-card,
+    [data-theme="light"] .solar-strings-card,
+    [data-theme="light"] .solar-alarms-card,
+    [data-theme="light"] .inverter-card,
+    [data-theme="light"] .inverter-gauge-card,
+    [data-theme="light"] .inverter-alarms-card,
+    [data-theme="light"] .battery-card,
+    [data-theme="light"] .battery-gauge-card,
+    [data-theme="light"] .battery-alarms-card,
+    [data-theme="light"] .service-card,
+    [data-theme="light"] .modal-dialog,
+    [data-theme="light"] .pack-tab-content {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: none;
+    }
+
+    [data-theme="light"] .modal-overlay {
+      background: var(--overlay-bg);
+    }
+
+    /* Accent header gradients per tab — switch the heavy dark backdrop for a soft tinted card */
+    [data-theme="light"] .solar-header {
+      background: linear-gradient(135deg, var(--solar-soft), var(--bg-card));
+    }
+    [data-theme="light"] .inverter-header {
+      background: linear-gradient(135deg, var(--cool-soft), var(--bg-card));
+    }
+    [data-theme="light"] .battery-header {
+      background: linear-gradient(135deg, var(--battery-soft), var(--bg-card));
+    }
+    [data-theme="light"] .service-header {
+      background: linear-gradient(135deg, var(--warning-soft), var(--bg-card));
+    }
+
+    /* Hardcoded white-on-rgba borders and backgrounds inside cards */
+    [data-theme="light"] .pack-tab-btn,
+    [data-theme="light"] .service-btn,
+    [data-theme="light"] .btn,
+    [data-theme="light"] .modal-btn {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    [data-theme="light"] .pack-tab-btn:hover,
+    [data-theme="light"] .service-btn:hover,
+    [data-theme="light"] .btn:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-input);
+    }
+
+    /* Inputs / selects with hardcoded dark fills */
+    [data-theme="light"] input,
+    [data-theme="light"] select,
+    [data-theme="light"] textarea,
+    [data-theme="light"] .form-input,
+    [data-theme="light"] .form-select {
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+
+    /* Status dots disconnected — keep semantic but drop rgba shadow halo */
+    [data-theme="light"] .flow-dot.solar { filter: drop-shadow(0 0 2px var(--solar-glow)); }
+    [data-theme="light"] .flow-dot.battery { filter: drop-shadow(0 0 2px var(--battery-glow)); }
+    [data-theme="light"] .flow-dot.grid { filter: drop-shadow(0 0 2px var(--grid-glow)); }
+    [data-theme="light"] .flow-dot.home { filter: drop-shadow(0 0 2px var(--home-glow)); }
+
+    /* SVG fills that were rgba(30,30,30,0.9) — use card surface */
+    [data-theme="light"] .mppt-rect,
+    [data-theme="light"] .battery-rect {
+      fill: var(--bg-card);
+    }
+
+    /* Notification toasts */
+    [data-theme="light"] .notification-toast {
+      background: var(--bg-card);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12);
+      color: var(--text-primary);
+    }
+
+    /* ---- SPACEX THEME OVERRIDES ---- */
+    [data-theme="spacex"] body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+
+    [data-theme="spacex"] .logo,
+    [data-theme="spacex"] .tab-btn,
+    [data-theme="spacex"] .stats-title,
+    [data-theme="spacex"] .card-header,
+    [data-theme="spacex"] .section-title,
+    [data-theme="spacex"] .solar-header-title,
+    [data-theme="spacex"] .inverter-header-title,
+    [data-theme="spacex"] .battery-header-title,
+    [data-theme="spacex"] .service-header-title,
+    [data-theme="spacex"] .settings-modal-title,
+    [data-theme="spacex"] .solar-card-title,
+    [data-theme="spacex"] .solar-strings-header,
+    [data-theme="spacex"] .solar-alarms-title,
+    [data-theme="spacex"] .stat-label,
+    [data-theme="spacex"] .form-label,
+    [data-theme="spacex"] .data-box-label,
+    [data-theme="spacex"] .sensor-title {
+      font-family: var(--font-display);
+      letter-spacing: var(--tracking-display);
+    }
+
+    /* Numeric values use mono — tabular figures keep alignment as values change */
+    [data-theme="spacex"] .stat-value,
+    [data-theme="spacex"] .node-value,
+    [data-theme="spacex"] .sensor-value,
+    [data-theme="spacex"] .solar-gauge-power-value,
+    [data-theme="spacex"] .solar-stat-value,
+    [data-theme="spacex"] .data-box-value,
+    [data-theme="spacex"] .flow-power-label {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
+    }
+
+    [data-theme="spacex"] .header {
+      background: var(--header-gradient);
+    }
+
+    [data-theme="spacex"] .tab-nav,
+    [data-theme="spacex"] .settings-btn,
+    [data-theme="spacex"] .stats-card,
+    [data-theme="spacex"] .alarms-summary-card,
+    [data-theme="spacex"] .sensor-card,
+    [data-theme="spacex"] .solar-diagram,
+    [data-theme="spacex"] .solar-card,
+    [data-theme="spacex"] .solar-gauge-card,
+    [data-theme="spacex"] .solar-strings-card,
+    [data-theme="spacex"] .solar-alarms-card,
+    [data-theme="spacex"] .inverter-card,
+    [data-theme="spacex"] .inverter-gauge-card,
+    [data-theme="spacex"] .inverter-alarms-card,
+    [data-theme="spacex"] .battery-card,
+    [data-theme="spacex"] .battery-gauge-card,
+    [data-theme="spacex"] .battery-alarms-card,
+    [data-theme="spacex"] .service-card,
+    [data-theme="spacex"] .modal-dialog,
+    [data-theme="spacex"] .pack-tab-content {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    [data-theme="spacex"] .stats-card,
+    [data-theme="spacex"] .solar-card,
+    [data-theme="spacex"] .alarms-summary-card,
+    [data-theme="spacex"] .sensor-card,
+    [data-theme="spacex"] .solar-strings-card,
+    [data-theme="spacex"] .solar-gauge-card,
+    [data-theme="spacex"] .solar-alarms-card,
+    [data-theme="spacex"] .inverter-card,
+    [data-theme="spacex"] .battery-card,
+    [data-theme="spacex"] .service-card {
+      border-radius: var(--radius-md);
+    }
+
+    [data-theme="spacex"] .btn,
+    [data-theme="spacex"] .pack-tab-btn,
+    [data-theme="spacex"] .service-btn,
+    [data-theme="spacex"] .modal-btn,
+    [data-theme="spacex"] .settings-btn,
+    [data-theme="spacex"] .theme-btn,
+    [data-theme="spacex"] .tab-btn {
+      border-radius: var(--radius-sm);
+    }
+
+    [data-theme="spacex"] .data-box,
+    [data-theme="spacex"] .status-indicator,
+    [data-theme="spacex"] .alert-item,
+    [data-theme="spacex"] .notification-toast {
+      border-radius: var(--radius-sm);
+    }
+
+    /* SpaceX accent headers — strip the colored gradient, keep only a hairline rule */
+    [data-theme="spacex"] .solar-header,
+    [data-theme="spacex"] .inverter-header,
+    [data-theme="spacex"] .battery-header,
+    [data-theme="spacex"] .service-header {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: none;
+    }
+
+    [data-theme="spacex"] .solar-header { border-left: 2px solid var(--solar-color); }
+    [data-theme="spacex"] .inverter-header { border-left: 2px solid var(--cool-color); }
+    [data-theme="spacex"] .battery-header { border-left: 2px solid var(--battery-color); }
+    [data-theme="spacex"] .service-header { border-left: 2px solid var(--warning-color); }
+
+    /* Modal overlay uses the themed overlay token */
+    [data-theme="spacex"] .modal-overlay {
+      background: var(--overlay-bg);
+    }
+
+    /* Disable all neon glows — preserve solid color, remove halo */
+    [data-theme="spacex"] [class*="-glow"],
+    [data-theme="spacex"] .led-light,
+    [data-theme="spacex"] .mini-led-light,
+    [data-theme="spacex"] .solar-gauge-status-dot,
+    [data-theme="spacex"] .flow-dot {
+      box-shadow: none !important;
+      filter: none;
+    }
+
+    /* SpaceX flow lines — angular dotted look (Starlink coverage map vibe) */
+    [data-theme="spacex"] .flow-line,
+    [data-theme="spacex"] .solar-flow-line {
+      stroke-dasharray: 4 3;
+      stroke-width: 1.5;
+    }
+
+    [data-theme="spacex"] .flow-line.active {
+      stroke-width: 2;
+    }
+
+    /* SVG container fills (mppt boxes, battery rects) */
+    [data-theme="spacex"] .mppt-rect,
+    [data-theme="spacex"] .battery-rect {
+      fill: var(--bg-card);
+    }
+
+    /* Notification toasts in spacex */
+    [data-theme="spacex"] .notification-toast {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      box-shadow: none;
+    }
+
+    /* Inputs in spacex */
+    [data-theme="spacex"] input,
+    [data-theme="spacex"] select,
+    [data-theme="spacex"] textarea,
+    [data-theme="spacex"] .form-input,
+    [data-theme="spacex"] .form-select {
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    /* Logo uppercase + spacing — pure SpaceX branding cue */
+    [data-theme="spacex"] .logo {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 500;
+    }
+
+    /* Tab nav refinement in spacex — flat, no fill on idle */
+    [data-theme="spacex"] .tab-nav {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      padding: 2px;
+    }
+
+    [data-theme="spacex"] .tab-btn {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    [data-theme="spacex"] .tab-btn.active {
+      background: var(--accent-color);
+      color: var(--bg-primary);
+    }
+
+    /* =========================================================================
+       SPACEX — STRICT MONOCHROME ENFORCEMENT
+       Even though the token block re-points the energy semantic colors to
+       grayscale, many components still inject hardcoded hue via class-name
+       selectors (.stats-title.solar { color: var(--solar-color); } already
+       collapses, but other rules use raw rgba). The rules below catch every
+       residual case so the SpaceX theme is provably hue-free outside of
+       warning/critical status.
+       ========================================================================= */
+
+    /* Energy "semantic" titles & values — collapse to white tiers.
+       The token already does this, but explicit override defeats any
+       shadow/filter/background color leftover. */
+    [data-theme="spacex"] .stats-title.solar,
+    [data-theme="spacex"] .stats-title.battery,
+    [data-theme="spacex"] .stats-title.grid,
+    [data-theme="spacex"] .stats-title.home,
+    [data-theme="spacex"] .stats-title.system,
+    [data-theme="spacex"] .stats-title.summary,
+    [data-theme="spacex"] .solar-card-title,
+    [data-theme="spacex"] .solar-header-title,
+    [data-theme="spacex"] .inverter-header-title,
+    [data-theme="spacex"] .battery-header-title,
+    [data-theme="spacex"] .service-header-title {
+      color: var(--text-primary);
+    }
+
+    [data-theme="spacex"] .stat-value.solar,
+    [data-theme="spacex"] .stat-value.battery,
+    [data-theme="spacex"] .stat-value.grid,
+    [data-theme="spacex"] .stat-value.home,
+    [data-theme="spacex"] .stat-value.positive,
+    [data-theme="spacex"] .stat-value.negative,
+    [data-theme="spacex"] .solar-stat-value.solar,
+    [data-theme="spacex"] .solar-stat-value.positive {
+      color: var(--text-primary);
+    }
+
+    /* Status dot in header: connected != green. Just dimmed white.
+       Disconnected stays red — that's the only "color" event allowed. */
+    [data-theme="spacex"] .status-dot {
+      background: var(--danger-color);
+    }
+    [data-theme="spacex"] .status-dot.connected {
+      background: var(--text-secondary);
+      box-shadow: none;
+    }
+
+    /* Energy-flow node circles — collapse all hue-borders to neutral hairline.
+       The "active/pulse" state lifts the border opacity, not its hue. */
+    [data-theme="spacex"] .node-circle {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      box-shadow: none !important;
+    }
+    [data-theme="spacex"] .node-circle.solar,
+    [data-theme="spacex"] .node-circle.battery,
+    [data-theme="spacex"] .node-circle.home,
+    [data-theme="spacex"] .node-circle.grid {
+      border-color: var(--border-color);
+    }
+    [data-theme="spacex"] .node-circle.solar.pulse,
+    [data-theme="spacex"] .node-circle.battery.pulse,
+    [data-theme="spacex"] .node-circle.home.pulse,
+    [data-theme="spacex"] .node-circle.grid.active {
+      border-color: rgba(255, 255, 255, 0.55);
+      animation: none;
+    }
+
+    /* Energy flow lines — uniform white tier. Idle is faint, active is bright,
+       no hue ever. (Original .flow-line.solar/.battery/.grid color rules
+       point at the now-monochrome --solar-color etc., so they auto-collapse
+       to white, but this is explicit insurance.) */
+    [data-theme="spacex"] .flow-line {
+      stroke: rgba(255, 255, 255, 0.18);
+      stroke-width: 1;
+      stroke-dasharray: none;
+    }
+    [data-theme="spacex"] .flow-line.solar,
+    [data-theme="spacex"] .flow-line.battery,
+    [data-theme="spacex"] .flow-line.grid,
+    [data-theme="spacex"] .flow-line.home {
+      stroke: rgba(255, 255, 255, 0.18);
+    }
+    [data-theme="spacex"] .flow-line.active {
+      stroke: rgba(255, 255, 255, 0.85);
+      stroke-width: 1.5;
+    }
+    [data-theme="spacex"] .flow-dot,
+    [data-theme="spacex"] .flow-dot.solar,
+    [data-theme="spacex"] .flow-dot.battery,
+    [data-theme="spacex"] .flow-dot.grid {
+      fill: rgba(255, 255, 255, 0.85);
+      filter: none;
+    }
+
+    /* Power labels on flow paths — mono */
+    [data-theme="spacex"] .flow-power-label,
+    [data-theme="spacex"] .flow-power-label.solar,
+    [data-theme="spacex"] .flow-power-label.battery,
+    [data-theme="spacex"] .flow-power-label.grid {
+      fill: var(--text-primary);
+    }
+
+    /* Sensor temperature/humidity — drop the orange/cyan, use mono tiers */
+    [data-theme="spacex"] .sensor-value.temp,
+    [data-theme="spacex"] .sensor-value.humid {
+      color: var(--text-primary);
+    }
+
+    /* Solar SVG panel + MPPT box accents — collapse fills/strokes to white tiers */
+    [data-theme="spacex"] .solar-panel {
+      fill: rgba(255, 255, 255, 0.06);
+      stroke: rgba(255, 255, 255, 0.45);
+    }
+    [data-theme="spacex"] .solar-panel.active {
+      fill: rgba(255, 255, 255, 0.14);
+      stroke: var(--text-primary);
+      filter: none;
+    }
+    [data-theme="spacex"] .mppt-rect,
+    [data-theme="spacex"] .battery-rect {
+      fill: var(--bg-card);
+      stroke: var(--border-color);
+    }
+    [data-theme="spacex"] .mppt-title,
+    [data-theme="spacex"] .battery-value,
+    [data-theme="spacex"] .string-label {
+      fill: var(--text-primary);
+    }
+    [data-theme="spacex"] .mppt-model,
+    [data-theme="spacex"] .battery-label,
+    [data-theme="spacex"] .string-sublabel,
+    [data-theme="spacex"] .mppt-label {
+      fill: var(--text-secondary);
+    }
+    [data-theme="spacex"] .battery-terminal {
+      fill: var(--text-primary);
+    }
+    [data-theme="spacex"] .solar-flow-line,
+    [data-theme="spacex"] .solar-flow-line.combined {
+      stroke: rgba(255, 255, 255, 0.18);
+    }
+    [data-theme="spacex"] .solar-flow-line.active {
+      stroke: rgba(255, 255, 255, 0.85);
+    }
+    [data-theme="spacex"] .solar-flow-dot {
+      fill: var(--text-primary);
+      filter: none;
+    }
+
+    /* Solar gauge — desaturated arc */
+    [data-theme="spacex"] .solar-gauge-fill {
+      stroke: var(--text-primary);
+    }
+    [data-theme="spacex"] .solar-gauge-bg {
+      stroke: var(--border-color);
+    }
+    [data-theme="spacex"] .solar-gauge-status-dot.producing {
+      background: var(--text-primary);
+      box-shadow: none;
+    }
+    [data-theme="spacex"] .solar-gauge-status-dot.idle,
+    [data-theme="spacex"] .solar-gauge-status-dot.night {
+      background: var(--text-muted);
+    }
+
+    /* Status indicators — connected etc. lose hue, only error keeps red */
+    [data-theme="spacex"] .status-indicator.connected {
+      background: var(--accent-soft, rgba(255, 255, 255, 0.06));
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    [data-theme="spacex"] .status-indicator.disconnected {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
+    [data-theme="spacex"] .status-indicator.warning {
+      background: var(--warning-soft);
+      color: var(--warning-color);
+      border-color: var(--warning-border, rgba(245, 165, 36, 0.55));
+    }
+    [data-theme="spacex"] .status-indicator.error {
+      background: var(--danger-soft);
+      color: var(--danger-color);
+      border-color: var(--danger-border, rgba(224, 56, 45, 0.65));
+    }
+
+    /* LEDs — off-state is muted white; only warning/error get hue.
+       The base "on" state in dark mode is green (battery-color);
+       in spacex that's already remapped to white, so .on glows white-only. */
+    [data-theme="spacex"] .led-light.on,
+    [data-theme="spacex"] .mini-led-light.on {
+      background: var(--text-primary);
+      box-shadow: none;
+    }
+    [data-theme="spacex"] .led-light.warning,
+    [data-theme="spacex"] .mini-led-light.warning {
+      background: var(--warning-color);
+      box-shadow: 0 0 0 0 var(--warning-glow);
+      animation: spx-warning-pulse 2.4s ease-out infinite;
+    }
+    [data-theme="spacex"] .led-light.error,
+    [data-theme="spacex"] .mini-led-light.error {
+      background: var(--danger-color);
+      box-shadow: 0 0 0 0 var(--danger-glow);
+      animation: spx-critical-pulse 1.2s ease-out infinite;
+    }
+
+    /* Alarm cards / rows — left border is the only chrome that carries hue.
+       Background gets a subtle gradient tint, not a full fill. */
+    [data-theme="spacex"] .alert-item,
+    [data-theme="spacex"] .solar-alarm-item,
+    [data-theme="spacex"] .battery-alarm-item,
+    [data-theme="spacex"] .inverter-alarm-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left-width: 3px;
+      border-radius: var(--radius-sm);
+    }
+    [data-theme="spacex"] .alert-item.warning,
+    [data-theme="spacex"] .solar-alarm-item.warning,
+    [data-theme="spacex"] .battery-alarm-item.warning,
+    [data-theme="spacex"] .inverter-alarm-item.warning {
+      border-left-color: var(--warning-color);
+      background: linear-gradient(to right, var(--warning-soft), var(--bg-card) 60%);
+      color: var(--warning-color);
+    }
+    [data-theme="spacex"] .alert-item.error,
+    [data-theme="spacex"] .alert-item.critical,
+    [data-theme="spacex"] .solar-alarm-item.critical,
+    [data-theme="spacex"] .battery-alarm-item.critical,
+    [data-theme="spacex"] .inverter-alarm-item.critical {
+      border-left-color: var(--danger-color);
+      background: linear-gradient(to right, var(--danger-soft), var(--bg-card) 60%);
+      color: var(--danger-color);
+    }
+
+    /* Alarm count pills — only warning/critical get hue */
+    [data-theme="spacex"] .solar-alarms-count,
+    [data-theme="spacex"] .alarms-summary-badge {
+      background: var(--accent-soft, rgba(255, 255, 255, 0.06));
+      color: var(--text-primary);
+    }
+    [data-theme="spacex"] .solar-alarms-count.warning {
+      background: var(--warning-soft);
+      color: var(--warning-color);
+    }
+    [data-theme="spacex"] .solar-alarms-count.critical {
+      background: var(--danger-soft);
+      color: var(--danger-color);
+    }
+
+    /* Notification toasts — left border carries hue, body is mono */
+    [data-theme="spacex"] .notification-toast {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-left-width: 3px;
+      box-shadow: none;
+      color: var(--text-primary);
+    }
+    [data-theme="spacex"] .notification-toast.warning {
+      border-left-color: var(--warning-color);
+    }
+    [data-theme="spacex"] .notification-toast.error {
+      border-left-color: var(--danger-color);
+    }
+    [data-theme="spacex"] .notification-toast.info {
+      border-left-color: var(--text-secondary);
+    }
+
+    /* Buttons — outline only, sharp, uppercase tracked */
+    [data-theme="spacex"] .btn,
+    [data-theme="spacex"] .service-btn,
+    [data-theme="spacex"] .modal-btn,
+    [data-theme="spacex"] .pack-tab-btn,
+    [data-theme="spacex"] .solar-history-clear {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: var(--text-primary);
+      border-radius: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-family: var(--font-display);
+      font-weight: 500;
+      transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    [data-theme="spacex"] .btn:hover,
+    [data-theme="spacex"] .service-btn:hover,
+    [data-theme="spacex"] .modal-btn:hover,
+    [data-theme="spacex"] .pack-tab-btn:hover,
+    [data-theme="spacex"] .solar-history-clear:hover {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border-color: var(--text-primary);
+    }
+    [data-theme="spacex"] .btn-primary {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border-color: var(--text-primary);
+    }
+    [data-theme="spacex"] .btn-primary:hover {
+      background: transparent;
+      color: var(--text-primary);
+      border-color: var(--text-primary);
+    }
+    [data-theme="spacex"] .btn-danger {
+      border-color: var(--danger-color);
+      color: var(--danger-color);
+    }
+    [data-theme="spacex"] .btn-danger:hover {
+      background: var(--danger-color);
+      color: var(--bg-primary);
+      border-color: var(--danger-color);
+    }
+
+    /* Logo — SpaceX brand cue: condensed, uppercase, wide tracking */
+    [data-theme="spacex"] .logo {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-weight: 500;
+    }
+
+    /* Spec-table look on data boxes — hairline divider, no full border */
+    [data-theme="spacex"] .data-box {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-color);
+      border-radius: 0;
+    }
+    [data-theme="spacex"] .data-box.highlight-min,
+    [data-theme="spacex"] .data-box.highlight-max,
+    [data-theme="spacex"] .data-box.highlight-active {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--text-primary);
+      border-bottom-color: var(--text-primary);
+    }
+
+    /* Header — add bottom hairline to anchor it to the page (SpaceX nav cue) */
+    [data-theme="spacex"] .header {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Settings cog hover — drop amber-on-amber, use white-on-mono */
+    [data-theme="spacex"] .settings-btn:hover {
+      border-color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    [data-theme="spacex"] .settings-btn:hover svg {
+      color: var(--text-primary);
+    }
+
+    /* Pulse keyframes — only color halo, never the dot itself */
+    @keyframes spx-warning-pulse {
+      0%   { box-shadow: 0 0 0 0   var(--warning-glow); }
+      100% { box-shadow: 0 0 0 8px rgba(245, 165, 36, 0); }
+    }
+    @keyframes spx-critical-pulse {
+      0%   { box-shadow: 0 0 0 0    var(--danger-glow); }
+      100% { box-shadow: 0 0 0 10px rgba(224, 56, 45, 0); }
+    }
+
+    /* SpaceX explicit color-class LEDs (.green/.yellow/.red) and alarm dots —
+       override the inline hex+rgba so spacex stays mono unless warning/critical. */
+    [data-theme="spacex"] .mini-led-light.green,
+    [data-theme="spacex"] .led-light.green {
+      background: var(--text-primary);
+      box-shadow: none;
+    }
+    [data-theme="spacex"] .mini-led-light.yellow,
+    [data-theme="spacex"] .led-light.yellow {
+      background: var(--warning-color);
+      box-shadow: 0 0 0 0 var(--warning-glow);
+      animation: spx-warning-pulse 2.4s ease-out infinite;
+    }
+    [data-theme="spacex"] .mini-led-light.red,
+    [data-theme="spacex"] .led-light.red {
+      background: var(--danger-color);
+      box-shadow: 0 0 0 0 var(--danger-glow);
+      animation: spx-critical-pulse 1.2s ease-out infinite;
+    }
+
+    /* Alarm dots inside list items */
+    [data-theme="spacex"] .solar-alarm-item.warning .solar-alarm-dot,
+    [data-theme="spacex"] .alarm-item.warning .alarm-dot {
+      background: var(--warning-color);
+    }
+    [data-theme="spacex"] .solar-alarm-item.critical .solar-alarm-dot,
+    [data-theme="spacex"] .alarm-item.critical .alarm-dot {
+      background: var(--danger-color);
+    }
+
+    /* History items — left rule keeps the only hue */
+    [data-theme="spacex"] .solar-history-item.warning,
+    [data-theme="spacex"] .battery-history-item.warning,
+    [data-theme="spacex"] .inverter-history-item.warning {
+      border-left-color: var(--warning-color);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    [data-theme="spacex"] .solar-history-item.critical,
+    [data-theme="spacex"] .battery-history-item.critical,
+    [data-theme="spacex"] .inverter-history-item.critical {
+      border-left-color: var(--danger-color);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Solar card icons (the colored badge next to the title) */
+    [data-theme="spacex"] .solar-card-icon {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+    }
+    [data-theme="spacex"] .solar-card-icon.total {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+    }
+    [data-theme="spacex"] .solar-card-total {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    /* Solar "OK" message — mono, no hue */
+    [data-theme="spacex"] .solar-alarms-ok {
+      color: var(--text-secondary);
+    }
+
+    /* ---- L1/L2/L3 phase colors — theme-aware via override (originals are hardcoded inline) ---- */
+    [data-theme="light"] .unit-box.l1,
+    [data-theme="spacex"] .unit-box.l1 {
+      border-color: var(--color-l1);
+      background: color-mix(in srgb, var(--color-l1) 6%, transparent);
+    }
+    [data-theme="light"] .unit-box.l2,
+    [data-theme="spacex"] .unit-box.l2 {
+      border-color: var(--color-l2);
+      background: color-mix(in srgb, var(--color-l2) 6%, transparent);
+    }
+    [data-theme="light"] .unit-box.l3,
+    [data-theme="spacex"] .unit-box.l3 {
+      border-color: var(--color-l3);
+      background: color-mix(in srgb, var(--color-l3) 6%, transparent);
+    }
+    [data-theme="light"] .unit-phase.l1,
+    [data-theme="light"] .phase-bar-label.l1,
+    [data-theme="spacex"] .unit-phase.l1,
+    [data-theme="spacex"] .phase-bar-label.l1 { color: var(--color-l1); }
+
+    [data-theme="light"] .unit-phase.l2,
+    [data-theme="light"] .phase-bar-label.l2,
+    [data-theme="spacex"] .unit-phase.l2,
+    [data-theme="spacex"] .phase-bar-label.l2 { color: var(--color-l2); }
+
+    [data-theme="light"] .unit-phase.l3,
+    [data-theme="light"] .phase-bar-label.l3,
+    [data-theme="spacex"] .unit-phase.l3,
+    [data-theme="spacex"] .phase-bar-label.l3 { color: var(--color-l3); }
+
+    /* ---- Inverter accent (cyan) — theme-aware ---- */
+    [data-theme="light"] .alarm-source-icon.inverter,
+    [data-theme="spacex"] .alarm-source-icon.inverter {
+      color: var(--cool-color);
+    }
+
+    [data-theme="light"] .inverter-header {
+      border-color: var(--cool-color);
+    }
+    [data-theme="light"] .inverter-header-title {
+      color: var(--cool-color);
+    }
+
+    /* Generic mop-up: cards/elements that hard-code light text but need dark in light mode */
+    [data-theme="light"] .stats-title,
+    [data-theme="light"] .card-header,
+    [data-theme="light"] .stat-value,
+    [data-theme="light"] .node-value,
+    [data-theme="light"] .sensor-value,
+    [data-theme="light"] .solar-card-title,
+    [data-theme="light"] .modal-dialog,
+    [data-theme="light"] .settings-modal-title {
+      color: var(--text-primary);
+    }
+
+    /* Mini-LED off-state: in light mode use neutral muted instead of #333/#555 */
+    [data-theme="light"] .led-light:not(.on):not(.warning):not(.error),
+    [data-theme="light"] .mini-led-light:not(.on):not(.warning):not(.error),
+    [data-theme="spacex"] .led-light:not(.on):not(.warning):not(.error),
+    [data-theme="spacex"] .mini-led-light:not(.on):not(.warning):not(.error) {
+      background: var(--text-muted);
+      opacity: 0.4;
+    }
+
+    /* Backdrop-filter is heavy in light mode and adds nothing on solid white cards */
+    [data-theme="light"] [style*="backdrop-filter"],
+    [data-theme="light"] .stats-card,
+    [data-theme="light"] .sensor-card {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
   </style>
 </head>
 <body>
@@ -4114,6 +5249,27 @@
       <button class="tab-btn" data-tab="service">Service</button>
     </nav>
     <div class="header-right">
+      <div class="theme-switcher" role="radiogroup" aria-label="Theme selector">
+        <button class="theme-btn" data-theme-value="dark" type="button" role="radio" aria-checked="false" aria-pressed="false" aria-label="Dark theme" title="Dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <button class="theme-btn" data-theme-value="light" type="button" role="radio" aria-checked="false" aria-pressed="false" aria-label="Light theme" title="Light">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+        <button class="theme-btn" data-theme-value="spacex" type="button" role="radio" aria-checked="false" aria-pressed="false" aria-label="SpaceX theme" title="SpaceX">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+            <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+          </svg>
+        </button>
+      </div>
       <button class="settings-btn" onclick="openSettingsModal()" title="System Settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
@@ -5436,6 +6592,43 @@
   <!-- Service Mode Tab -->
   <div class="tab-content" id="tab-service">
     <div class="service-layout">
+      <!-- ===== Water pump (Shelly Plus 1) control ===== -->
+      <div class="service-header" style="margin-top:0;">
+        <div class="service-header-left">
+          <div class="service-header-title">💧 Čerpadlo (studna → jímka)</div>
+          <div class="service-header-subtitle">Shelly Plus 1 · ovládání přes MQTT</div>
+        </div>
+        <div class="service-header-actions">
+          <div class="service-status-indicator disconnected" id="pump-indicator">
+            <span class="service-status-dot"></span>
+            <span id="pump-online-text">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="service-connect-panel">
+        <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
+          <div>
+            <div style="font-size:12px; color:var(--text-secondary);">Stav</div>
+            <div id="pump-state" style="font-size:24px; font-weight:600; color:var(--text-secondary);">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px; color:var(--text-secondary);">Teplota Shelly</div>
+            <div id="pump-temp" style="font-size:24px; font-weight:600; color:var(--text-primary);">— °C</div>
+          </div>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <button class="service-btn primary" id="pump-on-btn" onclick="pumpControl(true)">Zapnout</button>
+            <button class="service-btn" id="pump-off-btn" onclick="pumpControl(false)">Vypnout</button>
+          </div>
+        </div>
+        <div id="pump-timing" style="margin-top:12px; font-size:14px; font-weight:500;">
+          <div id="pump-off-line" style="color:var(--battery-color);"></div>
+          <div id="pump-next-line" style="color:var(--text-secondary);"></div>
+        </div>
+        <div style="margin-top:10px; font-size:11px; color:var(--text-muted);">
+          Auto‑OFF 60 s · časování 1 min/hod řeší Shelly lokálně · po výpadku zůstává vyplé.
+        </div>
+      </div>
+
       <!-- Header -->
       <div class="service-header">
         <div class="service-header-left">
@@ -5785,63 +6978,58 @@
       gridLost: 0
     };
 
-    // Audio context for alarm sounds
-    let audioContext = null;
-    let alarmSoundsEnabled = true;
+    // ============================================================
+    // Theme switcher — dark / light / spacex
+    // The initial theme is resolved by the inline <head> script before
+    // the document body parses (anti-flash). This block wires up the
+    // switcher buttons, persists selection to localStorage, and listens
+    // to OS prefers-color-scheme changes when no explicit choice exists.
+    // ============================================================
+    (function setupThemeSwitcher() {
+      const STORAGE_KEY = 'casa-davinci-theme';
+      const VALID_THEMES = ['dark', 'light', 'spacex'];
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll('.theme-btn[data-theme-value]');
+      if (!buttons.length) return;
 
-    function getAudioContext() {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      function syncButtonState(theme) {
+        buttons.forEach(btn => {
+          const isActive = btn.dataset.themeValue === theme;
+          btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+        });
       }
-      return audioContext;
-    }
 
-    function playAlarmSound(severity) {
-      if (!alarmSoundsEnabled) return;
-      try {
-        const ctx = getAudioContext();
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        if (severity === 'critical') {
-          // Critical: Higher pitch, two beeps
-          oscillator.frequency.value = 880; // A5
-          oscillator.type = 'square';
-          gainNode.gain.value = 0.3;
-          oscillator.start(ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-          oscillator.stop(ctx.currentTime + 0.15);
-
-          // Second beep
-          setTimeout(() => {
-            const ctx2 = getAudioContext();
-            const osc2 = ctx2.createOscillator();
-            const gain2 = ctx2.createGain();
-            osc2.connect(gain2);
-            gain2.connect(ctx2.destination);
-            osc2.frequency.value = 880;
-            osc2.type = 'square';
-            gain2.gain.value = 0.3;
-            osc2.start(ctx2.currentTime);
-            gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.15);
-            osc2.stop(ctx2.currentTime + 0.15);
-          }, 200);
-        } else {
-          // Warning: Lower pitch, single beep
-          oscillator.frequency.value = 440; // A4
-          oscillator.type = 'sine';
-          gainNode.gain.value = 0.2;
-          oscillator.start(ctx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-          oscillator.stop(ctx.currentTime + 0.2);
+      function applyTheme(theme, persist) {
+        if (VALID_THEMES.indexOf(theme) === -1) return;
+        root.setAttribute('data-theme', theme);
+        syncButtonState(theme);
+        if (persist) {
+          try { localStorage.setItem(STORAGE_KEY, theme); }
+          catch (e) { console.warn('[theme] localStorage write failed:', e); }
         }
-      } catch (e) {
-        console.log('Audio not available:', e);
       }
-    }
+
+      // Initial sync — read what the anti-flash script applied
+      syncButtonState(root.getAttribute('data-theme') || 'dark');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => applyTheme(btn.dataset.themeValue, true));
+      });
+
+      // Auto-switch with OS theme — only if user has NOT chosen explicitly
+      if (window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: light)');
+        const onChange = (e) => {
+          let stored = null;
+          try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
+          if (stored) return;
+          applyTheme(e.matches ? 'light' : 'dark', false);
+        };
+        if (mq.addEventListener) mq.addEventListener('change', onChange);
+        else if (mq.addListener) mq.addListener(onChange);
+      }
+    })();
 
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -5907,6 +7095,77 @@
 
     socket.on('victron-data', (data) => processVictronData(data.topic, data.value));
 
+    // ===== Well pump (Shelly Plus 1) =====
+    socket.on('pump-status', (p) => updatePumpCard(p));
+
+    let pumpData = null;
+    let pumpTimerInterval = null;
+
+    function updatePumpCard(p) {
+      if (!p) return;
+      pumpData = p;
+      const ind = document.getElementById('pump-indicator');
+      const onlineText = document.getElementById('pump-online-text');
+      const stateEl = document.getElementById('pump-state');
+      const tempEl = document.getElementById('pump-temp');
+      if (onlineText) onlineText.textContent = p.online ? 'Online' : 'Offline';
+      if (ind) ind.className = 'service-status-indicator ' + (p.online ? 'connected' : 'disconnected');
+      if (stateEl) {
+        if (p.on === true) { stateEl.textContent = 'BĚŽÍ'; stateEl.style.color = 'var(--battery-color)'; }
+        else if (p.on === false) { stateEl.textContent = 'STOJÍ'; stateEl.style.color = 'var(--text-secondary)'; }
+        else { stateEl.textContent = '—'; stateEl.style.color = 'var(--text-secondary)'; }
+      }
+      if (tempEl) tempEl.textContent = (typeof p.temperature === 'number' ? p.temperature.toFixed(1) : '—') + ' °C';
+      renderPumpTiming();
+      if (!pumpTimerInterval) pumpTimerInterval = setInterval(renderPumpTiming, 1000);
+    }
+
+    function fmtPumpDur(ms) {
+      if (ms < 0) ms = 0;
+      const total = Math.round(ms / 1000);
+      const m = Math.floor(total / 60);
+      const s = total % 60;
+      return (m > 0 ? m + ' min ' : '') + s + ' s';
+    }
+
+    function pumpNextStart(minute) {
+      const next = new Date();
+      next.setSeconds(0, 0);
+      next.setMinutes(minute);
+      if (next.getTime() <= Date.now()) next.setHours(next.getHours() + 1);
+      return next;
+    }
+
+    function renderPumpTiming() {
+      if (!pumpData) return;
+      const offLine = document.getElementById('pump-off-line');
+      const nextLine = document.getElementById('pump-next-line');
+      // Countdown to auto-off while running
+      if (offLine) {
+        if (pumpData.on === true && pumpData.offAt) {
+          offLine.textContent = '⏱ Vypne za ' + fmtPumpDur(pumpData.offAt - Date.now());
+          offLine.style.display = 'block';
+        } else {
+          offLine.style.display = 'none';
+        }
+      }
+      // Next scheduled start
+      if (nextLine) {
+        if (pumpData.scheduleEnabled && typeof pumpData.scheduleMinute === 'number') {
+          const next = pumpNextStart(pumpData.scheduleMinute);
+          const hhmm = next.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+          nextLine.textContent = '↻ Příští spuštění v ' + hhmm + ' (za ' + fmtPumpDur(next.getTime() - Date.now()) + ')';
+          nextLine.style.display = 'block';
+        } else {
+          nextLine.style.display = 'none';
+        }
+      }
+    }
+
+    function pumpControl(on) {
+      socket.emit('pump-control', { on: on });
+    }
+
     socket.on('sensor-data', (data) => {
       if (data.location === 'living_room') {
         if (data.temperature) document.getElementById('temp').textContent = data.temperature.toFixed(1);
@@ -5971,31 +7230,6 @@
         }
       }, timeout);
 
-      // Play sound for warnings
-      if (notification.severity === 'warning') {
-        playNotificationSound();
-      }
-    }
-
-    function playNotificationSound() {
-      // Simple beep using Web Audio API
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        gainNode.gain.value = 0.1;
-
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.2);
-      } catch (e) {
-        // Audio not supported
-      }
     }
 
     function processVictronData(topic, value) {
@@ -6849,16 +8083,9 @@
 
       // Check for new alarms and track history
       const currentAlarmKeys = new Set(solarAlarms.map(a => a.key));
-      let hasNewCritical = false;
-      let hasNewWarning = false;
 
       for (const alarm of solarAlarms) {
         if (!previousSolarAlarmKeys.has(alarm.key)) {
-          if (alarm.severity === 'critical') {
-            hasNewCritical = true;
-          } else {
-            hasNewWarning = true;
-          }
           addToSolarAlarmHistory(alarm, 'TRIGGERED');
         }
       }
@@ -6868,13 +8095,6 @@
         if (!currentAlarmKeys.has(key)) {
           addToSolarAlarmHistory({ key, msg: key.replace(/_/g, ' '), severity: 'warning' }, 'CLEARED');
         }
-      }
-
-      // Play alarm sound for new alarms
-      if (hasNewCritical) {
-        playAlarmSound('critical');
-      } else if (hasNewWarning) {
-        playAlarmSound('warning');
       }
 
       previousSolarAlarmKeys = currentAlarmKeys;
@@ -7297,13 +8517,11 @@
         }
       }
 
-      // Check for new alarms and play sound + track for history
+      // Track new alarms for history (one per cycle)
       for (const alarm of inverterAlarms) {
         if (!previousInvAlarmKeys.has(alarm.key)) {
-          playAlarmSound(alarm.severity);
-          // Add to history with timestamp when it triggers
           addToInvAlarmHistory(alarm, 'triggered');
-          break; // Only play sound once
+          break;
         }
       }
 
@@ -7779,20 +8997,11 @@
         batteryAlarms.push({ key: 'soh_degraded', msg: 'SOH Degraded: ' + Math.round(battSoh) + '%', severity: 'warning' });
       }
 
-      // Check for new alarms and play sounds
+      // Check for new alarms and track history
       const currentAlarmKeys = new Set(batteryAlarms.map(a => a.key));
-      let hasNewCritical = false;
-      let hasNewWarning = false;
 
       for (const alarm of batteryAlarms) {
         if (!previousAlarmKeys.has(alarm.key)) {
-          // This is a new alarm
-          if (alarm.severity === 'critical') {
-            hasNewCritical = true;
-          } else {
-            hasNewWarning = true;
-          }
-          // Add to history
           addToBattAlarmHistory(alarm, 'TRIGGERED');
         }
       }
@@ -7803,13 +9012,6 @@
           // This alarm has cleared
           addToBattAlarmHistory({ key, msg: key.replace(/_/g, ' '), severity: 'warning' }, 'CLEARED');
         }
-      }
-
-      // Play sound for highest severity new alarm
-      if (hasNewCritical) {
-        playAlarmSound('critical');
-      } else if (hasNewWarning) {
-        playAlarmSound('warning');
       }
 
       // Update previous alarms for next cycle

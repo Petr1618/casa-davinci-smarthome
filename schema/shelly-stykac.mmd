@@ -1,0 +1,35 @@
+flowchart LR
+    L(["L 230 V"])
+    N(["N"])
+
+    subgraph SHELLY["SHELLY 1"]
+        direction TB
+        SL["L &middot; napájení"]
+        SN["N &middot; napájení"]
+        SI["I &middot; vstup relé"]
+        SO["O &middot; výstup relé"]
+    end
+
+    subgraph KMC["STYKAČ IDEAL KMC 20-20"]
+        direction TB
+        A1["A1 &middot; cívka"]
+        A2["A2 &middot; cívka"]
+        P13["1 + 3 &middot; vstupy paralelně"]
+        P24["2 + 4 &middot; výstupy paralelně"]
+    end
+
+    L --> SL
+    N --> SN
+    L --> SI
+    SO -->|"sepne relé → 230 V na cívku"| A1
+    A2 -->|"trvalý nulák"| N
+
+    L -->|"fáze"| P13
+    P24 -->|"L k čerpadlu"| LOAD(["k čerpadlu"])
+
+    classDef src fill:#f8d7da,stroke:#a00000,color:#000;
+    classDef coil fill:#fff3cd,stroke:#c79a00,color:#000;
+    classDef pole fill:#d1e7dd,stroke:#0a7a4a,color:#000;
+    class L,N src
+    class A1,A2 coil
+    class P13,P24 pole

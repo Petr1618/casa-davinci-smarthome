@@ -83,11 +83,27 @@ Casa DaVinci is a smart home energy monitoring system that provides real-time vi
 - **Development Path:** /home/pi/casa-davinci
 - **Service:** systemd (casa-davinci.service)
 
+### Solar Chargers (2× MPPT)
+| Instance | Name | Model | Link | String |
+|---|---|---|---|---|
+| `solarcharger/278` | Roof_top_4.8Kw | SmartSolar MPPT VE.Can 250/85 | VE.Can | Roof |
+| `solarcharger/279` | Terrace_Roof_2.4Kw | SmartSolar MPPT 150/45 | VE.Direct | Terrace |
+
+> ⚠️ See **Troubleshooting → Solar string shows 0 W** for a known failure mode
+> where a charger silently disappears from the Cerbo's MQTT export.
+
 ### ESP32 Sensors (Optional)
 - **Sensor:** DHT22 (temperature/humidity)
 - **Display:** SSD1306 OLED
 - **MQTT Topic:** `home/living_room/sensor`
 - **Data Format:** `{"temperature": 23.5, "humidity": 45.2}`
+
+### Shelly Plus 1 — Well Pump (studna → jímka)
+- **IP:** `192.168.1.237` (DHCP), MAC `78:EE:4C:CF:81:30`, on WiFi "Petr's Wi-Fi"
+- **Function:** drives a contactor (IDEAL KMC 20-20) switching a 1.5 kW / 230 V borehole pump
+- **Cycle:** 1 minute every hour (Shelly local schedule + 60 s auto-off)
+- **MQTT:** publishes to the Cerbo broker under prefix `casa/pump`
+- **Full docs:** see [`WATER-PUMP.md`](WATER-PUMP.md); wiring in [`schema/`](schema/)
 
 ---
 
@@ -225,6 +241,32 @@ casa-davinci-smarthome/
 2. Verify MQTT connection to Victron: Check logs for connection messages
 3. Ensure Victron Cerbo GX is accessible at 192.168.1.210
 
+### Solar string shows 0 W (MPPT missing from MQTT)
+**Symptom:** one MPPT (e.g. Roof / `solarcharger/278`) shows 0 W on the dashboard,
+but the charger is alive and producing in the Cerbo console and VRM.
+
+**Root cause (seen 2026-05-29):** the Cerbo's dbus→MQTT export silently dropped the
+VE.Can charger (and `system/0`) and never re-published it — for 8 days. The device
+kept charging; only the local MQTT was missing it.
+
+**Diagnosis:**
+```bash
+mosquitto_pub -h 192.168.1.210 -t "R/<serial>/keepalive" -m ""
+mosquitto_sub -h 192.168.1.210 -t "N/<serial>/solarcharger/+/Yield/Power" -v -W 8
+# Both 278 and 279 should appear. If one is missing while the Cerbo console shows it...
+```
+**Fix:** restarting the MQTT broker service is **not** enough — do a **full Cerbo reboot**
+(Settings → General → Reboot). The MPPT reappears on MQTT and the dashboard recovers.
+
+**Prevention:** the **MQTT Watchdog** in `server.js` now alerts when a previously-seen
+critical topic goes silent > 10 min (instead of a silent 0). See `GET /api/mqtt/watchdog`.
+
+### Well pump not responding / wrong state
+1. `curl http://casa-davinci.local:3000/api/pump` — check `online`, `on`, `offAt`
+2. `curl http://192.168.1.237/rpc/Switch.GetStatus?id=0` — check the Shelly directly
+3. Verify Shelly MQTT: `mosquitto_sub -h 192.168.1.210 -t "casa/pump/#" -v`
+4. WiFi signal at the pump panel is weak (~−80 dBm) — reposition / add a repeater. See `WATER-PUMP.md`.
+
 ### Battery Modules Showing Offline
 1. Verify DIP switch configuration on each pack
 2. Check CAN bus cable connections between packs
@@ -248,6 +290,8 @@ casa-davinci-smarthome/
 |------|---------|---------|
 | 2026-01-23 | 1.0 | Initial documentation |
 | 2026-01-23 | 1.1 | Added 3-pack battery configuration |
+| 2026-06-07 | 1.2 | Fixed Roof MPPT (278) missing from MQTT (Cerbo reboot); added MQTT Watchdog |
+| 2026-06-07 | 1.3 | Added Shelly well-pump control (studna → jímka) over MQTT + dashboard tile; see WATER-PUMP.md |
 
 ---
 

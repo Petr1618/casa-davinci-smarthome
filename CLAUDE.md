@@ -52,6 +52,8 @@ casa-davinci-smarthome/
 - **Socket.io** - Real-time WebSocket communication to dashboard
 - **MQTT** - Connects to Victron Cerbo GX (192.168.1.210:1883)
 - **InfluxDB** - Time-series data storage
+- **MQTT Watchdog** - alerts when a critical Victron topic goes silent >10 min (`GET /api/mqtt/watchdog`)
+- **Well pump** - Shelly Plus 1 over MQTT (`casa/pump` prefix); status + on/off control (`GET /api/pump`); see `WATER-PUMP.md`
 
 ### Frontend (index.html)
 - Tesla Powerwall-inspired design
@@ -63,6 +65,12 @@ casa-davinci-smarthome/
 - DHT22 temperature/humidity sensor
 - SSD1306 OLED display
 - Publishes to MQTT topics: `home/living_room/sensor`
+
+### Shelly Plus 1 — Well Pump (studna → jímka)
+- Drives a contactor (IDEAL KMC 20-20) for a 1.5 kW / 230 V borehole pump
+- IP `192.168.1.237`; publishes to Cerbo broker under `casa/pump` prefix
+- Cycle: 1 min / hour (Shelly local schedule + 60 s auto-off)
+- Wiring schematics in `schema/`; full docs in `WATER-PUMP.md`
 
 ## Data Flow
 
@@ -80,6 +88,14 @@ casa-davinci-smarthome/
 | Topic | Data |
 |-------|------|
 | `home/living_room/sensor` | JSON: `{"temperature": 23.5, "humidity": 45.2}` |
+
+### Shelly Pump MQTT Topics (on Cerbo broker)
+| Topic | Direction | Data |
+|-------|-----------|------|
+| `casa/pump/online` | ← Shelly | `"true"` / `"false"` |
+| `casa/pump/status/switch:0` | ← Shelly | `{"output":bool,"temperature":{tC},"timer_started_at","timer_duration"}` |
+| `casa/pump/command/switch:0` | → Shelly | `"on"` / `"off"` / `"toggle"` |
+| `casa/pump/rpc` | → Shelly | JSON-RPC; reply on `casa/pump/server/reply/rpc` |
 
 ## Development Workflow
 
