@@ -186,11 +186,14 @@ const latestData = {
   },
   // Well pump (Shelly Plus 1) — see PUMP section below
   pump: {
-    online: null,      // bool — Shelly connected to broker
-    on: null,          // bool — relay output state
-    temperature: null, // °C — Shelly internal temperature
-    source: null,      // what triggered the last change (timer/MQTT/...)
-    lastUpdate: null   // ms
+    online: null,         // bool — Shelly connected to broker
+    on: null,             // bool — relay output state
+    temperature: null,    // °C — Shelly internal temperature
+    source: null,         // what triggered the last change (timer/MQTT/...)
+    offAt: null,          // epoch ms — when the auto-off timer will switch it off
+    scheduleMinute: 0,    // minute of each hour the pump starts (Shelly schedule)
+    scheduleEnabled: true,// hourly schedule active on the Shelly
+    lastUpdate: null      // ms
   }
 };
 
@@ -226,6 +229,13 @@ function handlePumpMessage(topic, msgStr) {
         latestData.pump.temperature = s.temperature.tC;
       }
       if (s.source) latestData.pump.source = s.source;
+      // Auto-off countdown: Shelly reports timer_started_at + timer_duration
+      // while a run timer is active (Shelly clock ≈ server clock, both NTP).
+      if (s.output === true && typeof s.timer_started_at === 'number' && typeof s.timer_duration === 'number') {
+        latestData.pump.offAt = Math.round((s.timer_started_at + s.timer_duration) * 1000);
+      } else if (s.output === false) {
+        latestData.pump.offAt = null;
+      }
     } else {
       return; // ignore status/sys, events/rpc, etc.
     }
