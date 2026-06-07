@@ -216,28 +216,42 @@ const PUMP = {
 };
 
 // Parse an incoming Shelly pump topic and broadcast state
+// Apply a Shelly switch:0 status object onto latestData.pump
+function applyPumpSwitchStatus(s) {
+  if (!s) return;
+  if (typeof s.output === 'boolean') latestData.pump.on = s.output;
+  if (s.temperature && typeof s.temperature.tC === 'number') {
+    latestData.pump.temperature = s.temperature.tC;
+  }
+  if (s.source) latestData.pump.source = s.source;
+  // Auto-off countdown: Shelly reports timer_started_at + timer_duration
+  // while a run timer is active (Shelly clock ≈ server clock, both NTP).
+  if (s.output === true && typeof s.timer_started_at === 'number' && typeof s.timer_duration === 'number') {
+    latestData.pump.offAt = Math.round((s.timer_started_at + s.timer_duration) * 1000);
+  } else if (s.output === false) {
+    latestData.pump.offAt = null;
+  }
+}
+
 function handlePumpMessage(topic, msgStr) {
   const sub = topic.slice(PUMP.prefix.length + 1); // strip "casa/pump/"
   try {
     if (sub === 'online') {
       latestData.pump.online = (msgStr === 'true');
     } else if (sub === 'status/switch:0' || sub === 'server/reply/rpc') {
+      // Full status (or RPC reply, which wraps status in .result on <src>/rpc)
       const d = JSON.parse(msgStr);
-      const s = d.result || d; // RPC reply wraps status in .result (replies land on <src>/rpc)
-      if (typeof s.output === 'boolean') latestData.pump.on = s.output;
-      if (s.temperature && typeof s.temperature.tC === 'number') {
-        latestData.pump.temperature = s.temperature.tC;
-      }
-      if (s.source) latestData.pump.source = s.source;
-      // Auto-off countdown: Shelly reports timer_started_at + timer_duration
-      // while a run timer is active (Shelly clock ≈ server clock, both NTP).
-      if (s.output === true && typeof s.timer_started_at === 'number' && typeof s.timer_duration === 'number') {
-        latestData.pump.offAt = Math.round((s.timer_started_at + s.timer_duration) * 1000);
-      } else if (s.output === false) {
-        latestData.pump.offAt = null;
+      applyPumpSwitchStatus(d.result || d);
+    } else if (sub === 'events/rpc') {
+      // Redundant change path: NotifyStatus delta carries params["switch:0"]
+      const d = JSON.parse(msgStr);
+      if (d.method === 'NotifyStatus' && d.params && d.params['switch:0']) {
+        applyPumpSwitchStatus(d.params['switch:0']);
+      } else {
+        return; // other notifications (sys, mqtt, ...)
       }
     } else {
-      return; // ignore status/sys, events/rpc, etc.
+      return; // ignore status/sys, etc.
     }
     latestData.pump.lastUpdate = Date.now();
     io.emit('pump-status', latestData.pump);
@@ -838,6 +852,11 @@ setInterval(() => {
 
 // Run MQTT watchdog checks
 setInterval(checkWatchdog, WATCHDOG.checkIntervalMs);
+
+// Re-poll the pump state every 10 s — self-heals if a status push is missed
+// (Shelly publishes status with QoS 0; a dropped message would otherwise leave
+// the dashboard showing a stale state for the whole 60 s run).
+setInterval(primePumpStatus, 10000);
 
 // API Endpoints
 app.get('/api/health', (req, res) => {
