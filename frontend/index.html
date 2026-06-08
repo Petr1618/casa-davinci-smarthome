@@ -6593,9 +6593,43 @@
   <div class="tab-content" id="tab-service">
     <div class="service-layout">
       <!-- ===== Water pump (Shelly Plus 1) control ===== -->
+      <style>
+        .pump-h { font-size:11px; font-weight:600; color:var(--accent-color,#ffa500); text-transform:uppercase;
+          letter-spacing:1.5px; margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+        .pump-h::after { content:""; flex:1; height:1px; background:var(--border-color); }
+        .pump-divider { height:1px; background:var(--border-color); margin:24px 0; }
+        .pump-metrics { display:flex; align-items:center; gap:36px; flex-wrap:wrap; }
+        .pump-metric-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary); margin-bottom:6px; }
+        .pump-metric-val { font-size:26px; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; }
+        .pump-actions { margin-left:auto; display:flex; gap:10px; }
+        .pump-timing { margin-top:18px; display:flex; flex-direction:column; gap:5px; font-size:13.5px; font-weight:500; }
+        .pump-switch { display:inline-flex; align-items:center; gap:13px; cursor:pointer; user-select:none; }
+        .pump-switch-track { width:48px; height:27px; border-radius:14px; background:rgba(136,136,136,0.22);
+          border:1px solid var(--border-color); transition:all .22s ease; position:relative; flex:none; }
+        .pump-switch-thumb { position:absolute; top:2px; left:2px; width:21px; height:21px; border-radius:50%;
+          background:#999; transition:all .22s ease; }
+        .pump-switch.on .pump-switch-track { background:rgba(68,214,44,0.22); border-color:rgba(68,214,44,0.55); }
+        .pump-switch.on .pump-switch-thumb { left:23px; background:var(--battery-color); box-shadow:0 0 10px rgba(68,214,44,0.5); }
+        .pump-switch-label { font-size:13px; font-weight:600; letter-spacing:0.5px; }
+        .pump-fields { display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; margin-top:18px; }
+        .pump-field { display:flex; flex-direction:column; gap:7px; }
+        .pump-field-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary); }
+        .pump-input { padding:9px 12px; background:var(--bg-input,rgba(0,0,0,0.3)); border:1px solid var(--border-color);
+          border-radius:8px; color:var(--text-primary); font-family:inherit; font-size:14px; transition:border-color .2s; }
+        .pump-input:focus { outline:none; border-color:var(--accent-color,#ffa500); }
+        .pump-num { width:74px; font-variant-numeric:tabular-nums; text-align:center; }
+        .pump-unit { display:flex; align-items:center; gap:9px; }
+        .pump-unit span { font-size:13px; color:var(--text-secondary); }
+        .pump-select { appearance:none; -webkit-appearance:none; min-width:160px; padding-right:36px; cursor:pointer;
+          background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4.5l4 4 4-4' fill='none' stroke='%23ffa500' stroke-width='1.6' stroke-linecap='round'/></svg>");
+          background-repeat:no-repeat; background-position:right 13px center; }
+        .pump-save { align-self:flex-end; height:38px; }
+        .pump-msg { font-size:12px; align-self:flex-end; padding-bottom:9px; }
+        .pump-note { margin-top:18px; font-size:11px; color:var(--text-muted); line-height:1.7; }
+      </style>
       <div class="service-header" style="margin-top:0;">
         <div class="service-header-left">
-          <div class="service-header-title">💧 Čerpadlo (studna → jímka)</div>
+          <div class="service-header-title">💧 Čerpadlo · studna → jímka</div>
           <div class="service-header-subtitle">Shelly Plus 1 · ovládání přes MQTT</div>
         </div>
         <div class="service-header-actions">
@@ -6606,62 +6640,65 @@
         </div>
       </div>
       <div class="service-connect-panel">
-        <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
+        <!-- Status & manual control -->
+        <div class="pump-h">Stav &amp; ruční ovládání</div>
+        <div class="pump-metrics">
           <div>
-            <div style="font-size:12px; color:var(--text-secondary);">Stav</div>
-            <div id="pump-state" style="font-size:24px; font-weight:600; color:var(--text-secondary);">—</div>
+            <div class="pump-metric-label">Stav</div>
+            <div class="pump-metric-val" id="pump-state" style="color:var(--text-secondary);">—</div>
           </div>
           <div>
-            <div style="font-size:12px; color:var(--text-secondary);">Teplota Shelly</div>
-            <div id="pump-temp" style="font-size:24px; font-weight:600; color:var(--text-primary);">— °C</div>
+            <div class="pump-metric-label">Teplota Shelly</div>
+            <div class="pump-metric-val" id="pump-temp" style="color:var(--text-primary);">— °C</div>
           </div>
-          <div style="margin-left:auto; display:flex; gap:10px;">
+          <div class="pump-actions">
             <button class="service-btn primary" id="pump-on-btn" onclick="pumpControl(true)">Zapnout</button>
             <button class="service-btn" id="pump-off-btn" onclick="pumpControl(false)">Vypnout</button>
           </div>
         </div>
-        <div id="pump-timing" style="margin-top:12px; font-size:14px; font-weight:500;">
+        <div class="pump-timing">
           <div id="pump-off-line" style="color:var(--battery-color);"></div>
           <div id="pump-next-line" style="color:var(--text-secondary);"></div>
         </div>
 
-        <!-- Automation settings -->
-        <div id="pump-settings" style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-color);">
-          <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-            <span style="font-size:13px; font-weight:600; color:var(--text-primary); letter-spacing:0.5px;">AUTOMATIKA</span>
-            <button id="pump-auto-toggle" class="service-btn" onclick="togglePumpAuto()" style="font-weight:600;">—</button>
-            <span style="font-size:11px; color:var(--text-muted);">(zima / údržba)</span>
-          </div>
-          <div style="display:flex; gap:18px; align-items:flex-end; flex-wrap:wrap;">
-            <div>
-              <div style="font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Doba běhu (s)</div>
-              <input id="pump-run-input" type="number" min="5" max="600" step="5"
-                     style="width:90px; padding:7px 9px; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border-color); border-radius:6px; font-size:14px;">
+        <div class="pump-divider"></div>
+
+        <!-- Automation -->
+        <div class="pump-h">Automatika · zima / údržba</div>
+        <div class="pump-switch" id="pump-auto-toggle" onclick="togglePumpAuto()" role="switch" tabindex="0">
+          <div class="pump-switch-track"><div class="pump-switch-thumb"></div></div>
+          <span class="pump-switch-label" id="pump-auto-label">—</span>
+        </div>
+        <div class="pump-fields">
+          <div class="pump-field">
+            <span class="pump-field-label">Doba běhu</span>
+            <div class="pump-unit">
+              <input id="pump-run-input" class="pump-input pump-num" type="number" min="5" max="600" step="5">
+              <span>s</span>
             </div>
-            <div>
-              <div style="font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Interval mezi cykly</div>
-              <select id="pump-interval-select"
-                      style="padding:7px 9px; background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border-color); border-radius:6px; font-size:14px;">
-                <option value="15m">15 minut</option>
-                <option value="20m">20 minut</option>
-                <option value="30m">30 minut</option>
-                <option value="1h">1 hodina</option>
-                <option value="2h">2 hodiny</option>
-                <option value="3h">3 hodiny</option>
-                <option value="4h">4 hodiny</option>
-                <option value="6h">6 hodin</option>
-                <option value="8h">8 hodin</option>
-                <option value="12h">12 hodin</option>
-                <option value="24h">24 hodin</option>
-              </select>
-            </div>
-            <button class="service-btn primary" onclick="savePumpConfig()">Uložit</button>
-            <span id="pump-config-msg" style="font-size:12px; color:var(--text-secondary);"></span>
           </div>
+          <div class="pump-field">
+            <span class="pump-field-label">Interval mezi cykly</span>
+            <select id="pump-interval-select" class="pump-input pump-select">
+              <option value="15m">15 minut</option>
+              <option value="20m">20 minut</option>
+              <option value="30m">30 minut</option>
+              <option value="1h">1 hodina</option>
+              <option value="2h">2 hodiny</option>
+              <option value="3h">3 hodiny</option>
+              <option value="4h">4 hodiny</option>
+              <option value="6h">6 hodin</option>
+              <option value="8h">8 hodin</option>
+              <option value="12h">12 hodin</option>
+              <option value="24h">24 hodin</option>
+            </select>
+          </div>
+          <button class="service-btn primary pump-save" onclick="savePumpConfig()">Uložit</button>
+          <span class="pump-msg" id="pump-config-msg"></span>
         </div>
 
-        <div style="margin-top:12px; font-size:11px; color:var(--text-muted);">
-          Nastavení je uložené v Shelly — čerpadlo cykluje i bez Raspberry Pi · po výpadku zůstává vyplé · doba běhu max 600 s (ochrana proti suchoběhu).
+        <div class="pump-note">
+          Nastavení je uložené v&nbsp;Shelly — čerpadlo cykluje i&nbsp;bez Raspberry Pi · po&nbsp;výpadku zůstává vyplé · doba běhu max&nbsp;600&nbsp;s (ochrana proti suchoběhu).
         </div>
       </div>
 
@@ -7156,12 +7193,14 @@
       // Automation settings — don't clobber a field the user is editing
       const runInput = document.getElementById('pump-run-input');
       const ivSelect = document.getElementById('pump-interval-select');
-      const autoBtn = document.getElementById('pump-auto-toggle');
+      const autoToggle = document.getElementById('pump-auto-toggle');
+      const autoLabel = document.getElementById('pump-auto-label');
       if (runInput && document.activeElement !== runInput && typeof p.runSeconds === 'number') runInput.value = p.runSeconds;
       if (ivSelect && document.activeElement !== ivSelect && p.intervalKey) ivSelect.value = p.intervalKey;
-      if (autoBtn) {
-        autoBtn.textContent = p.enabled ? '● ZAPNUTA' : '○ VYPNUTA';
-        autoBtn.style.color = p.enabled ? 'var(--battery-color)' : 'var(--warning-color)';
+      if (autoToggle) autoToggle.classList.toggle('on', !!p.enabled);
+      if (autoLabel) {
+        autoLabel.textContent = p.enabled ? 'Zapnutá' : 'Vypnutá';
+        autoLabel.style.color = p.enabled ? 'var(--battery-color)' : 'var(--warning-color)';
       }
 
       renderPumpTiming();
