@@ -7,8 +7,8 @@
 export const AREAS = [
   { id: 'domov',       label: 'Domů',               icon: '🏠', accent: 'var(--accent-color)', comingSoon: true,
     blurb: 'Souhrn celého domu — energie, klima, zahrada a aktivní alarmy na jednom místě.' },
-  { id: 'elektrarna',  label: 'Elektrárna',         icon: '⚡', accent: '#f5c542', comingSoon: true,
-    blurb: 'Energie v reálném čase: solární výroba, baterie, síť, měnič a BMS. (Portuje se z původního dashboardu.)' },
+  { id: 'elektrarna',  label: 'Elektrárna',         icon: '⚡', accent: '#f5c542', comingSoon: false,
+    blurb: 'Energie v reálném čase: solární výroba, baterie, síť a spotřeba domu.' },
   { id: 'energie',     label: 'Energie & Historie', icon: '📊', accent: '#a855f7', comingSoon: true,
     blurb: 'Trendy a historie: den/týden/měsíc/rok, soběstačnost, předpověď výroby a reporty.' },
   { id: 'dum',         label: 'Dům',                icon: '🏡', accent: '#3b9eff', comingSoon: true,

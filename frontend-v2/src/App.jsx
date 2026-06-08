@@ -3,14 +3,15 @@ import AppShell from './shell/AppShell.jsx';
 import { AREAS, DEFAULT_AREA } from './shell/areas.js';
 import ComingSoon from './areas/ComingSoon.jsx';
 import Zahrada from './areas/Zahrada.jsx';
+import Elektrarna from './areas/Elektrarna.jsx';
 
 // Map area id -> the component that renders it. Areas still marked
 // `comingSoon` fall back to the shared placeholder, so the whole 8-area
 // navigation is live from day one and we port real content area by area.
 const AREA_VIEWS = {
-  zahrada: Zahrada
-  // elektrarna: Elektrarna,  // ← ported next
-  // domov: Domov, ...
+  zahrada: Zahrada,
+  elektrarna: Elektrarna
+  // domov: Domov, ...  // ← ported next
 };
 
 export default function App() {
