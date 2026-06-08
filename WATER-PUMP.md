@@ -4,7 +4,8 @@ Automatické dávkovací čerpání vody z **vrtané studny** do **jímky**, ovl
 přes **Shelly Plus 1** a integrované do Casa DaVinci dashboardu přes MQTT.
 
 > **Princip:** vrt má omezenou vydatnost, proto se čerpá **dávkově** — krátký
-> běh, pak pauza na zotavení hladiny. Konfigurace: **1 minuta každou hodinu**.
+> běh, pak pauza na zotavení hladiny. Výchozí: **1 minuta každou hodinu**;
+> doba běhu i interval jsou **nastavitelné z dashboardu** (viz Ovládání automatiky).
 
 ---
 
@@ -87,6 +88,25 @@ Dlaždice **„💧 Čerpadlo"** v záložce **Service**:
   - `↻ Příští spuštění v HH:00 (za MM:SS)` — z `scheduleMinute`.
 
 ---
+
+## Ovládání automatiky (z dashboardu)
+
+Sekce **AUTOMATIKA** v dlaždici umožňuje:
+- **Master vypínač** — vypne/zapne celý cyklus (zima/údržba). Při vypnutí se
+  plán zakáže a relé se vynutí OFF; dashboard ukáže „Automatika vypnutá".
+- **Doba běhu** — jak dlouho relé sepne (= Shelly `auto_off_delay`), 5–600 s.
+- **Interval mezi cykly** — z nabídky 15 min … 24 h (mapuje se na čistý cron).
+
+Vše se zapisuje **do Shelly** (zůstává autonomní). Cesty:
+| Rozhraní | Účel |
+|---|---|
+| `GET /api/pump/config` | čtení (enabled, runSeconds, intervalKey, nextRunAt, seznam intervalů) |
+| `POST /api/pump/config` | zápis `{enabled?, runSeconds?, intervalKey?}` |
+| socket `pump-config-set` / `pump-config-result` | zápis + výsledek z dashboardu |
+
+Backend čte/zapisuje konfiguraci přes **HTTP RPC** na Shelly (`PUMP.host`,
+`Schedule.*` + `Switch.SetConfig`). Intervaly jsou divisor-friendly (15/20/30 min,
+1/2/3/4/6/8/12/24 h), aby cykly zůstaly pravidelné.
 
 ## Bezpečnost
 
