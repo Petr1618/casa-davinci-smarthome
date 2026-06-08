@@ -175,6 +175,16 @@ const frontendPath = fs.existsSync(path.join(__dirname, 'frontend'))
   ? path.join(__dirname, 'frontend')
   : path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendPath));
+
+// Serve the v2 React build (whole-home app) at /v2, alongside the v1 dashboard
+// at /. Hash-routed SPA, so plain static serving is enough (no route fallback).
+// The bundle uses same-origin socket.io, so it connects back to this server.
+const frontendV2Path = path.join(__dirname, 'v2');
+if (fs.existsSync(frontendV2Path)) {
+  app.use('/v2', express.static(frontendV2Path));
+  console.log('✓ Serving v2 React app at /v2');
+}
+
 app.use(express.json());
 
 // Store latest values for new client connections
