@@ -81,7 +81,7 @@ Posunout Casa DaVinci z **monitoru energie** na **centrum pro monitoring a ovlá
 - **App shell + hash router + moduly oblastí.** Z monolitu **inkrementálně** vyčleňovat (žádný velký přepis najednou).
 - **Malý state store** (pub/sub): `socket → store → pohledy`. Konec globálních proměnných + přímého DOM.
 - **Konvence komponent**: karta (stav + akce), sekce (nadpis + oddělovač), scéna (SVG + data).
-- **Rozhodnutí (otevřené):** vanilla‑moduly nyní vs. lehký framework (Preact/Alpine) později. Default: vanilla moduly + router teď, framework až když přiroste složitost.
+- **ROZHODNUTO (2026‑06‑08): React + Vite.** Stack v2 frontendu je **React + Vite** (`frontend-v2/`). React běží v prohlížeči; Vite generuje statický build, který servíruje **stávající backend beze změny**. Migrace inkrementální — oblast po oblasti; starý `index.html` jede, dokud není port hotový.
 
 **Model zařízení/pokojů (data‑driven)** — viz §9. UI se renderuje z konfigurace.
 
@@ -147,7 +147,7 @@ Přidání zařízení/pokoje = **záznam v registru**, ne změna kódu. Natvrdo
 ## 11. Rizika & rozhodnutí
 
 - **Refactor monolitu** → vždy inkrementálně, žádný big‑bang; každá fáze samostatně nasaditelná a vratná.
-- **Vanilla vs. framework** → odloženo; default vanilla moduly + router, framework až dle potřeby.
+- **Vanilla vs. framework** → ✅ rozhodnuto: **React + Vite** (viz §8). Backend beze změny, Pi jen servíruje build.
 - **Rozdělaná theme práce** v `index.html` → koordinovat, aby se nepřepsala.
 - **Aspirační oblasti** (Garáž, Zabezpečení) → „připraveno" placeholdery, ať není prázdno matoucí.
 - **Bezpečnost ovládání** → na dálku (Hetzner) musí mít ovládání **auth**; kritické akce potvrzení. (Navazuje na MIGRATION‑PLAN §7.)

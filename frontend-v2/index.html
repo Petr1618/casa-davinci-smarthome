@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Casa DaVinci</title>
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23000'/><path d='M5 14 L12 5 L19 14 L19 19 L13 19 L13 14 L11 14 L11 19 L5 19 Z' fill='%23ffffff'/></svg>" />
+
+    <!-- Anti-flash theme: resolve the saved/system theme before first paint
+         so we never flash the wrong colours. Mirrors the v1 dashboard. -->
+    <script>
+      (function () {
+        var KEY = 'casa-davinci-theme', VALID = { dark: 1, light: 1, spacex: 1 }, t = null;
+        try { var s = localStorage.getItem(KEY); if (s && VALID[s]) t = s; } catch (e) {}
+        if (!t) {
+          try { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark'; }
+          catch (e) { t = 'dark'; }
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,199 @@
+/* =========================================================
+   Casa DaVinci — design tokens (ported 1:1 from the v1 dashboard)
+   Three themes via [data-theme] on <html>: dark (default), light, spacex.
+   Components only ever reference these variables, never raw colours,
+   so the whole app re-themes by flipping one attribute.
+   ========================================================= */
+
+:root {
+  /* Surfaces */
+  --bg-primary: #000000;
+  --bg-card: rgba(30, 30, 30, 0.8);
+  --bg-card-solid: #1e1e1e;
+  --bg-elevated: #1a1a1a;
+  --bg-input: rgba(0, 0, 0, 0.3);
+  --card-bg: rgba(30, 30, 30, 0.8);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  --text-muted: #666666;
+
+  /* Borders */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.2);
+
+  /* Semantic accent colours */
+  --solar-color: #f5c542;
+  --home-color: #3b9eff;
+  --battery-color: #44d62c;
+  --grid-color: #888888;
+  --warning-color: #ffa500;
+  --danger-color: #ff4444;
+  --cool-color: #00b4d8;
+  --summary-color: #a855f7;
+  --accent-color: #ffa500;
+  --accent-hover: #ffb733;
+
+  /* Soft variants — badge backgrounds, fills */
+  --solar-soft: rgba(245, 197, 66, 0.15);
+  --battery-soft: rgba(68, 214, 44, 0.15);
+  --home-soft: rgba(59, 158, 255, 0.15);
+  --grid-soft: rgba(136, 136, 136, 0.15);
+  --warning-soft: rgba(255, 165, 0, 0.15);
+  --danger-soft: rgba(255, 68, 68, 0.10);
+  --cool-soft: rgba(0, 180, 216, 0.15);
+
+  /* Glow variants — halos / pulses */
+  --solar-glow: rgba(245, 197, 66, 0.35);
+  --battery-glow: rgba(68, 214, 44, 0.35);
+  --home-glow: rgba(59, 158, 255, 0.35);
+  --grid-glow: rgba(136, 136, 136, 0.30);
+  --warning-glow: rgba(255, 165, 0, 0.35);
+  --danger-glow: rgba(255, 68, 68, 0.35);
+  --cool-glow: rgba(0, 180, 216, 0.35);
+
+  /* Elevation */
+  --overlay-bg: rgba(0, 0, 0, 0.8);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --header-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 20px;
+
+  /* Typography */
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --tracking-display: 0;
+}
+
+/* ---- LIGHT THEME — daylight, calm, AA-contrast safe ---- */
+[data-theme='light'] {
+  --bg-primary: #f5f6f8;
+  --bg-card: #ffffff;
+  --bg-card-solid: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-input: #f0f1f4;
+  --card-bg: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border-color: rgba(15, 23, 42, 0.10);
+  --border-hover: rgba(15, 23, 42, 0.22);
+
+  --solar-color: #b8860b;
+  --home-color: #1e6fd9;
+  --battery-color: #16a34a;
+  --grid-color: #64748b;
+  --warning-color: #c2410c;
+  --danger-color: #dc2626;
+  --cool-color: #0284c7;
+  --summary-color: #7c3aed;
+  --accent-color: #1e6fd9;
+  --accent-hover: #1d4ed8;
+
+  --solar-soft: rgba(184, 134, 11, 0.10);
+  --battery-soft: rgba(22, 163, 74, 0.10);
+  --home-soft: rgba(30, 111, 217, 0.10);
+  --grid-soft: rgba(100, 116, 139, 0.10);
+  --warning-soft: rgba(194, 65, 12, 0.10);
+  --danger-soft: rgba(220, 38, 38, 0.10);
+  --cool-soft: rgba(2, 132, 199, 0.10);
+
+  --solar-glow: rgba(184, 134, 11, 0.18);
+  --battery-glow: rgba(22, 163, 74, 0.18);
+  --home-glow: rgba(30, 111, 217, 0.18);
+  --grid-glow: rgba(100, 116, 139, 0.18);
+  --warning-glow: rgba(194, 65, 12, 0.18);
+  --danger-glow: rgba(220, 38, 38, 0.18);
+  --cool-glow: rgba(2, 132, 199, 0.18);
+
+  --overlay-bg: rgba(15, 23, 42, 0.40);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-modal: 0 20px 60px rgba(15, 23, 42, 0.18);
+  --header-gradient: linear-gradient(to bottom, rgba(245, 246, 248, 0.92), transparent);
+}
+
+/* ---- SPACEX / STARLINK — strictly monochrome; colour only for status ---- */
+[data-theme='spacex'] {
+  --bg-primary: #000000;
+  --bg-card: #0a0a0a;
+  --bg-card-solid: #0a0a0a;
+  --bg-elevated: #141414;
+  --bg-input: #050505;
+  --card-bg: #0a0a0a;
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.62);
+  --text-muted: rgba(255, 255, 255, 0.38);
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.24);
+
+  --solar-color: #ffffff;
+  --home-color: rgba(255, 255, 255, 0.78);
+  --battery-color: rgba(255, 255, 255, 0.78);
+  --grid-color: rgba(255, 255, 255, 0.45);
+  --cool-color: rgba(255, 255, 255, 0.78);
+  --summary-color: #ffffff;
+  --warning-color: #f5a524;
+  --danger-color: #e0382d;
+  --accent-color: #ffffff;
+  --accent-hover: #ffffff;
+
+  --solar-soft: rgba(255, 255, 255, 0.04);
+  --battery-soft: rgba(255, 255, 255, 0.04);
+  --home-soft: rgba(255, 255, 255, 0.04);
+  --grid-soft: rgba(255, 255, 255, 0.04);
+  --cool-soft: rgba(255, 255, 255, 0.04);
+  --warning-soft: rgba(245, 165, 36, 0.10);
+  --danger-soft: rgba(224, 56, 45, 0.12);
+
+  --solar-glow: transparent;
+  --battery-glow: transparent;
+  --home-glow: transparent;
+  --grid-glow: transparent;
+  --cool-glow: transparent;
+  --warning-glow: rgba(245, 165, 36, 0.55);
+  --danger-glow: rgba(224, 56, 45, 0.70);
+
+  --overlay-bg: rgba(0, 0, 0, 0.92);
+  --shadow-card: none;
+  --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.85);
+  --header-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.94), transparent);
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-pill: 0;
+
+  --font-display: 'Barlow Condensed', 'Inter', sans-serif;
+  --tracking-display: 0.14em;
+}
+
+/* ---- base reset ---- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+button, input, select { font-family: inherit; }
+a { color: inherit; text-decoration: none; }

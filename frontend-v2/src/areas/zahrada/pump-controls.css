@@ -1,0 +1,166 @@
+/* =========================================================================
+   ZAHRADA · PUMP CONTROLS — co-located styles (ported from the v1 pump tile).
+   Same polished look: section headers with an accent + divider line, a real
+   toggle SWITCH, styled number input, custom-chevron <select>, action buttons,
+   and live countdown lines. Garden accent is teal #3bd6c6 (--pc-accent).
+   ========================================================================= */
+
+/* The whole tile is scoped under .pc-card; --pc-accent is the teal signature. */
+.pc-card {
+  --pc-accent: #3bd6c6;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ---- Tile header (icon + title + subtitle + online indicator) ---- */
+.pc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.pc-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.pc-subtitle { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+
+/* Online / offline pill — green dot when connected, grey when not. */
+.pc-indicator {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 500; letter-spacing: .4px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  padding: 4px 11px; white-space: nowrap;
+}
+.pc-indicator .pc-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-muted); transition: background .25s, box-shadow .25s;
+}
+.pc-indicator.is-online { color: var(--battery-color); border-color: rgba(68,214,44,.4); }
+.pc-indicator.is-online .pc-dot {
+  background: var(--battery-color); box-shadow: 0 0 8px var(--battery-glow);
+}
+
+/* ---- Section eyebrow with accent + trailing divider line (like v1 .pump-h). */
+.pc-h {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--pc-accent);
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.pc-h::after { content: ""; flex: 1; height: 1px; background: var(--border-color); }
+
+/* Full-width divider between the manual + automation sections. */
+.pc-divider { height: 1px; background: var(--border-color); margin: 24px 0; }
+
+/* ---- Manual section: Stav + Teplota metrics + action buttons. ---- */
+.pc-metrics { display: flex; align-items: center; gap: 36px; flex-wrap: wrap; }
+.pc-metric-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.pc-metric-val {
+  font-size: 26px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.pc-actions { margin-left: auto; display: flex; gap: 10px; }
+
+/* Live countdown lines (auto-off + next scheduled start). */
+.pc-timing {
+  margin-top: 18px; display: flex; flex-direction: column; gap: 5px;
+  font-size: 13.5px; font-weight: 500;
+}
+.pc-off-line  { color: var(--battery-color); }
+.pc-next-line { color: var(--text-secondary); }
+.pc-next-line.is-off { color: var(--warning-color); }
+
+/* ---- Automation toggle SWITCH (real switch, thumb slides on .on). ---- */
+.pc-switch {
+  display: inline-flex; align-items: center; gap: 13px;
+  cursor: pointer; user-select: none; background: none; border: none; padding: 0;
+}
+.pc-switch:focus-visible { outline: 2px solid var(--pc-accent); outline-offset: 4px; border-radius: 6px; }
+.pc-switch-track {
+  width: 48px; height: 27px; border-radius: 14px;
+  background: rgba(136, 136, 136, 0.22);
+  border: 1px solid var(--border-color);
+  transition: all .22s ease; position: relative; flex: none;
+}
+.pc-switch-thumb {
+  position: absolute; top: 2px; left: 2px; width: 21px; height: 21px;
+  border-radius: 50%; background: #999; transition: all .22s ease;
+}
+.pc-switch.on .pc-switch-track {
+  background: rgba(68, 214, 44, 0.22); border-color: rgba(68, 214, 44, 0.55);
+}
+.pc-switch.on .pc-switch-thumb {
+  left: 23px; background: var(--battery-color); box-shadow: 0 0 10px rgba(68, 214, 44, 0.5);
+}
+.pc-switch-label { font-size: 13px; font-weight: 600; letter-spacing: .5px; }
+.pc-switch-label.on  { color: var(--battery-color); }
+.pc-switch-label.off { color: var(--warning-color); }
+
+/* ---- Config fields row: number input + select + save button + feedback. ---- */
+.pc-fields {
+  display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; margin-top: 18px;
+}
+.pc-field { display: flex; flex-direction: column; gap: 7px; }
+.pc-field-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary);
+}
+.pc-input {
+  padding: 9px 12px; background: var(--bg-input); border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); color: var(--text-primary);
+  font-family: inherit; font-size: 14px; transition: border-color .2s;
+}
+.pc-input:focus { outline: none; border-color: var(--pc-accent); }
+.pc-num { width: 74px; font-variant-numeric: tabular-nums; text-align: center; }
+.pc-unit { display: flex; align-items: center; gap: 9px; }
+.pc-unit span { font-size: 13px; color: var(--text-secondary); }
+
+/* Custom-chevron <select> — teal chevron baked in as an inline SVG. */
+.pc-select {
+  appearance: none; -webkit-appearance: none; min-width: 160px; padding-right: 36px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4.5l4 4 4-4' fill='none' stroke='%233bd6c6' stroke-width='1.6' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 13px center;
+}
+
+/* Save button + inline feedback ("Ukládám…" / "Uloženo ✓" / error). */
+.pc-save { align-self: flex-end; height: 38px; }
+.pc-msg {
+  font-size: 12px; align-self: flex-end; padding-bottom: 9px; color: var(--text-secondary);
+}
+.pc-msg.is-ok    { color: var(--battery-color); }
+.pc-msg.is-error { color: var(--danger-color); }
+
+/* ---- Action buttons — ported from v1 .service-btn, but the primary action
+       uses the Garden teal accent instead of the global orange. ---- */
+.pc-btn {
+  padding: 8px 16px; border: 1px solid var(--border-hover);
+  background: var(--bg-card-solid); border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 11px; font-weight: 500; color: var(--text-primary);
+  cursor: pointer; transition: all .2s; text-transform: uppercase; letter-spacing: .5px;
+}
+.pc-btn:hover { border-color: var(--pc-accent); color: var(--pc-accent); }
+.pc-btn.primary {
+  background: var(--pc-accent);
+  border-color: var(--pc-accent);
+  color: #06201d;            /* dark teal text — readable on the teal fill */
+}
+.pc-btn.primary:hover { filter: brightness(1.08); }
+.pc-btn.danger { border-color: var(--danger-color); color: var(--danger-color); }
+.pc-btn.danger:hover { background: var(--danger-soft); }
+.pc-btn:disabled { opacity: .5; cursor: not-allowed; }
+.pc-btn:disabled:hover { border-color: var(--border-hover); color: var(--text-primary); filter: none; }
+
+/* ---- Honest footer note about the Shelly behaviour (matches v1 .pump-note). */
+.pc-note {
+  margin-top: 18px; font-size: 11px; color: var(--text-muted); line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+  .pc-card { padding: 16px 14px; }
+  .pc-actions { margin-left: 0; width: 100%; }
+}

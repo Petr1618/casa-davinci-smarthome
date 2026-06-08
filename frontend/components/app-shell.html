@@ -1,0 +1,698 @@
+<!-- ============================================================================
+     CASA DAVINCI — WHOLE-HOME APP SHELL
+     ============================================================================
+     A primary navigation ("app shell") for the 8 top-level AREAS of the home,
+     plus a hash router that displays exactly one area at a time.
+
+     This is a SELF-CONTAINED block. The orchestrator pastes it into index.html
+     (after the existing <div class="header"> ... </div>) and then wraps the
+     existing page content into <section class="area" id="area-*"> containers.
+
+     CONTRACT (what this file provides):
+       - <style>   : all nav/area styling, classes prefixed `nav-` and `area-`.
+                     Everything uses the existing :root theme tokens (--bg-card,
+                     --text-primary, --border-color, --accent-color, ...) so the
+                     shell adapts automatically to dark / light / spacex themes.
+       - markup    : the desktop sidebar rail + mobile bottom bar (one source of
+                     truth: both are rendered from the AREAS array by JS, so the
+                     8 items never drift out of sync).
+       - <template> : a reusable "Připravujeme" (coming-soon) placeholder card.
+       - <script>  : AREAS metadata array, initAreaRouter(), navigateArea(id),
+                     renderAreaNav(), and the coming-soon renderer.
+
+     DESIGN LANGUAGE:
+       Dark industrial. Hairline borders, translucent card surfaces, restrained
+       type. The ONLY per-item color is each area's accent, used for the active
+       indicator (left bar on desktop, top bar on mobile), the active icon tint,
+       and a soft glow. Everything else stays neutral, exactly like .tab-btn.
+     ============================================================================ -->
+
+<style>
+  /* ==========================================================================
+     LAYOUT MODEL
+     --------------------------------------------------------------------------
+     The existing app uses a fixed .header (~64px tall) and content padded with
+     `padding-top: 70px` to clear it. We add:
+       - desktop (>820px): a fixed LEFT sidebar rail. We push the main content
+         right by var(--nav-rail-w) using a body modifier class added in JS.
+       - mobile  (<=820px): a fixed BOTTOM nav bar. We pad the body bottom so
+         content is not hidden behind it.
+     We never touch the existing .header — the sidebar sits BELOW it (top: 64px).
+     ========================================================================== */
+  :root {
+    --nav-rail-w: 232px;        /* expanded sidebar width */
+    --nav-rail-w-collapsed: 64px; /* icons-only width */
+    --nav-header-h: 64px;       /* height of the existing fixed .header */
+    --nav-bottom-h: 64px;       /* height of the mobile bottom bar */
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* DESKTOP SIDEBAR RAIL                                                */
+  /* ------------------------------------------------------------------ */
+  .nav-rail {
+    position: fixed;
+    top: var(--nav-header-h);
+    left: 0;
+    bottom: 0;
+    width: var(--nav-rail-w);
+    z-index: 90;                 /* below .header (100), above content */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 10px;
+    background: var(--bg-card-solid);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0.22s ease;
+  }
+  [data-theme="spacex"] .nav-rail { border-right-color: var(--border-color); }
+
+  /* Collapse toggle button — sits at the top of the rail */
+  .nav-collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 38px;
+    margin-bottom: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .nav-collapse-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+  .nav-collapse-btn svg {
+    width: 18px; height: 18px;
+    transition: transform 0.22s ease;
+  }
+  /* Flip the chevron when collapsed */
+  .nav-rail.is-collapsed .nav-collapse-btn svg { transform: rotate(180deg); }
+
+  /* ------------------------------------------------------------------ */
+  /* SHARED NAV ITEM (used by both rail and bottom bar)                  */
+  /* ------------------------------------------------------------------ */
+  .nav-item {
+    /* Each item exposes its accent via inline style --nav-accent (set in JS),
+       so the active styles below can reference it generically. */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;            /* touch target >= 44px */
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-align: left;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.18s, background 0.18s, border-color 0.18s;
+  }
+  .nav-item:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  [data-theme="light"] .nav-item:hover { background: rgba(15, 23, 42, 0.05); }
+
+  /* Icon (emoji) bubble — fixed size so collapsing is clean */
+  .nav-item-icon {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    line-height: 1;
+    filter: grayscale(0.25);
+    transition: filter 0.18s, transform 0.18s;
+  }
+  .nav-item-label {
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ACTIVE STATE — neutral fill + the area's own accent as a left bar/tint */
+  .nav-item.is-active {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--border-color);
+  }
+  [data-theme="light"] .nav-item.is-active { background: rgba(15, 23, 42, 0.06); }
+  .nav-item.is-active .nav-item-icon {
+    filter: grayscale(0);
+    transform: scale(1.05);
+  }
+  /* The accent indicator bar on the left edge of an active rail item */
+  .nav-item.is-active::before {
+    content: "";
+    position: absolute;
+    left: -10px;                 /* bleeds to the rail's padding edge */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 22px;
+    border-radius: 0 3px 3px 0;
+    background: var(--nav-accent, var(--accent-color));
+    box-shadow: 0 0 10px var(--nav-accent, var(--accent-color));
+  }
+  [data-theme="spacex"] .nav-item.is-active::before { box-shadow: none; }
+  /* Active label tinted subtly toward the accent for extra identity */
+  .nav-item.is-active .nav-item-label { color: var(--text-primary); }
+
+  /* ------------------------------------------------------------------ */
+  /* COLLAPSED RAIL — icons only                                         */
+  /* ------------------------------------------------------------------ */
+  .nav-rail.is-collapsed { width: var(--nav-rail-w-collapsed); }
+  .nav-rail.is-collapsed .nav-item {
+    justify-content: center;
+    padding: 8px 0;
+    gap: 0;
+  }
+  .nav-rail.is-collapsed .nav-item-label { display: none; }
+  .nav-rail.is-collapsed .nav-item.is-active::before { left: -10px; }
+  /* Tooltip on hover when collapsed — uses the label text via data-label */
+  .nav-rail.is-collapsed .nav-item::after {
+    content: attr(data-label);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 5px 9px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 5;
+    box-shadow: var(--shadow-card);
+  }
+  .nav-rail.is-collapsed .nav-item:hover::after { opacity: 1; }
+
+  /* ------------------------------------------------------------------ */
+  /* MOBILE BOTTOM BAR                                                   */
+  /* ------------------------------------------------------------------ */
+  .nav-bottom {
+    display: none;               /* shown only at <=820px (media query below) */
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 95;
+    height: calc(var(--nav-bottom-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--bg-card-solid);
+    border-top: 1px solid var(--border-color);
+    /* Horizontal scroll: 8 items won't all fit on a phone — make it swipeable
+       while keeping each target comfortably wide. */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-bottom::-webkit-scrollbar { display: none; }
+  .nav-bottom-inner {
+    display: flex;
+    height: var(--nav-bottom-h);
+    min-width: 100%;
+  }
+
+  /* Bottom-bar item = icon stacked over a tiny label */
+  .nav-bottom .nav-item {
+    flex: 1 0 auto;
+    min-width: 60px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 4px;
+    border-radius: 0;
+    border: none;
+    font-size: 9.5px;
+    letter-spacing: 0.2px;
+  }
+  .nav-bottom .nav-item .nav-item-label {
+    flex: 0 0 auto;
+    font-weight: 500;
+    max-width: 64px;
+    text-align: center;
+  }
+  .nav-bottom .nav-item.is-active { background: transparent; }
+  /* On the bottom bar the accent indicator is a TOP bar, not a left bar */
+  .nav-bottom .nav-item.is-active::before {
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+  }
+  .nav-bottom .nav-item::after { content: none; } /* no tooltips on mobile */
+
+  /* ------------------------------------------------------------------ */
+  /* AREA CONTAINERS — only the active one is shown                      */
+  /* ------------------------------------------------------------------ */
+  .area { display: none; }
+  .area.is-active { display: block; }
+
+  /* On desktop, push every area's content to the right of the rail.
+     We add `.has-nav-rail` to <body> in JS (so this only applies once the
+     shell is initialised, and respects the collapsed width). */
+  body.has-nav-rail .area {
+    padding-left: var(--nav-rail-w);
+    transition: padding-left 0.22s ease;
+  }
+  body.has-nav-rail.nav-collapsed .area {
+    padding-left: var(--nav-rail-w-collapsed);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* "PŘIPRAVUJEME" PLACEHOLDER (coming-soon) CARD                       */
+  /* ------------------------------------------------------------------ */
+  .area-placeholder {
+    min-height: calc(100vh - var(--nav-header-h));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px 40px;
+  }
+  .area-placeholder-card {
+    width: 100%;
+    max-width: 460px;
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 40px 32px;
+    box-shadow: var(--shadow-card);
+  }
+  /* Big accent-tinted icon disc — uses the area accent via --nav-accent */
+  .area-placeholder-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    line-height: 1;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--nav-accent, var(--accent-color)) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--nav-accent, var(--accent-color)) 35%, transparent);
+  }
+  .area-placeholder-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  /* "Připravujeme" pill — accent-tinted status chip */
+  .area-placeholder-badge {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--nav-accent, var(--accent-color));
+    background: color-mix(in srgb, var(--nav-accent, var(--accent-color)) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--nav-accent, var(--accent-color)) 30%, transparent);
+    border-radius: var(--radius-pill);
+  }
+  .area-placeholder-note {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* RESPONSIVE SWITCH @820px — rail OFF, bottom bar ON                  */
+  /* ------------------------------------------------------------------ */
+  @media (max-width: 820px) {
+    .nav-rail { display: none; }
+    .nav-bottom { display: block; }
+    /* Content no longer offset to the right; instead leave room at the bottom */
+    body.has-nav-rail .area,
+    body.has-nav-rail.nav-collapsed .area {
+      padding-left: 0;
+    }
+    body.has-nav-rail {
+      padding-bottom: calc(var(--nav-bottom-h) + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-rail, .nav-item, .nav-item-icon, body.has-nav-rail .area {
+      transition: none !important;
+    }
+  }
+</style>
+
+<!-- ==========================================================================
+     NAV MARKUP
+     The two <nav> containers are EMPTY shells; renderAreaNav() (in the script
+     below) fills both from the single AREAS array on init. This guarantees the
+     desktop rail and the mobile bar always show the same 8 items in the same
+     order with the same accents.
+     ========================================================================== -->
+
+<!-- Desktop left sidebar rail -->
+<nav class="nav-rail" id="navRail" aria-label="Hlavní navigace">
+  <!-- Collapse / expand toggle (desktop only). Chevron points left when expanded. -->
+  <button class="nav-collapse-btn" id="navCollapseBtn" type="button"
+          aria-label="Sbalit navigaci" title="Sbalit / rozbalit">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <!-- items injected here by renderAreaNav() -->
+</nav>
+
+<!-- Mobile bottom navigation bar -->
+<nav class="nav-bottom" id="navBottom" aria-label="Hlavní navigace">
+  <div class="nav-bottom-inner">
+    <!-- items injected here by renderAreaNav() -->
+  </div>
+</nav>
+
+<!-- ==========================================================================
+     REUSABLE PLACEHOLDER TEMPLATE
+     The orchestrator can either (a) clone this <template> via renderComingSoon()
+     for each empty area, or (b) just create an empty <section class="area">
+     and call renderComingSoon(areaEl, areaId) — the router does this
+     automatically for any registered empty area on first navigation.
+     Tokens {{ICON}} {{TITLE}} {{NOTE}} are filled by renderComingSoon().
+     ========================================================================== -->
+<template id="areaPlaceholderTpl">
+  <div class="area-placeholder">
+    <div class="area-placeholder-card">
+      <div class="area-placeholder-icon">{{ICON}}</div>
+      <div class="area-placeholder-badge">Připravujeme</div>
+      <div class="area-placeholder-title">{{TITLE}}</div>
+      <p class="area-placeholder-note">{{NOTE}}</p>
+    </div>
+  </div>
+</template>
+
+<script>
+/* ============================================================================
+   APP-SHELL ROUTER  —  vanilla JS, no framework, no build step.
+   ----------------------------------------------------------------------------
+   Public API (attached to window so the orchestrator/inline handlers can call):
+     - initAreaRouter()   : wire everything up, render nav, route initial hash.
+     - navigateArea(id)   : programmatically switch to an area (updates hash).
+   ============================================================================ */
+(function () {
+  'use strict';
+
+  /* --------------------------------------------------------------------------
+     AREA METADATA — the single source of truth.
+     `comingSoon: true` means the router will auto-fill the section with the
+     "Připravujeme" placeholder the first time it is shown (unless the section
+     already has its own content, in which case we leave it alone).
+     `note` = the short "co tu bude" description shown on the placeholder.
+     -------------------------------------------------------------------------- */
+  var AREAS = [
+    {
+      id: 'domov', label: 'Domů', icon: '🏠', accent: 'var(--accent-color)',
+      comingSoon: true,
+      note: 'Souhrnný přehled celého domu — počasí, klíčové stavy a rychlé akce na jednom místě.'
+    },
+    {
+      id: 'elektrarna', label: 'Elektrárna', icon: '⚡', accent: '#f5c542',
+      comingSoon: false,  /* real content: the existing Overview/Solar/Inverter/Battery/Service tabs */
+      note: ''
+    },
+    {
+      id: 'energie', label: 'Energie & Historie', icon: '📊', accent: '#a855f7',
+      comingSoon: true,
+      note: 'Grafy spotřeby a výroby, denní a měsíční bilance, export reportů a dlouhodobé trendy.'
+    },
+    {
+      id: 'dum', label: 'Dům', icon: '🏡', accent: '#3b9eff',
+      comingSoon: true,
+      note: 'Vnitřní senzory, teploty a vlhkost v místnostech, vytápění a ovládání spotřebičů.'
+    },
+    {
+      id: 'zahrada', label: 'Zahrada', icon: '🌿', accent: '#3bd6c6',
+      comingSoon: true,  /* orchestrator moves the pump control here; until then = placeholder */
+      note: 'Zavlažování, čerpadlo, venkovní senzory a osvětlení zahrady.'
+    },
+    {
+      id: 'garaz', label: 'Garáž', icon: '🚗', accent: '#888888',
+      comingSoon: true,
+      note: 'Vrata, nabíjení elektromobilu, stav dveří a osvětlení garáže.'
+    },
+    {
+      id: 'zabezpeceni', label: 'Zabezpečení', icon: '🔒', accent: '#ff4444',
+      comingSoon: true,
+      note: 'Kamery, detektory pohybu, stav oken a dveří a alarmové scénáře.'
+    },
+    {
+      id: 'system', label: 'Systém', icon: '🔧', accent: '#00b4d8',
+      comingSoon: true,
+      note: 'Stav serveru, MQTT a InfluxDB, aktualizace, zálohy a diagnostika systému.'
+    }
+  ];
+
+  var DEFAULT_AREA = 'domov';
+  var COLLAPSE_KEY = 'casa-davinci-nav-collapsed';
+
+  /* Quick lookup id -> meta */
+  var byId = {};
+  AREAS.forEach(function (a) { byId[a.id] = a; });
+
+  /* --------------------------------------------------------------------------
+     escapeHtml — tiny helper so the metadata strings are injected safely.
+     -------------------------------------------------------------------------- */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+     buildNavItem — create one <button class="nav-item"> for a given area.
+     Used for both the desktop rail and the mobile bottom bar (identical markup;
+     CSS handles the layout differences per container).
+     -------------------------------------------------------------------------- */
+  function buildNavItem(area) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-item';
+    btn.dataset.area = area.id;
+    btn.dataset.label = area.label;            /* used by the collapsed tooltip */
+    btn.setAttribute('aria-label', area.label);
+    /* Expose the per-area accent to CSS via a custom property. */
+    btn.style.setProperty('--nav-accent', area.accent);
+    btn.innerHTML =
+      '<span class="nav-item-icon" aria-hidden="true">' + area.icon + '</span>' +
+      '<span class="nav-item-label">' + escapeHtml(area.label) + '</span>';
+    /* Clicking an item routes by setting the hash — hashchange does the work. */
+    btn.addEventListener('click', function () { navigateArea(area.id); });
+    return btn;
+  }
+
+  /* --------------------------------------------------------------------------
+     renderAreaNav — populate BOTH nav containers from AREAS.
+     -------------------------------------------------------------------------- */
+  function renderAreaNav() {
+    var rail = document.getElementById('navRail');
+    var bottomInner = document.querySelector('#navBottom .nav-bottom-inner');
+    AREAS.forEach(function (area) {
+      if (rail) rail.appendChild(buildNavItem(area));
+      if (bottomInner) bottomInner.appendChild(buildNavItem(area));
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+     renderComingSoon — fill a section element with the placeholder card.
+     Exposed on window so the orchestrator can call it directly if it prefers
+     to pre-render placeholders rather than rely on lazy fill.
+     -------------------------------------------------------------------------- */
+  function renderComingSoon(sectionEl, areaId) {
+    var area = byId[areaId];
+    if (!sectionEl || !area) return;
+    var tpl = document.getElementById('areaPlaceholderTpl');
+    var html = tpl
+      ? tpl.innerHTML
+      : '<div class="area-placeholder"><div class="area-placeholder-card">' +
+        '<div class="area-placeholder-icon">{{ICON}}</div>' +
+        '<div class="area-placeholder-badge">Připravujeme</div>' +
+        '<div class="area-placeholder-title">{{TITLE}}</div>' +
+        '<p class="area-placeholder-note">{{NOTE}}</p></div></div>';
+    html = html
+      .replace('{{ICON}}', area.icon)
+      .replace('{{TITLE}}', escapeHtml(area.label))
+      .replace('{{NOTE}}', escapeHtml(area.note || 'Tato sekce se připravuje.'));
+    sectionEl.innerHTML = html;
+    /* Pass the accent down so the placeholder disc/badge are tinted correctly. */
+    sectionEl.style.setProperty('--nav-accent', area.accent);
+    sectionEl.dataset.placeholderRendered = '1';
+  }
+
+  /* --------------------------------------------------------------------------
+     setActiveNav — highlight the matching item in BOTH nav containers.
+     -------------------------------------------------------------------------- */
+  function setActiveNav(areaId) {
+    document.querySelectorAll('.nav-item').forEach(function (el) {
+      var on = el.dataset.area === areaId;
+      el.classList.toggle('is-active', on);
+      if (on) {
+        el.setAttribute('aria-current', 'page');
+      } else {
+        el.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+     showArea — the core: show one <section class="area">, hide the rest.
+     Falls back to DEFAULT_AREA if an unknown id is requested.
+     -------------------------------------------------------------------------- */
+  function showArea(areaId) {
+    if (!byId[areaId]) areaId = DEFAULT_AREA;
+
+    var sections = document.querySelectorAll('.area');
+    sections.forEach(function (sec) {
+      var thisId = sec.id.replace(/^area-/, '');
+      var active = thisId === areaId;
+      sec.classList.toggle('is-active', active);
+
+      /* Lazy-fill the placeholder the first time a coming-soon area is shown,
+         BUT only if the orchestrator hasn't already put real content there.
+         Heuristic: a registered comingSoon area with no element children yet. */
+      if (active) {
+        var meta = byId[thisId];
+        if (meta && meta.comingSoon &&
+            !sec.dataset.placeholderRendered &&
+            sec.children.length === 0) {
+          renderComingSoon(sec, thisId);
+        }
+      }
+    });
+
+    setActiveNav(areaId);
+
+    /* Reflect the active area on <html> so other code/themes can react if
+       desired (e.g. tinting). Harmless if unused. */
+    document.documentElement.setAttribute('data-area', areaId);
+
+    /* Scroll the freshly shown area to the top for a clean transition. */
+    window.scrollTo(0, 0);
+  }
+
+  /* --------------------------------------------------------------------------
+     parseHash — extract an area id from location.hash ("#/elektrarna" -> id).
+     Accepts "#/id", "#id", or empty. Returns DEFAULT_AREA when unknown.
+     -------------------------------------------------------------------------- */
+  function parseHash() {
+    var raw = (location.hash || '').replace(/^#\/?/, '').trim();
+    return byId[raw] ? raw : DEFAULT_AREA;
+  }
+
+  /* --------------------------------------------------------------------------
+     navigateArea(id) — PUBLIC. Programmatic navigation.
+     Sets the hash; if the hash doesn't actually change (already there) we still
+     force a render so callers get deterministic behaviour.
+     -------------------------------------------------------------------------- */
+  function navigateArea(id) {
+    if (!byId[id]) id = DEFAULT_AREA;
+    var target = '#/' + id;
+    if (location.hash === target) {
+      showArea(id);                  /* hashchange won't fire — render directly */
+    } else {
+      location.hash = target;        /* triggers onHashChange -> showArea */
+    }
+  }
+
+  /* onHashChange — single hashchange handler. */
+  function onHashChange() {
+    showArea(parseHash());
+  }
+
+  /* --------------------------------------------------------------------------
+     COLLAPSE handling (desktop rail icons-only mode), persisted in localStorage.
+     We toggle `.is-collapsed` on the rail AND `.nav-collapsed` on <body> (the
+     latter drives the content's left padding so it follows the rail width).
+     -------------------------------------------------------------------------- */
+  function applyCollapsed(collapsed) {
+    var rail = document.getElementById('navRail');
+    if (rail) rail.classList.toggle('is-collapsed', collapsed);
+    document.body.classList.toggle('nav-collapsed', collapsed);
+    var btn = document.getElementById('navCollapseBtn');
+    if (btn) {
+      btn.setAttribute('aria-label', collapsed ? 'Rozbalit navigaci' : 'Sbalit navigaci');
+    }
+  }
+
+  function initCollapse() {
+    var collapsed = false;
+    try { collapsed = localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) {}
+    applyCollapsed(collapsed);
+
+    var btn = document.getElementById('navCollapseBtn');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var next = !document.body.classList.contains('nav-collapsed');
+        applyCollapsed(next);
+        try { localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0'); } catch (e) {}
+      });
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+     initAreaRouter() — PUBLIC. Call once after the DOM (header, nav shells,
+     and the area sections) is in place.
+       1. render the 8 nav items into both containers
+       2. wire up collapse toggle (+ restore persisted state)
+       3. flag <body> so content layout reserves space for the rail
+       4. listen for hashchange
+       5. route the initial hash (defaults to #/domov)
+     -------------------------------------------------------------------------- */
+  function initAreaRouter() {
+    renderAreaNav();
+    initCollapse();
+    document.body.classList.add('has-nav-rail');
+    window.addEventListener('hashchange', onHashChange);
+
+    /* Normalise the URL so we always have a canonical "#/id" on first paint. */
+    var initial = parseHash();
+    if (location.hash !== '#/' + initial) {
+      /* replaceState avoids adding a junk history entry for the redirect. */
+      if (history.replaceState) {
+        history.replaceState(null, '', '#/' + initial);
+      } else {
+        location.hash = '#/' + initial;
+      }
+    }
+    showArea(initial);
+  }
+
+  /* Expose the public API. */
+  window.initAreaRouter = initAreaRouter;
+  window.navigateArea = navigateArea;
+  window.renderComingSoon = renderComingSoon;   /* optional helper for orchestrator */
+  window.CASA_AREAS = AREAS;                     /* read-only reference for other code */
+})();
+</script>

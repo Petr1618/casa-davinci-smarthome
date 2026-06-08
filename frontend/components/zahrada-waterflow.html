@@ -1,0 +1,674 @@
+<!-- =========================================================================
+     CASA DAVINCI · ZAHRADA — "WATER-FLOW" SCENE
+     -------------------------------------------------------------------------
+     Self-contained, drop-in showpiece for the Garden ("Zahrada") section.
+     Visualizes the well pump cycle:
+         vrtaná studna (borehole)  →  ponorné čerpadlo (submersible pump)
+                                   →  potrubí (pipe)  →  jímka (cistern)
+
+     This is the sister of the main energy-flow diagram. It deliberately
+     reuses that diagram's animation language:
+         · flowing droplets along an SVG path (like .flow-dot)
+         · a pulsing / glowing source-of-action node (like .node-circle.pulse)
+         · soft halos driven by the theme's CSS custom properties
+
+     EVERYTHING here is theme-aware (dark / light / spacex) because it only
+     ever references the dashboard's CSS variables (--text-primary, --cool-color,
+     --battery-color, --warning-color, --border-color, --bg-card, …). No hard
+     hex values are used for anything that should change per theme.
+
+     INTEGRATION (see notes at the very bottom of this file):
+       1. Inject this whole block ABOVE the existing pump control panel.
+       2. Call  renderWaterFlow(pumpState)  whenever a fresh pumpState arrives
+          (i.e. from inside the existing updatePumpCard(p) function, passing p).
+       3. The internal requestAnimationFrame loop starts itself on load.
+
+     All CSS classes are prefixed  wf-  to avoid collisions with index.html.
+     ========================================================================= -->
+
+<style>
+  /* -----------------------------------------------------------------------
+     CARD SHELL
+     Matches .service-connect-panel: same surface, radius, border, padding.
+     ----------------------------------------------------------------------- */
+  #zahrada-waterflow {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg, 12px);
+    padding: 20px 20px 8px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
+    /* The scene is tinted with a faint water-cyan accent so it reads as a
+       distinct "water" subsystem next to the orange-accented energy cards. */
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Header row: section eyebrow + live status badge, like .pump-h pattern. */
+  .wf-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .wf-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--cool-color, #00b4d8);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .wf-eyebrow svg { width: 15px; height: 15px; display: block; }
+
+  /* Status badge — three mutually-exclusive states (see renderWaterFlow):
+       BĚŽÍ (green) · STOJÍ (grey) · AUTOMATIKA VYPNUTÁ (amber).
+     Styled like the dashboard's small pill badges. */
+  .wf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 11px 5px 9px;
+    border-radius: var(--radius-pill, 20px);
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+    transition: color .25s, border-color .25s, background .25s;
+  }
+  .wf-badge .wf-badge-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  /* RUNNING — green, dot gently breathes to signal "live". */
+  .wf-badge.is-running {
+    color: var(--battery-color, #44d62c);
+    background: var(--battery-soft, rgba(68,214,44,.15));
+    border-color: rgba(68,214,44,.45);
+  }
+  .wf-badge.is-running .wf-badge-dot { animation: wf-badge-pulse 1.6s ease-in-out infinite; }
+  /* STOPPED — muted grey, calm. */
+  .wf-badge.is-stopped {
+    color: var(--text-secondary, #888);
+    background: var(--grid-soft, rgba(136,136,136,.15));
+    border-color: var(--border-color);
+  }
+  /* AUTOMATION OFF — amber warning. */
+  .wf-badge.is-disabled {
+    color: var(--warning-color, #ffa500);
+    background: var(--warning-soft, rgba(255,165,0,.15));
+    border-color: rgba(255,165,0,.4);
+  }
+  @keyframes wf-badge-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--battery-glow, rgba(68,214,44,.35)); }
+    50%      { box-shadow: 0 0 0 5px rgba(68,214,44,0); }
+  }
+
+  /* The SVG stage. aspect-ratio + viewBox keep it crisp & responsive. */
+  .wf-stage {
+    width: 100%;
+    display: block;
+    margin: 6px 0 4px;
+    /* Cap height on very wide screens so the scene stays a tidy band. */
+    max-height: 320px;
+  }
+  .wf-stage svg { width: 100%; height: auto; display: block; }
+
+  /* Footer caption — honest, lightweight (like .pump-note). */
+  .wf-caption {
+    font-size: 11px;
+    color: var(--text-muted, #666);
+    line-height: 1.6;
+    padding: 6px 2px 10px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 4px;
+  }
+  .wf-caption b { color: var(--text-secondary); font-weight: 600; }
+
+  /* =======================================================================
+     SVG PRIMITIVES
+     ======================================================================= */
+
+  /* Static structural strokes (well casing, tank outline, ground line). */
+  .wf-struct      { fill: none; stroke: var(--border-color); stroke-width: 2; }
+  .wf-struct-soft { fill: none; stroke: var(--border-color); stroke-width: 1.5; opacity: .7; }
+  .wf-ground      { stroke: var(--text-muted, #666); stroke-width: 1.5; stroke-dasharray: 2 5; opacity: .55; }
+
+  /* Surfaces filled with the card body colour so pipes/tanks read as solid
+     hardware sitting on the card, not floating outlines. */
+  .wf-body { fill: var(--bg-card-solid, #1e1e1e); }
+
+  /* Labels — small uppercase captions in the dashboard's secondary text. */
+  .wf-label {
+    fill: var(--text-secondary, #888);
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+  }
+  .wf-sublabel {
+    fill: var(--text-muted, #666);
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 8.5px;
+    font-weight: 500;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+
+  /* ---- WATER COLOUR ----
+     Static groundwater + tank water use the cool/cyan accent so the whole
+     scene reads "water". A subtle vertical gradient gives it depth. */
+  .wf-water-still { fill: url(#wf-grad-water); opacity: .9; }
+
+  /* ---- THE PIPE ----
+     Two stacked strokes:
+       .wf-pipe-base  = the static dark pipe channel (always visible)
+       .wf-pipe-flow  = the animated dashed "current" drawn on top, only
+                        shown when running (class .is-on toggled by JS).
+     This is the exact technique used by .solar-flow-line in index.html. */
+  .wf-pipe-base {
+    fill: none;
+    stroke: var(--bg-card-solid, #1e1e1e);
+    stroke-width: 13;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .wf-pipe-wall {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 15;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .8;
+  }
+  .wf-pipe-flow {
+    fill: none;
+    stroke: var(--cool-color, #00b4d8);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1 16;     /* sparse droplets when idle */
+    opacity: 0;                 /* hidden until running */
+    transition: opacity .45s ease, stroke-width .45s ease;
+    filter: drop-shadow(0 0 4px var(--cool-color, #00b4d8));
+  }
+  /* When the parent scene has .is-on, reveal & animate the flow current. */
+  #zahrada-waterflow.is-on .wf-pipe-flow {
+    opacity: .95;
+    stroke-dasharray: 9 12;     /* continuous flowing dashes */
+    animation: wf-flow-dash 0.9s linear infinite;
+  }
+  @keyframes wf-flow-dash { to { stroke-dashoffset: -21; } }
+
+  /* ---- DROPLETS ----
+     Individual <circle> droplets ride the pipe path via JS (getPointAtLength),
+     mirroring the energy diagram's flow-dot loop. Hidden when idle. */
+  .wf-drop {
+    fill: var(--cool-color, #00b4d8);
+    opacity: 0;
+    filter: drop-shadow(0 0 3px var(--cool-color, #00b4d8));
+    transition: opacity .4s ease;
+  }
+  #zahrada-waterflow.is-on .wf-drop { opacity: 1; }
+
+  /* ---- PUMP NODE ----
+     The submersible pump is the "action" node — it pulses/glows while running,
+     directly echoing .node-circle.pulse. Glow is a box-shadow-like SVG filter
+     plus an animated outer ring. */
+  .wf-pump-ring {
+    fill: none;
+    stroke: var(--cool-color, #00b4d8);
+    stroke-width: 2;
+    opacity: .55;
+  }
+  .wf-pump-core {
+    fill: var(--bg-card-solid, #1e1e1e);
+    stroke: var(--cool-color, #00b4d8);
+    stroke-width: 2;
+  }
+  .wf-pump-glow {
+    fill: none;
+    stroke: var(--cool-color, #00b4d8);
+    stroke-width: 2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  #zahrada-waterflow.is-on .wf-pump-glow {
+    animation: wf-pump-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes wf-pump-pulse {
+    0%   { opacity: .5; transform: scale(1);   }
+    70%  { opacity: 0;  transform: scale(1.9); }
+    100% { opacity: 0;  transform: scale(1.9); }
+  }
+  /* Impeller — the little rotor inside the pump spins while running. */
+  .wf-impeller {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  #zahrada-waterflow.is-on .wf-impeller {
+    animation: wf-spin 1.1s linear infinite;
+  }
+  @keyframes wf-spin { to { transform: rotate(360deg); } }
+
+  /* ---- CISTERN FILL ----
+     The tank water level is a rect whose height is driven by JS (see
+     renderWaterFlow → setLevel). It eases smoothly so a run nudges it up.
+     A soft surface highlight line + animated ripple sits at the waterline. */
+  .wf-tank-water { fill: url(#wf-grad-tank); transition: y .9s ease, height .9s ease; }
+  .wf-tank-surface {
+    stroke: var(--cool-color, #00b4d8);
+    stroke-width: 1.6;
+    opacity: .85;
+    transition: y .9s ease;
+  }
+  /* Gentle drifting ripple on the tank surface while filling. */
+  #zahrada-waterflow.is-on .wf-tank-surface {
+    animation: wf-ripple 2.4s ease-in-out infinite;
+  }
+  @keyframes wf-ripple {
+    0%, 100% { opacity: .55; }
+    50%      { opacity: 1;   }
+  }
+
+  /* The inflow "splash" where the pipe pours into the cistern — only on. */
+  .wf-splash { fill: var(--cool-color, #00b4d8); opacity: 0; }
+  #zahrada-waterflow.is-on .wf-splash { animation: wf-splash 1.1s ease-in-out infinite; }
+  @keyframes wf-splash {
+    0%   { opacity: 0;  transform: translateY(-4px); }
+    40%  { opacity: .7; }
+    100% { opacity: 0;  transform: translateY(6px); }
+  }
+
+  /* =======================================================================
+     THEME OVERRIDES
+     The dashboard's spacex theme is strictly monochrome and glow-free; light
+     theme drops neon halos. We honour that here so the scene stays cohesive.
+     ======================================================================= */
+  /* SpaceX: no glows, water rendered as restrained white tiers. */
+  [data-theme="spacex"] #zahrada-waterflow .wf-pipe-flow,
+  [data-theme="spacex"] #zahrada-waterflow .wf-drop {
+    filter: none;
+  }
+  [data-theme="spacex"] #zahrada-waterflow .wf-pump-glow {
+    animation: none;
+    opacity: 0;
+  }
+  [data-theme="spacex"] #zahrada-waterflow.is-on .wf-badge.is-running .wf-badge-dot {
+    animation: none;
+  }
+  /* Light: keep flow visible but soften the heavy drop-shadow. */
+  [data-theme="light"] #zahrada-waterflow .wf-pipe-flow {
+    filter: drop-shadow(0 0 2px var(--cool-glow, rgba(2,132,199,.18)));
+  }
+
+  /* Reduced motion: respect the OS preference — freeze all animation. */
+  @media (prefers-reduced-motion: reduce) {
+    #zahrada-waterflow * { animation: none !important; transition: none !important; }
+  }
+
+  /* Mobile tuning: tighten padding, the SVG already scales via viewBox. */
+  @media (max-width: 600px) {
+    #zahrada-waterflow { padding: 16px 14px 6px; }
+    .wf-eyebrow { font-size: 10px; }
+    .wf-badge { font-size: 9.5px; padding: 4px 9px; }
+  }
+</style>
+
+<!-- ===========================================================================
+     MARKUP
+     viewBox is 0 0 600 280; the SVG scales fluidly to its container width.
+     Coordinate map (roughly):
+        WELL    x≈ 60–150   (left, sunk into ground, with groundwater column)
+        PUMP    x≈105        (down in the well, pulsing node)
+        PIPE    rises from pump, arcs right, descends into cistern
+        CISTERN x≈430–560   (right, with animated fill level)
+     =========================================================================== -->
+<div id="zahrada-waterflow" class="is-off" aria-label="Vizualizace čerpání vody ze studny do jímky">
+
+  <!-- Header: water eyebrow + live status badge -->
+  <div class="wf-head">
+    <div class="wf-eyebrow">
+      <!-- droplet glyph -->
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3 C12 3 5 11 5 15.5 A7 7 0 0 0 19 15.5 C19 11 12 3 12 3 Z"
+              stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+      <span>Zahrada · čerpání vody</span>
+    </div>
+    <span class="wf-badge is-stopped" id="wf-badge">
+      <span class="wf-badge-dot"></span>
+      <span id="wf-badge-text">STOJÍ</span>
+    </span>
+  </div>
+
+  <!-- The scene -->
+  <div class="wf-stage">
+    <svg viewBox="0 0 600 280" role="img"
+         aria-labelledby="wf-svg-title" preserveAspectRatio="xMidYMid meet">
+      <title id="wf-svg-title">Studna, ponorné čerpadlo, potrubí a jímka</title>
+
+      <!-- ============ DEFS: gradients + filters ============ -->
+      <defs>
+        <!-- Groundwater / well water column gradient -->
+        <linearGradient id="wf-grad-water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0"  stop-color="var(--cool-color, #00b4d8)" stop-opacity="0.55"/>
+          <stop offset="1"  stop-color="var(--cool-color, #00b4d8)" stop-opacity="0.18"/>
+        </linearGradient>
+        <!-- Cistern water gradient (slightly deeper at the bottom) -->
+        <linearGradient id="wf-grad-tank" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0"  stop-color="var(--cool-color, #00b4d8)" stop-opacity="0.62"/>
+          <stop offset="1"  stop-color="var(--battery-color, #44d62c)" stop-opacity="0.30"/>
+        </linearGradient>
+        <!-- Clip so the tank water never spills past the tank walls. -->
+        <clipPath id="wf-tank-clip">
+          <rect x="432" y="92" width="126" height="150" rx="8"/>
+        </clipPath>
+        <!-- Clip so the well-water column stays inside the casing. -->
+        <clipPath id="wf-well-clip">
+          <rect x="86" y="96" width="44" height="150"/>
+        </clipPath>
+      </defs>
+
+      <!-- ============ GROUND LINE ============ -->
+      <line class="wf-ground" x1="0" y1="96" x2="600" y2="96"/>
+      <text class="wf-sublabel" x="8" y="90" opacity="0.6">ÚROVEŇ TERÉNU</text>
+
+      <!-- ============ WELL (Studna) ============
+           Borehole casing sunk into the ground with a groundwater column at
+           the bottom — communicates "this is the source of the water". -->
+      <g>
+        <!-- Casing body -->
+        <rect class="wf-body" x="84" y="96" width="48" height="152" rx="3"/>
+        <rect class="wf-struct" x="84" y="96" width="48" height="152" rx="3"/>
+        <!-- Well head ring above ground -->
+        <rect class="wf-body" x="76" y="84" width="64" height="14" rx="4"/>
+        <rect class="wf-struct" x="76" y="84" width="64" height="14" rx="4"/>
+
+        <!-- Static groundwater column (clipped to casing). Fixed level — it is
+             the aquifer, conceptually "infinite", so it does not deplete. -->
+        <g clip-path="url(#wf-well-clip)">
+          <rect class="wf-water-still" x="86" y="150" width="44" height="98"/>
+          <!-- faint water surface line -->
+          <line x1="86" y1="150" x2="130" y2="150"
+                stroke="var(--cool-color, #00b4d8)" stroke-width="1.4" opacity="0.8"/>
+        </g>
+
+        <!-- Casing depth ticks (decorative engineering detail) -->
+        <line class="wf-struct-soft" x1="84" y1="124" x2="92" y2="124"/>
+        <line class="wf-struct-soft" x1="84" y1="150" x2="92" y2="150"/>
+        <line class="wf-struct-soft" x1="84" y1="176" x2="92" y2="176"/>
+        <line class="wf-struct-soft" x1="84" y1="202" x2="92" y2="202"/>
+
+        <text class="wf-label" x="108" y="272" text-anchor="middle">Studna</text>
+        <text class="wf-sublabel" x="108" y="262" text-anchor="middle" opacity="0">vrtaná</text>
+      </g>
+
+      <!-- ============ SUBMERSIBLE PUMP (Čerpadlo) ============
+           Sits inside the groundwater column. This is the pulsing action node.
+           Centre ≈ (108, 196). -->
+      <g>
+        <!-- Outer expanding glow ring (animates only while running) -->
+        <circle class="wf-pump-glow" cx="108" cy="196" r="17"/>
+        <!-- Soft static ring -->
+        <circle class="wf-pump-ring" cx="108" cy="196" r="17"/>
+        <!-- Pump body -->
+        <rect class="wf-pump-core" x="96" y="182" width="24" height="30" rx="5"/>
+        <!-- Spinning impeller hint (rotor cross) -->
+        <g class="wf-impeller">
+          <line x1="108" y1="190" x2="108" y2="204"
+                stroke="var(--cool-color, #00b4d8)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="101" y1="197" x2="115" y2="197"
+                stroke="var(--cool-color, #00b4d8)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="108" cy="197" r="2.4" fill="var(--cool-color, #00b4d8)"/>
+        </g>
+        <!-- Pump intake feet -->
+        <line class="wf-struct-soft" x1="100" y1="212" x2="100" y2="218"/>
+        <line class="wf-struct-soft" x1="116" y1="212" x2="116" y2="218"/>
+
+        <text class="wf-sublabel" x="150" y="200" text-anchor="start">Čerpadlo</text>
+      </g>
+
+      <!-- ============ PIPE (Potrubí) ============
+           Rises from the pump, climbs above ground, arcs right across the
+           scene and descends into the cistern. ONE shared path id so the JS
+           droplet loop and the dashed-flow stroke trace the same line. -->
+      <!-- Pipe wall (outer) + base channel (inner) -->
+      <path class="wf-pipe-wall"
+            d="M 108 182
+               L 108 60
+               Q 108 44 124 44
+               L 478 44
+               Q 494 44 494 60
+               L 494 92"/>
+      <path id="wf-pipe-path" class="wf-pipe-base"
+            d="M 108 182
+               L 108 60
+               Q 108 44 124 44
+               L 478 44
+               Q 494 44 494 60
+               L 494 92"/>
+      <!-- Animated dashed "current" on top (revealed by .is-on) -->
+      <path class="wf-pipe-flow"
+            d="M 108 182
+               L 108 60
+               Q 108 44 124 44
+               L 478 44
+               Q 494 44 494 60
+               L 494 92"/>
+
+      <text class="wf-sublabel" x="300" y="36" text-anchor="middle">Potrubí</text>
+
+      <!-- Riser detail: a small elbow flange where pipe meets pump -->
+      <circle class="wf-body" cx="108" cy="182" r="6"/>
+      <circle class="wf-struct-soft" cx="108" cy="182" r="6"/>
+
+      <!-- ============ CISTERN / TANK (Jímka) ============
+           Right side. Walls are static; the water rect's y/height are driven
+           by JS so a run nudges the level up. Centre x ≈ 495. -->
+      <g>
+        <!-- Tank body (behind water) -->
+        <rect class="wf-body" x="432" y="92" width="126" height="150" rx="8"/>
+
+        <!-- WATER (clipped to tank interior). y/height set by renderWaterFlow. -->
+        <g clip-path="url(#wf-tank-clip)">
+          <rect id="wf-tank-water" class="wf-tank-water"
+                x="432" y="170" width="126" height="72"/>
+          <!-- Animated surface line at the waterline -->
+          <line id="wf-tank-surface" class="wf-tank-surface"
+                x1="432" y1="170" x2="558" y2="170"/>
+          <!-- Inflow splash under the pipe outlet -->
+          <ellipse class="wf-splash" cx="494" cy="172" rx="9" ry="3.2"/>
+        </g>
+
+        <!-- Tank outline (on top of water so edges stay crisp) -->
+        <rect class="wf-struct" x="432" y="92" width="126" height="150" rx="8"/>
+        <!-- Tank lid / inlet collar where the pipe enters -->
+        <rect class="wf-body" x="480" y="84" width="28" height="12" rx="3"/>
+        <rect class="wf-struct" x="480" y="84" width="28" height="12" rx="3"/>
+
+        <!-- Volume tick marks on the tank wall (purely indicative, no numbers) -->
+        <line class="wf-struct-soft" x1="432" y1="130" x2="442" y2="130"/>
+        <line class="wf-struct-soft" x1="432" y1="167" x2="442" y2="167"/>
+        <line class="wf-struct-soft" x1="432" y1="204" x2="442" y2="204"/>
+
+        <text class="wf-label" x="495" y="272" text-anchor="middle">Jímka</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Honest caption: the level is indicative, not a real sensor reading. -->
+  <div class="wf-caption" id="wf-caption">
+    <b>Stojí.</b> Hladina jímky je orientační — bez reálného čidla úrovně.
+  </div>
+</div>
+
+<script>
+/* ===========================================================================
+   WATER-FLOW SCENE CONTROLLER
+   Exposes a single public function:  renderWaterFlow(pumpState)
+   plus a self-starting requestAnimationFrame droplet loop.
+
+   Design mirrors index.html's energy diagram:
+     · droplets are <circle>s moved along the pipe path with getPointAtLength
+     · the running/idle look is toggled via a single .is-on class on the root
+   =========================================================================== */
+(function () {
+  'use strict';
+
+  // ---- Cached DOM handles (resolved once on first render) -------------------
+  var root, badge, badgeText, caption, pipePath, tankWater, tankSurface;
+  var dots = [];                 // droplet circles riding the pipe
+  var pathLength = 0;            // total length of the pipe path (px in viewBox)
+  var running = false;           // current animation state
+  var initialized = false;
+
+  // ---- Cistern fill model ---------------------------------------------------
+  // No real sensor exists, so the level is a STYLIZED nominal value in [0..1].
+  // It starts at a calm mid level and gently nudges UP while the pump runs,
+  // then plateaus. This is deliberately honest: a soft indicator, not a number.
+  var TANK_X = 432, TANK_W = 126;        // tank interior geometry (viewBox units)
+  var TANK_TOP = 96, TANK_BOTTOM = 240;  // y of empty(top) .. full reference
+  var level = 0.46;                      // nominal start level (0 empty → 1 full)
+  var LEVEL_MIN = 0.30, LEVEL_MAX = 0.92;
+  var lastTick = 0;
+
+  // Number of droplets spaced along the pipe.
+  var DROP_COUNT = 7;
+
+  /* Resolve DOM + build the droplet pool. Runs once. */
+  function init() {
+    root        = document.getElementById('zahrada-waterflow');
+    if (!root) return false;     // component not on page (e.g. wrong tab) — bail
+    badge       = document.getElementById('wf-badge');
+    badgeText   = document.getElementById('wf-badge-text');
+    caption     = document.getElementById('wf-caption');
+    pipePath    = document.getElementById('wf-pipe-path');
+    tankWater   = document.getElementById('wf-tank-water');
+    tankSurface = document.getElementById('wf-tank-surface');
+
+    if (!pipePath) return false;
+    pathLength = pipePath.getTotalLength();
+
+    // Create droplet circles in the same SVG, layered above the pipe.
+    var svg = pipePath.ownerSVGElement;
+    var ns = 'http://www.w3.org/2000/svg';
+    for (var i = 0; i < DROP_COUNT; i++) {
+      var c = document.createElementNS(ns, 'circle');
+      c.setAttribute('class', 'wf-drop');
+      c.setAttribute('r', '3.2');
+      svg.appendChild(c);
+      dots.push({ el: c, offset: i / DROP_COUNT });   // evenly spaced
+    }
+
+    setLevel(level);            // paint the initial water level
+    initialized = true;
+    return true;
+  }
+
+  /* Map a 0..1 level to the tank water rect (y grows downward in SVG). */
+  function setLevel(v) {
+    level = Math.max(LEVEL_MIN, Math.min(LEVEL_MAX, v));
+    if (!tankWater) return;
+    var span = TANK_BOTTOM - TANK_TOP;          // usable height
+    var waterTop = TANK_BOTTOM - span * level;  // higher level → smaller y
+    var h = TANK_BOTTOM - waterTop;
+    tankWater.setAttribute('y', waterTop.toFixed(1));
+    tankWater.setAttribute('height', h.toFixed(1));
+    if (tankSurface) {
+      tankSurface.setAttribute('y1', waterTop.toFixed(1));
+      tankSurface.setAttribute('y2', waterTop.toFixed(1));
+    }
+  }
+
+  /* ---- PUBLIC API ----------------------------------------------------------
+     Call with the pumpState object pushed over the socket. Tolerant of partial
+     / null input. Updates: running class, status badge, and caption.        */
+  window.renderWaterFlow = function (p) {
+    if (!initialized && !init()) return;   // try (re)init if DOM appeared late
+    p = p || {};
+
+    var enabled = p.enabled !== false;     // automation master (default true)
+    var isOn = p.on === true;              // pump currently energized?
+    running = isOn;
+
+    // Toggle the master running class — drives every CSS animation at once.
+    root.classList.toggle('is-on', isOn);
+    root.classList.toggle('is-off', !isOn);
+
+    // ---- Status badge: three mutually-exclusive states -------------------
+    badge.classList.remove('is-running', 'is-stopped', 'is-disabled');
+    if (!enabled) {
+      // Automation switched off entirely — amber takes priority over stopped.
+      badge.classList.add('is-disabled');
+      badgeText.textContent = 'AUTOMATIKA VYPNUTÁ';
+    } else if (isOn) {
+      badge.classList.add('is-running');
+      badgeText.textContent = 'BĚŽÍ';
+    } else {
+      badge.classList.add('is-stopped');
+      badgeText.textContent = 'STOJÍ';
+    }
+
+    // ---- Honest caption --------------------------------------------------
+    if (caption) {
+      if (!enabled) {
+        caption.innerHTML = '<b>Automatika vypnutá.</b> Čerpadlo se nespouští automaticky — '
+          + 'jímka se neplní. Hladina je pouze orientační.';
+      } else if (isOn) {
+        var temp = (typeof p.temperature === 'number') ? p.temperature.toFixed(1) + ' °C' : '—';
+        caption.innerHTML = '<b>Běží.</b> Voda proudí ze studny do jímky · teplota čerpadla ' + temp
+          + '. Hladina je orientační, bez reálného čidla.';
+      } else {
+        caption.innerHTML = '<b>Stojí.</b> Hladina jímky je orientační — bez reálného čidla úrovně.';
+      }
+    }
+  };
+
+  /* ---- DROPLET + LEVEL ANIMATION LOOP --------------------------------------
+     Single rAF loop (like animateDots in index.html). Droplets ride the pipe
+     from pump → cistern only while running; the nominal tank level nudges up. */
+  function loop(now) {
+    if (!lastTick) lastTick = now;
+    var dt = (now - lastTick) / 1000;   // seconds since last frame
+    lastTick = now;
+
+    if (initialized && pipePath) {
+      if (running) {
+        // Advance each droplet along the pipe (offset 0 = pump, 1 = cistern).
+        var speed = 0.30;               // fraction of path per second
+        for (var i = 0; i < dots.length; i++) {
+          var d = dots[i];
+          d.offset += speed * dt;
+          if (d.offset > 1) d.offset -= 1;
+          var pt = pipePath.getPointAtLength(d.offset * pathLength);
+          d.el.setAttribute('cx', pt.x.toFixed(1));
+          d.el.setAttribute('cy', pt.y.toFixed(1));
+        }
+        // Gently raise the nominal cistern level while the pump runs, then plateau.
+        if (level < LEVEL_MAX) setLevel(level + 0.012 * dt);
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  // ---- Boot: init when DOM is ready, then start the loop. -------------------
+  function boot() {
+    init();
+    requestAnimationFrame(loop);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
