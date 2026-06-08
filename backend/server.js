@@ -175,6 +175,7 @@ const frontendPath = fs.existsSync(path.join(__dirname, 'frontend'))
   ? path.join(__dirname, 'frontend')
   : path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendPath));
+app.use(express.json());
 
 // Store latest values for new client connections
 const latestData = {
@@ -191,8 +192,11 @@ const latestData = {
     temperature: null,    // °C — Shelly internal temperature
     source: null,         // what triggered the last change (timer/MQTT/...)
     offAt: null,          // epoch ms — when the auto-off timer will switch it off
-    scheduleMinute: 0,    // minute of each hour the pump starts (Shelly schedule)
-    scheduleEnabled: true,// hourly schedule active on the Shelly
+    enabled: true,        // automation (Shelly schedule) active
+    runSeconds: 60,       // relay on-time per cycle (Shelly auto_off_delay)
+    intervalKey: '1h',    // cycle interval key (see PUMP_INTERVALS)
+    intervalLabel: '1 hodina',
+    nextRunAt: null,      // epoch ms — next scheduled start
     lastUpdate: null      // ms
   }
 };
@@ -212,7 +216,24 @@ const latestData = {
 // ============================================================
 const PUMP = {
   prefix: 'casa/pump',
-  replyTopic: 'casa/pump/server/reply'
+  replyTopic: 'casa/pump/server/reply',
+  host: '192.168.1.237', // Shelly LAN IP for config RPC (reserve this on the router!)
+  scheduleId: null       // discovered from Schedule.List at startup
+};
+
+// Cycle intervals → clean Shelly cron (divisor-friendly so cycles stay regular)
+const PUMP_INTERVALS = {
+  '15m': { label: '15 minut', cron: '0 */15 * * * *' },
+  '20m': { label: '20 minut', cron: '0 */20 * * * *' },
+  '30m': { label: '30 minut', cron: '0 */30 * * * *' },
+  '1h':  { label: '1 hodina', cron: '0 0 * * * *' },
+  '2h':  { label: '2 hodiny', cron: '0 0 */2 * * *' },
+  '3h':  { label: '3 hodiny', cron: '0 0 */3 * * *' },
+  '4h':  { label: '4 hodiny', cron: '0 0 */4 * * *' },
+  '6h':  { label: '6 hodin',  cron: '0 0 */6 * * *' },
+  '8h':  { label: '8 hodin',  cron: '0 0 */8 * * *' },
+  '12h': { label: '12 hodin', cron: '0 0 */12 * * *' },
+  '24h': { label: '24 hodin', cron: '0 0 0 * * *' }
 };
 
 // Parse an incoming Shelly pump topic and broadcast state
@@ -254,6 +275,7 @@ function handlePumpMessage(topic, msgStr) {
       return; // ignore status/sys, etc.
     }
     latestData.pump.lastUpdate = Date.now();
+    refreshNextRun();
     io.emit('pump-status', latestData.pump);
   } catch (e) { /* non-JSON, ignore */ }
 }
@@ -270,6 +292,121 @@ function primePumpStatus() {
     id: 1, src: PUMP.replyTopic, method: 'Switch.GetStatus', params: { id: 0 }
   });
   cerboClient.publish(`${PUMP.prefix}/rpc`, req);
+}
+
+// --- Pump automation config (lives on the Shelly; we read/write via HTTP RPC) ---
+
+// HTTP JSON-RPC call to the Shelly (Gen2): POST /rpc/<Method> with params body
+function shellyRpc(method, params) {
+  return new Promise((resolve, reject) => {
+    // Always send a JSON body — the Shelly rejects POSTs without Content-Length
+    const body = JSON.stringify(params || {});
+    const req = http.request({
+      host: PUMP.host, port: 80, path: `/rpc/${method}`, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+      timeout: 6000
+    }, (res) => {
+      let data = '';
+      res.on('data', (c) => { data += c; });
+      res.on('end', () => {
+        try {
+          const j = data ? JSON.parse(data) : {};
+          if (j && j.code) reject(new Error(`${method}: ${j.message || j.code}`));
+          else resolve(j);
+        } catch (e) { reject(new Error('Bad RPC response: ' + data)); }
+      });
+    });
+    req.on('error', reject);
+    req.on('timeout', () => req.destroy(new Error('Shelly RPC timeout')));
+    req.write(body);
+    req.end();
+  });
+}
+
+function cronToIntervalKey(cron) {
+  for (const k in PUMP_INTERVALS) if (PUMP_INTERVALS[k].cron === cron) return k;
+  return null;
+}
+
+// Next scheduled start (epoch ms) for the current interval, or null if disabled
+function computeNextRun(key) {
+  if (!PUMP_INTERVALS[key]) return null;
+  const now = new Date();
+  const t = new Date(now.getTime());
+  t.setSeconds(0, 0);
+  if (key.endsWith('m')) {
+    const m = parseInt(key, 10);
+    t.setMinutes(Math.floor(now.getMinutes() / m) * m);
+    while (t.getTime() <= now.getTime()) t.setMinutes(t.getMinutes() + m);
+  } else {
+    const h = parseInt(key, 10);
+    t.setMinutes(0, 0, 0);
+    t.setHours(Math.floor(now.getHours() / h) * h);
+    while (t.getTime() <= now.getTime()) t.setHours(t.getHours() + h);
+  }
+  return t.getTime();
+}
+
+function refreshNextRun() {
+  latestData.pump.nextRunAt = (latestData.pump.enabled && latestData.pump.intervalKey)
+    ? computeNextRun(latestData.pump.intervalKey) : null;
+}
+
+// Read current automation config from the Shelly into latestData.pump
+async function loadPumpConfig() {
+  try {
+    const list = await shellyRpc('Schedule.List');
+    const jobs = (list && list.jobs) || [];
+    let job = jobs.find(j => j.calls && j.calls.some(
+      c => c.method === 'Switch.Set' && c.params && c.params.on === true));
+    if (!job && jobs.length) job = jobs[0];
+    if (job) {
+      PUMP.scheduleId = job.id;
+      latestData.pump.enabled = !!job.enable;
+      latestData.pump.intervalKey = cronToIntervalKey(job.timespec) || latestData.pump.intervalKey;
+    } else {
+      PUMP.scheduleId = null;
+      latestData.pump.enabled = false;
+    }
+    const sw = await shellyRpc('Switch.GetConfig', { id: 0 });
+    if (sw && typeof sw.auto_off_delay === 'number') {
+      latestData.pump.runSeconds = Math.round(sw.auto_off_delay);
+    }
+    const iv = PUMP_INTERVALS[latestData.pump.intervalKey];
+    latestData.pump.intervalLabel = iv ? iv.label : latestData.pump.intervalKey;
+    refreshNextRun();
+    console.log(`✓ Pump config: enabled=${latestData.pump.enabled} run=${latestData.pump.runSeconds}s interval=${latestData.pump.intervalKey}`);
+  } catch (e) {
+    console.error('✗ Pump config load failed:', e.message);
+  }
+}
+
+// Apply automation config changes to the Shelly, then reload + broadcast
+async function applyPumpConfig(cfg) {
+  // 1) Run duration → auto_off_delay (clamped 5–600 s for dry-run safety)
+  if (typeof cfg.runSeconds === 'number') {
+    const secs = Math.max(5, Math.min(600, Math.round(cfg.runSeconds)));
+    await shellyRpc('Switch.SetConfig', { id: 0, config: { auto_off: true, auto_off_delay: secs } });
+  }
+  // 2) Interval → schedule timespec (preserve current enable state)
+  if (cfg.intervalKey && PUMP_INTERVALS[cfg.intervalKey]) {
+    const cron = PUMP_INTERVALS[cfg.intervalKey].cron;
+    const call = [{ method: 'Switch.Set', params: { id: 0, on: true } }];
+    if (PUMP.scheduleId) {
+      await shellyRpc('Schedule.Update', { id: PUMP.scheduleId, enable: latestData.pump.enabled !== false, timespec: cron, calls: call });
+    } else {
+      const r = await shellyRpc('Schedule.Create', { enable: true, timespec: cron, calls: call });
+      if (r && r.id) PUMP.scheduleId = r.id;
+    }
+  }
+  // 3) Master enable/disable (force relay OFF when disabling automation)
+  if (typeof cfg.enabled === 'boolean') {
+    if (PUMP.scheduleId) await shellyRpc('Schedule.Update', { id: PUMP.scheduleId, enable: cfg.enabled });
+    if (!cfg.enabled) setPump(false);
+  }
+  await loadPumpConfig();
+  io.emit('pump-status', latestData.pump);
+  return latestData.pump;
 }
 
 // Seplos BMS Service Mode
@@ -739,6 +876,17 @@ io.on('connection', (socket) => {
     setPump(!!(data && data.on));
   });
 
+  // Pump automation config from dashboard
+  socket.on('pump-config-set', async (cfg) => {
+    try {
+      await applyPumpConfig(cfg || {});
+      socket.emit('pump-config-result', { ok: true, pump: latestData.pump });
+    } catch (e) {
+      console.error('✗ Pump config set failed:', e.message);
+      socket.emit('pump-config-result', { ok: false, error: e.message });
+    }
+  });
+
   // Send Seplos status and data if available
   if (seplosService) {
     socket.emit('seplos-status', seplosService.getStatus());
@@ -897,6 +1045,26 @@ app.get('/api/pump/off', (req, res) => {
   res.json({ sent: 'off' });
 });
 
+// Well pump — automation config (read + write)
+app.get('/api/pump/config', (req, res) => {
+  res.json({
+    enabled: latestData.pump.enabled,
+    runSeconds: latestData.pump.runSeconds,
+    intervalKey: latestData.pump.intervalKey,
+    intervalLabel: latestData.pump.intervalLabel,
+    nextRunAt: latestData.pump.nextRunAt,
+    intervals: Object.entries(PUMP_INTERVALS).map(([key, v]) => ({ key, label: v.label }))
+  });
+});
+app.post('/api/pump/config', async (req, res) => {
+  try {
+    await applyPumpConfig(req.body || {});
+    res.json({ ok: true, enabled: latestData.pump.enabled, runSeconds: latestData.pump.runSeconds, intervalKey: latestData.pump.intervalKey });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // Seplos Service Mode API endpoints
 app.get('/api/seplos/status', (req, res) => {
   if (seplosService) {
@@ -961,4 +1129,7 @@ server.listen(CONFIG.port, async () => {
 
   // Initialize Seplos Service Mode
   await initSeplosService();
+
+  // Load well-pump automation config from the Shelly
+  loadPumpConfig();
 });
