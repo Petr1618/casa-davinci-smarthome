@@ -1,93 +1,173 @@
 /* =========================================================
-   App shell layout — topbar + left sidebar (desktop) + bottom bar (mobile).
-   Uses theme tokens only, so it re-themes automatically.
+   App shell — Precision (návrh B).
+   Left rail (brand + areas + foot) · topbar (crumb + status)
+   · content · mobile bottom bar. Tokens only — re-themes free.
    ========================================================= */
 
 .shell {
-  --rail-w: 232px;
-  --topbar-h: 60px;
+  --rail-w: 240px;
+  --topbar-h: 64px;
   min-height: 100%;
+  background:
+    radial-gradient(1100px 500px at 68% -10%, rgba(255, 255, 255, 0.025), transparent 60%),
+    var(--bg-primary);
 }
 
-/* ---- Topbar ---- */
-.topbar {
-  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 22px; z-index: 50;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-.brand { display: flex; align-items: baseline; gap: 10px; font-weight: 600; }
-.brand-mark { color: var(--text-primary); font-size: 14px; }
-.brand-name { font-size: 17px; letter-spacing: 0.2px; }
-.brand-area { font-size: 14px; font-weight: 500; }
-.topbar-right { display: flex; align-items: center; gap: 16px; }
-
-.theme-switch { display: flex; gap: 4px; background: var(--bg-card-solid);
-  border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 3px; }
-.theme-btn { width: 30px; height: 28px; border: none; background: transparent;
-  border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; opacity: 0.55;
-  transition: all 0.15s; }
-.theme-btn:hover { opacity: 0.9; }
-.theme-btn.active { opacity: 1; background: var(--bg-elevated); box-shadow: inset 0 0 0 1px var(--border-color); }
-
-.conn { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-secondary);
-  text-transform: uppercase; letter-spacing: 0.5px; }
-.conn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
-.conn--up .conn-dot { background: var(--battery-color); box-shadow: 0 0 8px var(--battery-glow); }
-
-/* ---- Sidebar rail (desktop) ---- */
-.sidenav {
-  position: fixed; top: var(--topbar-h); bottom: 0; left: 0; width: var(--rail-w);
-  display: flex; flex-direction: column; gap: 4px; padding: 16px 12px;
-  background: var(--bg-primary); border-right: 1px solid var(--border-color);
-  overflow-y: auto; z-index: 40;
+/* ---- Left rail -------------------------------------------------------- */
+.rail {
+  position: fixed; top: 0; bottom: 0; left: 0; width: var(--rail-w);
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 24px 16px;
+  border-right: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.014), transparent 240px), var(--g0);
+  z-index: 40;
 }
 
-/* ---- Nav item (shared) ---- */
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 8px 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+.brand-mark {
+  width: 32px; height: 32px; flex: none;
+  border: 1px solid var(--line2); border-radius: var(--radius-md);
+  display: grid; place-items: center;
+  color: var(--amber);
+}
+.brand-mark svg { width: 15px; height: 15px; display: block; }
+.brand-text { display: flex; flex-direction: column; }
+.brand-name {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--tx);
+}
+.brand-sub {
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--tx3);
+  margin-top: 3px;
+}
+
+.rail-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; }
+
+.rail-foot {
+  border-top: 1px solid var(--line); padding: 16px 8px 0;
+  font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--tx3);
+  line-height: 1.9;
+}
+.rail-foot b { color: var(--tx2); font-weight: 600; }
+
+/* ---- Nav item (shared rail + bottom bar) ------------------------------ */
 .nav-item {
-  display: flex; align-items: center; gap: 13px; padding: 11px 13px;
-  border-radius: var(--radius-md); color: var(--text-secondary);
-  font-size: 14px; font-weight: 500; cursor: pointer; position: relative;
-  border: 1px solid transparent; transition: all 0.15s;
+  display: flex; align-items: center; gap: 12px;
+  height: 40px; padding: 0 12px;
+  border: 1px solid transparent; border-radius: var(--radius-md);
+  color: var(--tx2); text-align: left;
+  font-size: 12px; letter-spacing: 0.06em;
+  position: relative;
+  transition: color 0.35s var(--ease), background 0.35s var(--ease), border-color 0.35s var(--ease);
 }
-.nav-item:hover { color: var(--text-primary); background: var(--bg-card-solid); }
-.nav-icon { font-size: 18px; line-height: 1; width: 22px; text-align: center; }
+.nav-icon { display: grid; place-items: center; flex: none; opacity: 0.85; }
+.nav-item:hover { color: var(--tx); background: rgba(255, 255, 255, 0.03); }
 .nav-item.is-active {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--area-accent) 12%, transparent);
-  border-color: color-mix(in srgb, var(--area-accent) 35%, transparent);
+  color: var(--tx);
+  background: linear-gradient(90deg, var(--area-soft, rgba(255, 255, 255, 0.05)), transparent 82%);
+  border-color: var(--line);
 }
-.nav-item.is-active .nav-icon { filter: drop-shadow(0 0 6px var(--area-accent)); }
 .nav-item.is-active::before {
-  content: ''; position: absolute; left: 0; top: 18%; bottom: 18%; width: 3px;
-  border-radius: 0 3px 3px 0; background: var(--area-accent);
+  content: ''; position: absolute; left: -1px; top: 9px; bottom: 9px; width: 2px;
+  border-radius: 2px; background: var(--area-accent, var(--tx));
+  box-shadow: 0 0 12px 0 var(--area-accent, transparent);
+}
+.nav-item.is-active .nav-icon { color: var(--area-accent, var(--tx)); opacity: 1; }
+.nav-note {
+  margin-left: auto; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--tx3);
+  border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px;
+}
+
+/* ---- Topbar ------------------------------------------------------------ */
+.topbar {
+  position: fixed; top: 0; left: var(--rail-w); right: 0; height: var(--topbar-h);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--g0) 75%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+}
+.crumb { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.crumb-path { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tx3); }
+.crumb-path b { font-weight: 600; }
+.crumb-meta {
+  font-size: 11px; color: var(--tx2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; }
+
+.theme-switch {
+  display: flex; gap: 2px;
+  border: 1px solid var(--line); border-radius: var(--radius-md); padding: 2px;
+}
+.theme-btn {
+  height: 26px; padding: 0 10px; border: none; background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--tx3);
+  transition: all 0.25s var(--ease);
+}
+.theme-btn:hover { color: var(--tx2); }
+.theme-btn.active { color: var(--tx); background: var(--g3); }
+
+/* Connection chip */
+.chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 32px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--tx2); white-space: nowrap;
+  transition: color 0.5s, border-color 0.5s, background 0.5s;
+}
+.chip-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--tx3); flex: none;
+  transition: background 0.5s, box-shadow 0.5s;
+}
+.chip--ok .chip-dot { background: var(--ok); box-shadow: 0 0 8px rgba(86, 200, 120, 0.55); }
+.chip--bad { color: var(--red); border-color: rgba(255, 97, 89, 0.4); background: var(--red-soft); }
+.chip--bad .chip-dot { background: var(--red); box-shadow: 0 0 8px rgba(255, 97, 89, 0.6); animation: chip-blink 1.6s ease-in-out infinite; }
+@keyframes chip-blink { 50% { opacity: 0.35; } }
+
+.clock {
+  font-family: var(--f-mono); font-size: 13px; color: var(--tx2);
+  font-variant-numeric: tabular-nums; letter-spacing: 0.06em;
+  padding-left: 16px; border-left: 1px solid var(--line);
 }
 
 /* ---- Content ---- */
 .content {
-  padding: calc(var(--topbar-h) + 22px) 28px 40px calc(var(--rail-w) + 28px);
+  padding: calc(var(--topbar-h) + 32px) 32px 64px calc(var(--rail-w) + 32px);
   min-height: 100vh;
+  max-width: calc(var(--rail-w) + 1280px + 64px);
 }
 
-/* ---- Bottom bar (mobile) — hidden on desktop ---- */
-.bottomnav { display: none; }
-
+/* ---- Mobile (mockup behaviour): the rail turns into a horizontal icon
+   strip under the topbar — no bottom bar. ---- */
 @media (max-width: 860px) {
-  .sidenav { display: none; }
-  .content { padding: calc(var(--topbar-h) + 16px) 14px calc(72px + env(safe-area-inset-bottom)) 14px; }
-  .bottomnav {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-    display: flex; gap: 2px; padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
-    background: var(--bg-primary); border-top: 1px solid var(--border-color);
-    overflow-x: auto;
+  .topbar { left: 0; padding: 0 16px; }
+  .crumb-meta, .theme-switch, .clock { display: none; }
+
+  .rail {
+    top: var(--topbar-h); bottom: auto; width: 100%; height: 53px;
+    flex-direction: row; align-items: center; gap: 0;
+    padding: 8px 16px;
+    border-right: 0; border-bottom: 1px solid var(--line);
+    overflow-x: auto; overflow-y: hidden;
   }
-  .nav-item--bar {
-    flex: 0 0 auto; flex-direction: column; gap: 3px; min-width: 64px; padding: 6px 8px;
-    border-radius: var(--radius-sm);
-  }
-  .nav-item--bar .nav-icon { font-size: 20px; }
-  .nav-item--bar .nav-label { font-size: 10px; }
-  .nav-item--bar.is-active::before { left: 12%; right: 12%; top: 0; bottom: auto; width: auto; height: 3px;
-    border-radius: 0 0 3px 3px; }
+  .brand { border-bottom: 0; padding: 0 16px 0 0; margin: 0; border-right: 1px solid var(--line); }
+  .brand-text { display: none; }
+  .rail-nav { flex-direction: row; flex: none; overflow: visible; padding-left: 8px; }
+  .nav-item { height: 36px; padding: 0 10px; }
+  .nav-label, .nav-note { display: none; }
+  .rail-foot { display: none; }
+
+  .content { padding: calc(var(--topbar-h) + 53px + 16px) 14px 48px 14px; }
 }

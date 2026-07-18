@@ -1,92 +1,162 @@
 // =============================================================================
-// Elektrárna (Power plant) — area page. The real-time energy dashboard, ported
-// from the v1 "Overview" tab.
-//
-// Composition:
-//   · header        — ⚡ icon + "Elektrárna" + short blurb
-//   · <EnergyFlow>  — the animated energy-flow diagram (shared <FlowScene>)
-//   · cards grid    — Solár · Síť · Dům · Baterie · Dnešní souhrn · alarmy
-//
-// All live values come from ONE hook, useVictron(), which owns every socket
-// listener (initial-data / victron-data / daily-energy). The optional
-// system-notification stream is subscribed to HERE (it's page-scoped: it feeds
-// the alarms card) and kept as a small newest-first feed.
-//
-// Receives `{ area }` (id/label/icon/accent/blurb) from App's route map so the
-// header matches the rest of the navigation.
-//
-// SCOPE: this is the OVERVIEW only. The deep sub-tabs from v1 (Solar / Inverter
-// / Battery / BMS detail) are a FUTURE phase and intentionally not built here.
+// Elektrárna — area page, a 1:1 port of the design-B mockup screen:
+//   sc-head → KPI strip (4) → scene-card (EnergyScene) → grid-3 detail cards.
+// Structure, classes and copy follow the mockup verbatim; values are live from
+// useVictron(). Fields the backend doesn't publish yet render as "—" in the
+// exact same layout (no invented numbers).
 // =============================================================================
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useVictron from '../hooks/useVictron.js';
-import { on } from '../lib/socket.js';
-import EnergyFlow from './elektrarna/EnergyFlow.jsx';
-import {
-  SolarCard,
-  GridCard,
-  HomeCard,
-  BatteryCard,
-  SummaryCard,
-  AlarmsCard,
-} from './elektrarna/cards.jsx';
-import './elektrarna/elektrarna.css';
+import EnergyScene from './elektrarna/EnergyScene.jsx';
+import { fmtNum, fmtW, fmt1, fmtSignedW, czStr } from '../lib/format.js';
 
-const MAX_ALARMS = 6; // keep the alarms feed short (newest first)
+// "aktualizace před X s" ticker — remembers when the last live value arrived.
+function useUpdatedAgo(data) {
+  const lastRef = useRef(Date.now());
+  const [ago, setAgo] = useState(0);
+  useEffect(() => { lastRef.current = Date.now(); }, [data]);
+  useEffect(() => {
+    const t = setInterval(() => setAgo(Math.round((Date.now() - lastRef.current) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return ago;
+}
+
+// Data-quality chip — static "Živá" until the Phase-2 degraded state wires in.
+function Dq() {
+  return <span className="dq" data-out="stale"><b>Živá</b></span>;
+}
 
 export default function Elektrarna({ area }) {
-  // Single source of truth for all live energy values.
   const data = useVictron();
+  const ago = useUpdatedAgo(data);
 
-  // Page-scoped alarms feed from the optional system-notification stream.
-  const [alarms, setAlarms] = useState([]);
-  useEffect(() => {
-    const off = on('system-notification', (n) => {
-      if (!n) return;
-      // Prepend newest, de-dupe nothing fancy, cap the list length.
-      setAlarms((prev) =>
-        [{ ...n, id: n.id ?? Date.now() }, ...prev].slice(0, MAX_ALARMS)
-      );
-    });
-    return off; // unsubscribe on unmount
-  }, []);
+  const {
+    solar1W = 0, solar2W = 0, solarW = 0, homeW = 0, gridW = null,
+    batterySoc = null, batteryW = 0, batteryV = null, batteryA = null,
+    batteryTemp = null, modulesOnline = null,
+    solar1YieldKwh = null, solar2YieldKwh = null, daily = null,
+  } = data;
+
+  const socPct = batterySoc != null ? Math.round(batterySoc) : null;
+  const battCharging = batteryW > 10;
+  const battDischarging = batteryW < -10;
+  const battWord = battCharging ? 'nabíjení' : battDischarging ? 'vybíjení' : 'klid';
+  const pillText = battCharging ? 'Nabíjení baterie' : battDischarging ? 'Vybíjení baterie' : 'Baterie v klidu';
+
+  const yieldTotal = solar1YieldKwh != null && solar2YieldKwh != null
+    ? solar1YieldKwh + solar2YieldKwh : null;
+  const pvPct = Math.round((solarW / 7200) * 100);
+  const surplus = solarW - homeW;
+
+  const hasGrid = typeof gridW === 'number';
+  const gridWord = !hasGrid ? '—' : gridW > 10 ? 'odběr' : gridW < -10 ? 'dodávka' : 'pohotovost';
 
   return (
-    <div className="ek-area">
-      {/* Area header — icon + title + short blurb. */}
-      <header className="ek-header">
-        <div className="ek-icon" aria-hidden>{area?.icon || '⚡'}</div>
+    <div style={{ '--acc': area?.accent || 'var(--amber)', '--acc-soft': area?.accentSoft, '--acc-glow': 'rgba(255,181,71,.45)' }}>
+      <div className="sc-head">
         <div>
-          <h1 className="ek-title">{area?.label || 'Elektrárna'}</h1>
-          <p className="ek-blurb">
-            {area?.blurb ||
-              'Tok energie v reálném čase — solár, baterie, síť a spotřeba domu.'}
-          </p>
+          <div className="sc-eyebrow">Výroba · Baterie · Síť</div>
+          <h1 className="sc-title">Elektrárna</h1>
         </div>
-      </header>
-
-      {/* The animated energy-flow showpiece (shared FlowScene engine). */}
-      <div className="ek-flow">
-        <div className="ek-flow-stage">
-          <EnergyFlow data={data} />
+        <div className="sc-meta">
+          MultiPlus-II 48/5000 · 2× MPPT<br />
+          <span className="upd">aktualizace před {ago} s</span>
         </div>
       </div>
 
-      {/* Metric cards grid — mirrors the v1 Overview tiles. */}
-      <div className="ek-grid">
-        <SolarCard data={data} />
-        <GridCard data={data} />
-        <HomeCard data={data} />
-        <BatteryCard data={data} />
-        <SummaryCard data={data} />
-        <AlarmsCard alarms={alarms} />
+      {/* KPI */}
+      <div className="kpis">
+        <div className="card kpi">
+          <div className="kpi-top"><span className="kpi-l">Dnešní výroba</span><Dq /></div>
+          <div className="kpi-v v">{yieldTotal != null ? fmt1(yieldTotal) : '—'}<small>kWh</small></div>
+          <div className="kpi-sub">
+            střecha {solar1YieldKwh != null ? fmt1(solar1YieldKwh) : '—'} · terasa {solar2YieldKwh != null ? fmt1(solar2YieldKwh) : '—'} kWh
+          </div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-top"><span className="kpi-l">Soběstačnost</span><Dq /></div>
+          <div className="kpi-v v">{daily?.selfSufficiency ?? '—'}<small>%</small></div>
+          <div className="kpi-sub">ze sítě dnes <b>{czStr(daily?.gridImportKwh)} kWh</b></div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-top"><span className="kpi-l">Výroba teď</span><Dq /></div>
+          <div className="kpi-v v">{fmtNum(solarW)}<small>W</small></div>
+          <div className="kpi-sub">{pvPct} % instalovaného výkonu 7,2 kWp</div>
+        </div>
+        <div className="card kpi">
+          <div className="kpi-top"><span className="kpi-l">Spotřeba domu</span><Dq /></div>
+          <div className="kpi-v v">{fmtNum(homeW)}<small>W</small></div>
+          <div className="kpi-sub">
+            {surplus > 10
+              ? <>přebytek <b>{fmtSignedW(surplus)}</b> → baterie</>
+              : surplus < -10
+                ? <>chybí <b>{fmtW(Math.abs(surplus))}</b> · kryje baterie</>
+                : 'výroba kryje spotřebu'}
+          </div>
+        </div>
       </div>
 
-      {/* Honest scope note: deep sub-tabs are a future phase. */}
-      <p className="ek-note">
-        Detailní pohledy (Solár · Měnič · Baterie · BMS) připravujeme
-        v další fázi.
-      </p>
+      {/* ENERGY FLOW */}
+      <div className="card scene-card">
+        <div className="freeze-tag">Poslední známý stav · <span className="ft-time">--:--</span></div>
+        <div className="card-h">
+          <span className="t">Tok energie</span>
+          <span className={'pill ' + (battCharging || battDischarging ? 'acc' : 'idle')} style={{ marginLeft: 4 }}>{pillText}</span>
+          <span className="spacer"></span>
+          <Dq />
+        </div>
+        <div className="card-b scene">
+          <EnergyScene data={data} />
+        </div>
+      </div>
+
+      {/* Detailní karty */}
+      <div className="grid-3">
+        <div className="card">
+          <div className="card-h"><span className="t">Baterie · BMS</span><span className="spacer"></span><Dq /></div>
+          <div className="card-b">
+            <div className="rows v">
+              <div className="rw"><span className="k">Stav nabití</span><span className="val">{socPct != null ? `${socPct} %` : '—'}</span></div>
+              <div className="rw"><span className="k">Výkon</span><span className="val">{fmtSignedW(batteryW)} <small>· {battWord}</small></span></div>
+              <div className="rw"><span className="k">Napětí · proud</span><span className="val">{batteryV != null ? `${fmt1(batteryV)} V` : '—'} · {batteryA != null ? `${fmt1(batteryA)} A` : '—'}</span></div>
+              <div className="rw"><span className="k">Teplota</span><span className="val">{batteryTemp != null ? `${Math.round(batteryTemp)} °C` : '—'}</span></div>
+              <div className="rw"><span className="k">Packy online</span><span className="val">{modulesOnline != null ? `${modulesOnline} / 3` : '—'}</span></div>
+            </div>
+            <div className="meter"><i style={{ width: `${socPct ?? 0}%` }}></i></div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-h"><span className="t">Solární stringy</span><span className="spacer"></span><Dq /></div>
+          <div className="card-b">
+            <div className="rows v">
+              <div className="rw"><span className="k">Střecha · 4,8 kWp</span><span className="val">{fmtW(solar1W)} <small>· {Math.round((solar1W / 4800) * 100)} %</small></span></div>
+            </div>
+            <div className="meter" style={{ marginTop: 2 }}><i style={{ width: `${Math.min(100, Math.round((solar1W / 4800) * 100))}%` }}></i></div>
+            <div className="rows v" style={{ marginTop: 14 }}>
+              <div className="rw"><span className="k">Terasa · 2,4 kWp</span><span className="val">{fmtW(solar2W)} <small>· {Math.round((solar2W / 2400) * 100)} %</small></span></div>
+            </div>
+            <div className="meter" style={{ marginTop: 2 }}><i style={{ width: `${Math.min(100, Math.round((solar2W / 2400) * 100))}%` }}></i></div>
+            <div className="rows v" style={{ marginTop: 14 }}>
+              <div className="rw"><span className="k">Výroba celkem</span><span className="val">{fmtW(solarW)}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-h"><span className="t">Síť · Distribuce</span><span className="spacer"></span><Dq /></div>
+          <div className="card-b">
+            <div className="rows v">
+              <div className="rw"><span className="k">Aktuální tok</span><span className="val">{hasGrid ? fmtW(Math.abs(gridW)) : '—'} <small>· {gridWord}</small></span></div>
+              <div className="rw"><span className="k">Dnes odebráno</span><span className="val">{czStr(daily?.gridImportKwh)} kWh</span></div>
+              <div className="rw"><span className="k">Dnes dodáno</span><span className="val">{czStr(daily?.gridExportKwh)} kWh</span></div>
+              <div className="rw"><span className="k">Spotřeba domu dnes</span><span className="val">{czStr(daily?.homeConsumedKwh)} kWh</span></div>
+              <div className="rw"><span className="k">Vlastní spotřeba</span><span className="val">{daily?.selfConsumption ?? '—'} %</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

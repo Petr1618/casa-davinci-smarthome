@@ -1,151 +1,198 @@
 /* =========================================================
-   Casa DaVinci — design tokens (ported 1:1 from the v1 dashboard)
-   Three themes via [data-theme] on <html>: dark (default), light, spacex.
-   Components only ever reference these variables, never raw colours,
-   so the whole app re-themes by flipping one attribute.
+   Casa DaVinci — design tokens · „Precision" (návrh B)
+   Premium industrial minimalism: graphite surface ladder,
+   1px hairlines, one accent per area, 8pt rhythm, light
+   tabular numerals, uppercase letter-spaced micro-labels.
+
+   Two layers:
+     1. Primitives  (--g0…--g3, --line*, --tx*, accents, status)
+     2. Legacy aliases (--bg-*, --text-*, --border-*, semantic
+        colours) so components ported from v1 keep working.
+   Components reference tokens only — never raw colours.
+   Themes via [data-theme] on <html>: dark (default), light, spacex.
    ========================================================= */
 
 :root {
-  /* Surfaces */
-  --bg-primary: #000000;
-  --bg-card: rgba(30, 30, 30, 0.8);
-  --bg-card-solid: #1e1e1e;
-  --bg-elevated: #1a1a1a;
-  --bg-input: rgba(0, 0, 0, 0.3);
-  --card-bg: rgba(30, 30, 30, 0.8);
+  /* ---- Graphite surface ladder ---- */
+  --g0: #0a0c0f;            /* page */
+  --g1: #0f1216;            /* card */
+  --g2: #13171c;            /* card top sheen */
+  --g3: #1a1f26;            /* inset / channel */
 
-  /* Text */
-  --text-primary: #ffffff;
-  --text-secondary: #888888;
-  --text-muted: #666666;
+  /* ---- Hairlines ---- */
+  --line:  rgba(255, 255, 255, 0.065);
+  --line2: rgba(255, 255, 255, 0.14);
+  --line3: rgba(255, 255, 255, 0.24);
 
-  /* Borders */
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.2);
+  /* ---- Text ladder ---- */
+  --tx:  #eceef0;
+  --tx2: #99a3ad;
+  --tx3: #5c6672;
 
-  /* Semantic accent colours */
-  --solar-color: #f5c542;
-  --home-color: #3b9eff;
-  --battery-color: #44d62c;
-  --grid-color: #888888;
-  --warning-color: #ffa500;
-  --danger-color: #ff4444;
-  --cool-color: #00b4d8;
-  --summary-color: #a855f7;
-  --accent-color: #ffa500;
-  --accent-hover: #ffb733;
+  /* ---- Area accents (one per screen; set via --acc on the area) ---- */
+  --amber: #ffb547;         /* Elektrárna */
+  --teal:  #3bd6c6;         /* Zahrada */
+  --steel: #8fb3d1;         /* Systém */
 
-  /* Soft variants — badge backgrounds, fills */
-  --solar-soft: rgba(245, 197, 66, 0.15);
-  --battery-soft: rgba(68, 214, 44, 0.15);
-  --home-soft: rgba(59, 158, 255, 0.15);
-  --grid-soft: rgba(136, 136, 136, 0.15);
-  --warning-soft: rgba(255, 165, 0, 0.15);
-  --danger-soft: rgba(255, 68, 68, 0.10);
-  --cool-soft: rgba(0, 180, 216, 0.15);
+  /* ---- Status (semantic, separate from accents) ---- */
+  --ok:   #56c878;
+  --warn: #ffb547;
+  --red:  #ff6159;
+  --red-soft: rgba(255, 97, 89, 0.10);
 
-  /* Glow variants — halos / pulses */
-  --solar-glow: rgba(245, 197, 66, 0.35);
-  --battery-glow: rgba(68, 214, 44, 0.35);
-  --home-glow: rgba(59, 158, 255, 0.35);
-  --grid-glow: rgba(136, 136, 136, 0.30);
-  --warning-glow: rgba(255, 165, 0, 0.35);
-  --danger-glow: rgba(255, 68, 68, 0.35);
-  --cool-glow: rgba(0, 180, 216, 0.35);
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Elevation */
-  --overlay-bg: rgba(0, 0, 0, 0.8);
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+  /* ---- Typography ---- */
+  --f-body: -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --f-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* =========================================================
+     Legacy aliases — v1-ported components keep working
+     ========================================================= */
+  --bg-primary: var(--g0);
+  --bg-card: var(--g1);
+  --bg-card-solid: var(--g1);
+  --bg-elevated: var(--g2);
+  --bg-input: var(--g3);
+  --card-bg: var(--g1);
+
+  --text-primary: var(--tx);
+  --text-secondary: var(--tx2);
+  --text-muted: var(--tx3);
+
+  --border-color: var(--line);
+  --border-hover: var(--line2);
+
+  --solar-color: var(--amber);
+  --home-color: #6ea8e8;
+  --battery-color: var(--ok);
+  --grid-color: var(--tx3);
+  --warning-color: var(--warn);
+  --danger-color: var(--red);
+  --cool-color: var(--teal);
+  --summary-color: #b48ee0;
+  --accent-color: var(--amber);
+  --accent-hover: #ffc670;
+
+  --solar-soft: rgba(255, 181, 71, 0.10);
+  --battery-soft: rgba(86, 200, 120, 0.10);
+  --home-soft: rgba(110, 168, 232, 0.10);
+  --grid-soft: rgba(92, 102, 114, 0.12);
+  --warning-soft: rgba(255, 181, 71, 0.10);
+  --danger-soft: var(--red-soft);
+  --cool-soft: rgba(59, 214, 198, 0.10);
+
+  --solar-glow: rgba(255, 181, 71, 0.45);
+  --battery-glow: rgba(86, 200, 120, 0.45);
+  --home-glow: rgba(110, 168, 232, 0.40);
+  --grid-glow: rgba(92, 102, 114, 0.30);
+  --warning-glow: rgba(255, 181, 71, 0.45);
+  --danger-glow: rgba(255, 97, 89, 0.45);
+  --cool-glow: rgba(59, 214, 198, 0.45);
+
+  /* ---- Elevation — depth from layering, not heavy shadows ---- */
+  --overlay-bg: rgba(10, 12, 15, 0.85);
+  --card-sheen: linear-gradient(180deg, var(--g2), var(--g1) 120px);
+  --card-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 2px 8px -4px rgba(0, 0, 0, 0.6);
   --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
-  --header-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  --header-gradient: linear-gradient(to bottom, rgba(10, 12, 15, 0.85), transparent);
 
-  /* Radii */
+  /* ---- Radii ---- */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --radius-pill: 20px;
+  --radius-pill: 16px;
 
-  /* Typography */
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  /* ---- Fonts (legacy names) ---- */
+  --font-body: var(--f-body);
+  --font-display: var(--f-body);
+  --font-mono: var(--f-mono);
   --tracking-display: 0;
 }
 
-/* ---- LIGHT THEME — daylight, calm, AA-contrast safe ---- */
+/* ---- LIGHT THEME — same ladder logic on a daylight ground ---- */
 [data-theme='light'] {
-  --bg-primary: #f5f6f8;
-  --bg-card: #ffffff;
-  --bg-card-solid: #ffffff;
-  --bg-elevated: #ffffff;
-  --bg-input: #f0f1f4;
-  --card-bg: #ffffff;
+  --g0: #f2f3f5;
+  --g1: #ffffff;
+  --g2: #fafbfc;
+  --g3: #e8eaee;
 
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  --line:  rgba(15, 23, 42, 0.09);
+  --line2: rgba(15, 23, 42, 0.18);
+  --line3: rgba(15, 23, 42, 0.30);
 
-  --border-color: rgba(15, 23, 42, 0.10);
-  --border-hover: rgba(15, 23, 42, 0.22);
+  --tx:  #171c22;
+  --tx2: #5b6672;
+  --tx3: #8b95a1;
 
-  --solar-color: #b8860b;
-  --home-color: #1e6fd9;
-  --battery-color: #16a34a;
-  --grid-color: #64748b;
-  --warning-color: #c2410c;
-  --danger-color: #dc2626;
-  --cool-color: #0284c7;
-  --summary-color: #7c3aed;
-  --accent-color: #1e6fd9;
-  --accent-hover: #1d4ed8;
+  --amber: #c07f1a;
+  --teal:  #0f9d8f;
+  --steel: #4a7aa5;
 
-  --solar-soft: rgba(184, 134, 11, 0.10);
-  --battery-soft: rgba(22, 163, 74, 0.10);
-  --home-soft: rgba(30, 111, 217, 0.10);
-  --grid-soft: rgba(100, 116, 139, 0.10);
-  --warning-soft: rgba(194, 65, 12, 0.10);
-  --danger-soft: rgba(220, 38, 38, 0.10);
-  --cool-soft: rgba(2, 132, 199, 0.10);
+  --ok:   #1d9e4d;
+  --warn: #b3720f;
+  --red:  #d43b33;
+  --red-soft: rgba(212, 59, 51, 0.08);
 
-  --solar-glow: rgba(184, 134, 11, 0.18);
-  --battery-glow: rgba(22, 163, 74, 0.18);
-  --home-glow: rgba(30, 111, 217, 0.18);
-  --grid-glow: rgba(100, 116, 139, 0.18);
-  --warning-glow: rgba(194, 65, 12, 0.18);
-  --danger-glow: rgba(220, 38, 38, 0.18);
-  --cool-glow: rgba(2, 132, 199, 0.18);
+  --home-color: #2f6fc4;
+  --summary-color: #8a5fc7;
+  --accent-hover: #a86e12;
 
-  --overlay-bg: rgba(15, 23, 42, 0.40);
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --solar-soft: rgba(192, 127, 26, 0.10);
+  --battery-soft: rgba(29, 158, 77, 0.10);
+  --home-soft: rgba(47, 111, 196, 0.10);
+  --grid-soft: rgba(91, 102, 114, 0.10);
+  --warning-soft: rgba(179, 114, 15, 0.10);
+  --cool-soft: rgba(15, 157, 143, 0.10);
+
+  --solar-glow: rgba(192, 127, 26, 0.22);
+  --battery-glow: rgba(29, 158, 77, 0.22);
+  --home-glow: rgba(47, 111, 196, 0.20);
+  --grid-glow: rgba(91, 102, 114, 0.16);
+  --warning-glow: rgba(179, 114, 15, 0.22);
+  --danger-glow: rgba(212, 59, 51, 0.22);
+  --cool-glow: rgba(15, 157, 143, 0.22);
+
+  --overlay-bg: rgba(23, 28, 34, 0.40);
+  --card-sheen: linear-gradient(180deg, var(--g2), var(--g1) 120px);
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 1px 3px rgba(15, 23, 42, 0.08);
   --shadow-modal: 0 20px 60px rgba(15, 23, 42, 0.18);
-  --header-gradient: linear-gradient(to bottom, rgba(245, 246, 248, 0.92), transparent);
+  --header-gradient: linear-gradient(to bottom, rgba(242, 243, 245, 0.92), transparent);
 }
 
-/* ---- SPACEX / STARLINK — strictly monochrome; colour only for status ---- */
+/* ---- SPACEX — strictly monochrome; colour only for status ---- */
 [data-theme='spacex'] {
-  --bg-primary: #000000;
-  --bg-card: #0a0a0a;
-  --bg-card-solid: #0a0a0a;
-  --bg-elevated: #141414;
-  --bg-input: #050505;
-  --card-bg: #0a0a0a;
+  --g0: #000000;
+  --g1: #0a0a0a;
+  --g2: #0e0e0e;
+  --g3: #161616;
 
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.62);
-  --text-muted: rgba(255, 255, 255, 0.38);
+  --line:  rgba(255, 255, 255, 0.08);
+  --line2: rgba(255, 255, 255, 0.18);
+  --line3: rgba(255, 255, 255, 0.30);
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.24);
+  --tx:  #ffffff;
+  --tx2: rgba(255, 255, 255, 0.62);
+  --tx3: rgba(255, 255, 255, 0.38);
+
+  --amber: #ffffff;
+  --teal:  rgba(255, 255, 255, 0.85);
+  --steel: rgba(255, 255, 255, 0.75);
+
+  --ok:   rgba(255, 255, 255, 0.85);
+  --warn: #f5a524;
+  --red:  #e0382d;
+  --red-soft: rgba(224, 56, 45, 0.12);
 
   --solar-color: #ffffff;
   --home-color: rgba(255, 255, 255, 0.78);
-  --battery-color: rgba(255, 255, 255, 0.78);
   --grid-color: rgba(255, 255, 255, 0.45);
-  --cool-color: rgba(255, 255, 255, 0.78);
   --summary-color: #ffffff;
-  --warning-color: #f5a524;
-  --danger-color: #e0382d;
-  --accent-color: #ffffff;
   --accent-hover: #ffffff;
 
   --solar-soft: rgba(255, 255, 255, 0.04);
@@ -154,7 +201,6 @@
   --grid-soft: rgba(255, 255, 255, 0.04);
   --cool-soft: rgba(255, 255, 255, 0.04);
   --warning-soft: rgba(245, 165, 36, 0.10);
-  --danger-soft: rgba(224, 56, 45, 0.12);
 
   --solar-glow: transparent;
   --battery-glow: transparent;
@@ -165,6 +211,7 @@
   --danger-glow: rgba(224, 56, 45, 0.70);
 
   --overlay-bg: rgba(0, 0, 0, 0.92);
+  --card-sheen: var(--g1);
   --shadow-card: none;
   --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.85);
   --header-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.94), transparent);
@@ -174,7 +221,7 @@
   --radius-lg: 2px;
   --radius-pill: 0;
 
-  --font-display: 'Barlow Condensed', 'Inter', sans-serif;
+  --font-display: 'Barlow Condensed', var(--f-body);
   --tracking-display: 0.14em;
 }
 
@@ -187,13 +234,58 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-body);
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
+
+::selection { background: rgba(255, 181, 71, 0.25); }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
 
 button, input, select { font-family: inherit; }
+button { cursor: pointer; }
+button:focus-visible { outline: 1px solid var(--line3); outline-offset: 2px; }
 a { color: inherit; text-decoration: none; }
+
+/* =========================================================
+   Shared Precision primitives — used by all areas
+   ========================================================= */
+
+/* Micro-label: uppercase, letter-spaced */
+.u-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--tx3);
+}
+
+/* KPI numeral: large, light, tabular */
+.u-num {
+  font-weight: 200; line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+}
+
+/* Screen header — accent eyebrow + light title + right-aligned meta */
+.sc-head {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  margin-bottom: 32px;
+}
+.sc-eyebrow {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--acc, var(--tx2)); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sc-eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--acc, var(--tx2)); opacity: 0.7; }
+.sc-title { font-size: 30px; font-weight: 200; letter-spacing: 0.01em; margin: 0; color: var(--tx); }
+.sc-meta {
+  text-align: right; font-size: 11px; color: var(--tx3); line-height: 1.8;
+  flex: none; max-width: 340px;
+}
+@media (max-width: 700px) {
+  .sc-head { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 22px; }
+  .sc-meta { text-align: left; }
+  .sc-title { font-size: 24px; }
+}
+
+/* Status pills live in precision.css (verbatim mockup port). */

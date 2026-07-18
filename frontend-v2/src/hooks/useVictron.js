@@ -49,12 +49,16 @@ import { on } from '../lib/socket.js';
 const T = {
   SOLAR_1: '/solarcharger/278/Yield/Power',
   SOLAR_2: '/solarcharger/279/Yield/Power',
+  SOLAR_1_YIELD: '/solarcharger/278/History/Daily/0/Yield',
+  SOLAR_2_YIELD: '/solarcharger/279/History/Daily/0/Yield',
   HOME: '/vebus/276/Ac/Out/P',
   GRID: '/grid/30/Ac/Power',
   BATT_SOC: '/battery/512/Soc',
   BATT_POWER: '/battery/512/Dc/0/Power',
   BATT_VOLT: '/battery/512/Dc/0/Voltage',
   BATT_TEMP: '/battery/512/Dc/0/Temperature',
+  BATT_CURR: '/battery/512/Dc/0/Current',
+  BATT_MODULES: '/battery/512/System/NrOfModulesOnline',
 };
 
 // Coerce an incoming MQTT payload to a finite number, or null if it isn't one.
@@ -68,12 +72,18 @@ export default function useVictron() {
   // The derived snapshot the UI renders. `gridW: null` = no grid meter present.
   const [state, setState] = useState({
     solarW: 0,
+    solar1W: 0,           // Střecha · MPPT 278
+    solar2W: 0,           // Terasa · MPPT 279
+    solar1YieldKwh: null, // today's yield per string (kWh)
+    solar2YieldKwh: null,
     homeW: 0,
     gridW: null,
     batterySoc: null,
     batteryW: 0,
     batteryV: null,
     batteryTemp: null,
+    batteryA: null,
+    modulesOnline: null,
     daily: null,
   });
 
@@ -92,12 +102,16 @@ export default function useVictron() {
       // Solar: keep both MPPTs in the ref, emit their SUM as solarW.
       if (topic.endsWith(T.SOLAR_1)) {
         solarRef.current.s1 = value ?? 0;
-        return { solarW: solarRef.current.s1 + solarRef.current.s2 };
+        return { solar1W: solarRef.current.s1, solarW: solarRef.current.s1 + solarRef.current.s2 };
       }
       if (topic.endsWith(T.SOLAR_2)) {
         solarRef.current.s2 = value ?? 0;
-        return { solarW: solarRef.current.s1 + solarRef.current.s2 };
+        return { solar2W: solarRef.current.s2, solarW: solarRef.current.s1 + solarRef.current.s2 };
       }
+
+      // Per-string daily yield (kWh) — drives the "Dnešní výroba" KPI.
+      if (topic.endsWith(T.SOLAR_1_YIELD)) return { solar1YieldKwh: value };
+      if (topic.endsWith(T.SOLAR_2_YIELD)) return { solar2YieldKwh: value };
 
       // Home consumption (inverter AC out). Ignore the *Nominal* sibling topic.
       if (topic.endsWith(T.HOME) && !topic.includes('Nominal')) {
@@ -114,6 +128,8 @@ export default function useVictron() {
       if (topic.endsWith(T.BATT_POWER)) return { batteryW: value ?? 0 };
       if (topic.endsWith(T.BATT_VOLT)) return { batteryV: value };
       if (topic.endsWith(T.BATT_TEMP)) return { batteryTemp: value };
+      if (topic.endsWith(T.BATT_CURR)) return { batteryA: value };
+      if (topic.endsWith(T.BATT_MODULES)) return { modulesOnline: value };
 
       return null;
     };
