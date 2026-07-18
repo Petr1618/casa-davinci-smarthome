@@ -11,6 +11,8 @@ import { useState, useEffect, useRef } from 'react';
 import usePump from '../hooks/usePump.js';
 import WaterScene from './zahrada/WaterScene.jsx';
 import { fmt1 } from '../lib/format.js';
+import Dq from '../components/Dq.jsx';
+import FreezeTag from '../components/FreezeTag.jsx';
 import './zahrada/zahrada.css';
 
 // Interval options — exact set from the backend contract / v1 select.
@@ -116,12 +118,12 @@ export default function Zahrada({ area }) {
 
       {/* WATER FLOW */}
       <div className={'card scene-card wscene' + (isOn ? ' is-on' : '')}>
-        <div className="freeze-tag">Poslední známý stav · <span className="ft-time">--:--</span></div>
+        <FreezeTag />
         <div className="card-h">
           <span className="t">Čerpání vody</span>
           <span className={`pill ${pillClass}`}>{pillText}</span>
           <span className="spacer"></span>
-          <span className="dq" data-out="stale"><b>Živá</b></span>
+          <Dq />
         </div>
         <div className="card-b scene">
           <WaterScene pump={pump} />
@@ -133,7 +135,7 @@ export default function Zahrada({ area }) {
 
       <div className="grid-4">
         <div className="card">
-          <div className="card-h"><span className="t">Stav čerpadla</span><span className="spacer"></span><span className="dq" data-out="stale"><b>Živá</b></span></div>
+          <div className="card-h"><span className="t">Stav čerpadla</span><span className="spacer"></span><Dq /></div>
           <div className="card-b">
             <div className="rows v">
               <div className="rw"><span className="k">Shelly Plus 1</span><span className="val" style={{ color: online ? 'var(--ok)' : 'var(--red)' }}>{online ? 'Online' : 'Offline'}</span></div>
@@ -146,7 +148,7 @@ export default function Zahrada({ area }) {
         </div>
 
         <div className="card">
-          <div className="card-h"><span className="t">Další cyklus</span><span className="spacer"></span><span className="dq" data-out="nodata"><b>Živá</b></span></div>
+          <div className="card-h"><span className="t">Další cyklus</span><span className="spacer"></span><Dq nodata /></div>
           <div className="card-b">
             <div className="count v">{enabled ? fmtCount(nextMs) : '—:—'}</div>
             <div className="kpi-sub" style={{ marginTop: 12 }}>

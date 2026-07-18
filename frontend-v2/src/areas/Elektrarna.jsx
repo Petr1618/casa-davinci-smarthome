@@ -9,6 +9,8 @@ import { useState, useEffect, useRef } from 'react';
 import useVictron from '../hooks/useVictron.js';
 import EnergyScene from './elektrarna/EnergyScene.jsx';
 import { fmtNum, fmtW, fmt1, fmtSignedW, czStr } from '../lib/format.js';
+import Dq from '../components/Dq.jsx';
+import FreezeTag from '../components/FreezeTag.jsx';
 
 // "aktualizace před X s" ticker — remembers when the last live value arrived.
 function useUpdatedAgo(data) {
@@ -20,11 +22,6 @@ function useUpdatedAgo(data) {
     return () => clearInterval(t);
   }, []);
   return ago;
-}
-
-// Data-quality chip — static "Živá" until the Phase-2 degraded state wires in.
-function Dq() {
-  return <span className="dq" data-out="stale"><b>Živá</b></span>;
 }
 
 export default function Elektrarna({ area }) {
@@ -99,7 +96,7 @@ export default function Elektrarna({ area }) {
 
       {/* ENERGY FLOW */}
       <div className="card scene-card">
-        <div className="freeze-tag">Poslední známý stav · <span className="ft-time">--:--</span></div>
+        <FreezeTag />
         <div className="card-h">
           <span className="t">Tok energie</span>
           <span className={'pill ' + (battCharging || battDischarging ? 'acc' : 'idle')} style={{ marginLeft: 4 }}>{pillText}</span>

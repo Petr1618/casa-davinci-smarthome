@@ -3,20 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { AREAS, areaById } from './areas.js';
 import AreaIcon from './AreaIcon.jsx';
 import { useTheme } from '../lib/theme.jsx';
-import { socket } from '../lib/socket.js';
-
-// ---- Connection status (driven by the shared socket) ----
-function useConnected() {
-  const [connected, setConnected] = useState(socket.connected);
-  useEffect(() => {
-    const up = () => setConnected(true);
-    const down = () => setConnected(false);
-    socket.on('connect', up);
-    socket.on('disconnect', down);
-    return () => { socket.off('connect', up); socket.off('disconnect', down); };
-  }, []);
-  return connected;
-}
+import { useHealth } from '../lib/health.jsx';
+import OutageBanner from '../components/OutageBanner.jsx';
 
 // ---- Live clock (mono, tabular) ----
 function useClock() {
@@ -64,14 +52,16 @@ function AreaLink({ area }) {
 }
 
 export default function AppShell({ children }) {
-  const connected = useConnected();
+  const { connected, stale, cause } = useHealth();
   const clock = useClock();
   const location = useLocation();
   const activeId = location.pathname.replace('/', '') || 'domov';
   const active = areaById(activeId);
 
+  const chipText = !connected ? 'Spojení ztraceno' : stale ? 'Data zastaralá' : 'Spojení online';
+
   return (
-    <div className="shell">
+    <div className={'shell' + (stale ? ' is-stale' : '')}>
       {/* Desktop rail — brand + areas + foot */}
       <nav className="rail" aria-label="Hlavní navigace">
         <div className="brand">
@@ -104,16 +94,19 @@ export default function AppShell({ children }) {
         </div>
         <div className="topbar-right">
           <ThemeSwitcher />
-          <div className={'chip' + (connected ? ' chip--ok' : ' chip--bad')}>
+          <div className={'chip' + (stale ? ' chip--bad' : ' chip--ok')}>
             <span className="chip-dot" />
-            {connected ? 'Spojení online' : 'Spojení ztraceno'}
+            {chipText}
           </div>
           <div className="clock">{clock}</div>
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="content">{children}</main>
+      {/* Main content — the global outage banner sits above every screen. */}
+      <main className="content">
+        <OutageBanner />
+        {children}
+      </main>
     </div>
   );
 }

@@ -8,6 +8,94 @@
    (degraded state arrives in Phase 2).
    ========================================================= */
 
+/* ==========================================================================
+   GLOBAL ALARM BANNER + DOPORUČENÍ (first-class degraded state) — verbatim
+   from the mockup; `.is-stale` on the shell root replaces `#app.outage`.
+   ========================================================================== */
+.banner-wrap {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows .8s var(--ease);
+}
+.is-stale .banner-wrap { grid-template-rows: 1fr; }
+.banner-clip { overflow: hidden; }
+.banner {
+  margin-bottom: 32px;
+  border: 1px solid rgba(255,97,89,.35);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255,97,89,.09), rgba(255,97,89,.02) 120px),
+    var(--g1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 8px 32px -16px rgba(255,97,89,.25);
+  opacity: 0; transform: translateY(-8px);
+  transition: opacity .7s var(--ease) .1s, transform .7s var(--ease) .1s;
+}
+.is-stale .banner { opacity: 1; transform: none; }
+
+.banner-head {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255,97,89,.18);
+}
+.banner-ico {
+  width: 40px; height: 40px; flex: none;
+  border: 1px solid rgba(255,97,89,.45); border-radius: 10px;
+  display: grid; place-items: center; color: var(--red);
+  animation: banner-blink 2.2s ease-in-out infinite;
+}
+@keyframes banner-blink { 50% { opacity: .35; } }
+.banner-ico svg { width: 18px; height: 18px; }
+.banner-title { font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--red); }
+.banner-sub { font-size: 12px; color: var(--tx2); margin-top: 4px; line-height: 1.5; }
+.banner-sub b { color: var(--tx); font-weight: 600; font-variant-numeric: tabular-nums; }
+.banner-dur { margin-left: auto; text-align: right; flex: none; }
+.banner-dur .l { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--tx3); }
+.banner-dur .v { font-family: var(--f-mono); font-size: 22px; font-weight: 300; color: var(--red);
+  font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+.banner-body { display: grid; grid-template-columns: 5fr 7fr; }
+.banner-col { padding: 20px 24px; }
+.banner-col + .banner-col { border-left: 1px solid rgba(255,97,89,.15); }
+.banner-col h4 {
+  margin: 0 0 14px; font-size: 9px; font-weight: 600; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--tx3);
+}
+.diag-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  padding: 7px 0; font-size: 12px; border-bottom: 1px solid var(--line);
+}
+.diag-row:last-child { border-bottom: 0; }
+.diag-row .k { color: var(--tx2); }
+.diag-row .s { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums; }
+.diag-row .s.bad { color: var(--red); }
+.diag-row .s.warn { color: var(--warn); }
+.diag-row .s.fine { color: var(--ok); }
+
+.reco { margin: 0; padding: 0; list-style: none; counter-reset: reco; }
+.reco li {
+  counter-increment: reco;
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 8px 0; font-size: 12.5px; color: var(--tx2); line-height: 1.55;
+  border-bottom: 1px solid var(--line);
+}
+.reco li:last-child { border-bottom: 0; }
+.reco li::before {
+  content: counter(reco, decimal-leading-zero);
+  font-family: var(--f-mono); font-size: 10px; color: var(--red);
+  border: 1px solid rgba(255,97,89,.35); border-radius: 5px;
+  padding: 2px 5px; flex: none;
+}
+.reco b { color: var(--tx); font-weight: 600; }
+.reco code {
+  font-family: var(--f-mono); font-size: 11px; color: var(--tx);
+  background: var(--g3); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
+}
+
+@media (max-width: 1080px) {
+  .banner-body { grid-template-columns: 1fr; }
+  .banner-col + .banner-col { border-left: 0; border-top: 1px solid rgba(255,97,89,.15); }
+}
+
 /* ---- Cards -------------------------------------------------------------- */
 .card {
   background: linear-gradient(180deg, var(--g2), var(--g1) 120px);
