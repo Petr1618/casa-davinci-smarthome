@@ -88,11 +88,18 @@ export function HealthProvider({ children }) {
   }, []);
 
   // ---- Derive the verdict. --------------------------------------------------
+  // Boot grace: a fresh page load takes ~a second to connect — that's
+  // "connecting", not an outage, so don't flash the banner. After the socket
+  // has connected once (or the grace window passes), a down socket is real.
+  const mountAtRef = useRef(Date.now());
+  const everConnectedRef = useRef(socket.connected);
+  if (connected) everConnectedRef.current = true;
+  const booting = !everConnectedRef.current && Date.now() - mountAtRef.current < 5000;
+
   const now = Date.now();
   const dataSilent = lastDataAt != null && now - lastDataAt > STALE_AFTER_MS;
-  // Before the first payload we trust the connection state alone (fresh load).
-  const stale = !connected || dataSilent;
-  const cause = !connected ? 'socket' : dataSilent ? 'data' : null;
+  const stale = (!connected && !booting) || dataSilent;
+  const cause = stale ? (!connected ? 'socket' : 'data') : null;
 
   if (stale && outageRef.current == null) outageRef.current = now;
   if (!stale) outageRef.current = null;

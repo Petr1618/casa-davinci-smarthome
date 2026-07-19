@@ -12,11 +12,13 @@
    GLOBAL ALARM BANNER + DOPORUČENÍ (first-class degraded state) — verbatim
    from the mockup; `.is-stale` on the shell root replaces `#app.outage`.
    ========================================================================== */
+/* Collapse/expand via max-height — the 0fr/1fr grid trick is unreliable here
+   (Chrome resolves 1fr to 0 once the clip gets min-height: 0). */
 .banner-wrap {
-  display: grid; grid-template-rows: 0fr;
-  transition: grid-template-rows .8s var(--ease);
+  overflow: hidden; max-height: 0;
+  transition: max-height .8s var(--ease);
 }
-.is-stale .banner-wrap { grid-template-rows: 1fr; }
+.is-stale .banner-wrap { max-height: 2000px; }
 .banner-clip { overflow: hidden; }
 .banner {
   margin-bottom: 32px;

@@ -1,0 +1,60 @@
+/* =========================================================
+   DOMŮ — landing-screen layout. Cards come from precision.css;
+   here live only the 2×2 grid, the quiet "all OK" strip, the
+   room tiles and card-link affordances.
+   ========================================================= */
+
+/* Quiet all-OK strip (collapsed alarm centre). */
+.dm-ok {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; margin-bottom: 16px;
+  border: 1px solid rgba(86, 200, 120, 0.25); border-radius: var(--radius-lg);
+  background: rgba(86, 200, 120, 0.04);
+  font-size: 12px; color: var(--tx2);
+}
+.dm-ok-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex: none;
+  background: var(--ok); box-shadow: 0 0 8px rgba(86, 200, 120, 0.55);
+}
+.dm-ok-time { margin-left: auto; font-size: 10px; color: var(--tx3); font-variant-numeric: tabular-nums; }
+
+.dm-alarms { margin-bottom: 16px; border-color: rgba(255, 97, 89, 0.35); }
+.dm-alarms .card-b { padding-top: 8px; padding-bottom: 8px; }
+
+/* 2×2 card grid. */
+.dm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 1080px) { .dm-grid { grid-template-columns: 1fr; } }
+
+/* Whole-card links — keep the Precision card look, add a quiet affordance. */
+.dm-link { display: flex; flex-direction: column; color: inherit; }
+.dm-link .card-b { flex: 1; }
+.dm-link:hover { border-color: color-mix(in srgb, var(--acc) 35%, var(--line)); }
+.dm-more {
+  color: var(--tx3); font-size: 10px; letter-spacing: 0.1em;
+  transition: color 0.3s var(--ease);
+}
+.dm-link:hover .dm-more { color: var(--acc); }
+
+/* Room climate tiles. */
+.dm-rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.dm-room {
+  padding: 14px 16px;
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+  background: var(--g3);
+}
+.dm-room-name {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--tx3); margin-bottom: 10px;
+}
+.dm-room-temp {
+  font-size: 28px; font-weight: 200; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dm-room-temp small { font-size: 13px; font-weight: 400; color: var(--tx2); }
+.dm-room-hum { font-size: 11px; color: var(--tx3); margin-top: 8px; }
+
+.dm-empty { font-size: 12px; color: var(--tx3); line-height: 1.6; padding: 6px 0; }
+
+/* Quick actions. */
+.dm-actions { margin-top: 16px; }
+.dm-actions-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }

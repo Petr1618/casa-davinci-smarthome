@@ -6,7 +6,7 @@
 // one accent per area, used for the active nav indicator, area headers and
 // flow scenes). `comingSoon` areas render the shared placeholder.
 export const AREAS = [
-  { id: 'domov',       label: 'Domů',               accent: '#d9dee3', accentSoft: 'rgba(217,222,227,0.06)', comingSoon: true,
+  { id: 'domov',       label: 'Domů',               accent: '#d9dee3', accentSoft: 'rgba(217,222,227,0.06)', comingSoon: false,
     blurb: 'Souhrn celého domu — energie, klima, zahrada a aktivní alarmy na jednom místě.' },
   { id: 'elektrarna',  label: 'Elektrárna',         accent: '#ffb547', accentSoft: 'rgba(255,181,71,0.07)', comingSoon: false,
     blurb: 'Energie v reálném čase: solární výroba, baterie, síť a spotřeba domu.' },
