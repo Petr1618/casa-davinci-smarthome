@@ -43,7 +43,7 @@
 // `on()` returns.
 // =============================================================================
 import { useState, useEffect, useRef } from 'react';
-import { on } from '../lib/socket.js';
+import { on, getSnapshot } from '../lib/socket.js';
 
 // ---- Topic suffixes (single source of truth, matched with endsWith). --------
 const T = {
@@ -134,8 +134,9 @@ export default function useVictron() {
       return null;
     };
 
-    // ---- 1) Prime EVERYTHING from the initial snapshot. ---------------------
-    const offInitial = on('initial-data', (data) => {
+    // ---- 1) Prime EVERYTHING from the initial snapshot (cached copy first —
+    //         `initial-data` may have fired before this component mounted). ---
+    const primeFrom = (data) => {
       const victron = data && data.victron;
       if (!victron || typeof victron !== 'object') return;
       // Reset the solar ref so a fresh snapshot fully replaces the running sum.
@@ -147,7 +148,9 @@ export default function useVictron() {
         if (p) Object.assign(patch, p);
       }
       if (Object.keys(patch).length) setState((prev) => ({ ...prev, ...patch }));
-    });
+    };
+    primeFrom(getSnapshot());
+    const offInitial = on('initial-data', primeFrom);
 
     // ---- 2) Live single-topic updates. --------------------------------------
     const offLive = on('victron-data', (data) => {

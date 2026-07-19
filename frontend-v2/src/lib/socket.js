@@ -19,3 +19,12 @@ export function on(event, handler) {
   socket.on(event, handler);
   return () => socket.off(event, handler);
 }
+
+// The server sends `initial-data` ONCE per connection. Components that mount
+// later (e.g. a detail section opened after navigation) would miss it and
+// rarely-changing topics (State, Mode, AC voltage…) would stay empty until
+// their next MQTT change. Cache the latest snapshot so hooks can prime from
+// it on mount.
+let lastSnapshot = null;
+socket.on('initial-data', (d) => { lastSnapshot = d; });
+export const getSnapshot = () => lastSnapshot;

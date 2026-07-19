@@ -10,13 +10,13 @@
 // last reading for that room arrived (drives per-room freshness).
 // =============================================================================
 import { useState, useEffect } from 'react';
-import { on } from '../lib/socket.js';
+import { on, getSnapshot } from '../lib/socket.js';
 
 export default function useSensors() {
   const [rooms, setRooms] = useState({});
 
   useEffect(() => {
-    const offInitial = on('initial-data', (data) => {
+    const primeFrom = (data) => {
       const sensors = data && data.sensors;
       if (!sensors || typeof sensors !== 'object') return;
       const now = Date.now();
@@ -29,7 +29,9 @@ export default function useSensors() {
         }
         return next;
       });
-    });
+    };
+    primeFrom(getSnapshot());
+    const offInitial = on('initial-data', primeFrom);
 
     const offLive = on('sensor-data', (d) => {
       if (!d || typeof d.location !== 'string') return;

@@ -25,7 +25,7 @@ export default function App() {
           return (
             <Route
               key={area.id}
-              path={`/${area.id}`}
+              path={`/${area.id}/*`}
               element={View ? <View area={area} /> : <ComingSoon area={area} />}
             />
           );

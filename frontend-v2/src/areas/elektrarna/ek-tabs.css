@@ -1,0 +1,26 @@
+/* =========================================================
+   Elektrárna sub-section tab strip — Precision language:
+   uppercase micro labels on a hairline baseline, the active
+   tab carries a 2px accent underline (mirrors the rail's
+   active indicator, horizontal).
+   ========================================================= */
+.ek-tabs {
+  display: flex; gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.ek-tab {
+  position: relative;
+  padding: 10px 16px 12px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--tx3); white-space: nowrap;
+  transition: color 0.3s var(--ease);
+}
+.ek-tab:hover { color: var(--tx2); }
+.ek-tab.is-active { color: var(--tx); }
+.ek-tab.is-active::after {
+  content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px;
+  border-radius: 2px; background: var(--acc);
+  box-shadow: 0 0 12px 0 var(--acc-glow);
+}
