@@ -21,7 +21,13 @@
   border-right: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.014), transparent 240px), var(--g0);
   z-index: 40;
+  transition: transform 0.45s var(--ease);
 }
+
+/* Collapsed rail — slides away; topbar and content reclaim the width. */
+.rail-closed .rail { transform: translateX(-100%); }
+.rail-closed .topbar { left: 0; }
+.rail-closed .content { padding-left: 32px; }
 
 .brand {
   display: flex; align-items: center; gap: 12px;
@@ -88,12 +94,24 @@
 .topbar {
   position: fixed; top: 0; left: var(--rail-w); right: 0; height: var(--topbar-h);
   display: flex; align-items: center; gap: 16px;
-  padding: 0 32px;
+  padding: 0 32px 0 20px;
   border-bottom: 1px solid var(--line);
   background: color-mix(in srgb, var(--g0) 75%, transparent);
   backdrop-filter: blur(8px);
   z-index: 50;
+  transition: left 0.45s var(--ease);
 }
+
+/* Rail collapse toggle — quiet icon button in the Precision language. */
+.rail-toggle {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+  background: transparent; color: var(--tx3);
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.rail-toggle:hover { color: var(--tx); border-color: var(--line2); }
+.rail-toggle svg { width: 16px; height: 16px; display: block; }
 .crumb { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .crumb-path { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tx3); }
 .crumb-path b { font-weight: 600; }
@@ -147,13 +165,19 @@
   padding: calc(var(--topbar-h) + 32px) 32px 64px calc(var(--rail-w) + 32px);
   min-height: 100vh;
   max-width: calc(var(--rail-w) + 1280px + 64px);
+  transition: padding-left 0.45s var(--ease);
 }
 
 /* ---- Mobile (mockup behaviour): the rail turns into a horizontal icon
    strip under the topbar — no bottom bar. ---- */
 @media (max-width: 860px) {
   .topbar { left: 0; padding: 0 16px; }
-  .crumb-meta, .theme-switch, .clock { display: none; }
+  .crumb-meta, .theme-switch, .clock, .rail-toggle { display: none; }
+
+  /* The horizontal strip is the only navigation on mobile — a desktop
+     collapse state must not hide it or shift the content. */
+  .rail-closed .rail { transform: none; }
+  .rail-closed .content { padding-left: 14px; }
 
   .rail {
     top: var(--topbar-h); bottom: auto; width: 100%; height: 53px;

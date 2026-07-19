@@ -58,10 +58,21 @@ export default function AppShell({ children }) {
   const activeId = location.pathname.replace('/', '') || 'domov';
   const active = areaById(activeId);
 
+  // Collapsible rail — persisted so a wall tablet stays the way it was left.
+  const [railOpen, setRailOpen] = useState(() => {
+    try { return localStorage.getItem('casa-rail-open') !== '0'; } catch { return true; }
+  });
+  const toggleRail = () => {
+    setRailOpen((open) => {
+      try { localStorage.setItem('casa-rail-open', open ? '0' : '1'); } catch { /* private mode */ }
+      return !open;
+    });
+  };
+
   const chipText = !connected ? 'Spojení ztraceno' : stale ? 'Data zastaralá' : 'Spojení online';
 
   return (
-    <div className={'shell' + (stale ? ' is-stale' : '')}>
+    <div className={'shell' + (stale ? ' is-stale' : '') + (railOpen ? '' : ' rail-closed')}>
       {/* Desktop rail — brand + areas + foot */}
       <nav className="rail" aria-label="Hlavní navigace">
         <div className="brand">
@@ -84,8 +95,23 @@ export default function AppShell({ children }) {
         </div>
       </nav>
 
-      {/* Topbar — breadcrumb + theme + connection + clock */}
+      {/* Topbar — rail toggle + breadcrumb + theme + connection + clock */}
       <header className="topbar">
+        <button
+          className="rail-toggle"
+          onClick={toggleRail}
+          aria-expanded={railOpen}
+          aria-label={railOpen ? 'Skrýt menu' : 'Zobrazit menu'}
+          title={railOpen ? 'Skrýt menu' : 'Zobrazit menu'}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+            <path d="M9.5 4.5v15" />
+            {railOpen
+              ? <path d="M16 10l-2 2 2 2" />
+              : <path d="M14 10l2 2-2 2" />}
+          </svg>
+        </button>
         <div className="crumb">
           <span className="crumb-path">
             Casa DaVinci / <b style={{ color: active?.accent }}>{active?.label || ''}</b>
