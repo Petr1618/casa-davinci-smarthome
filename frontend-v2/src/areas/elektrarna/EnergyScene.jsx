@@ -87,7 +87,7 @@ export default function EnergyScene({ data }) {
     : gridImporting ? 'Síť · Odběr'
     : gridExporting ? 'Síť · Dodávka'
     : 'Síť · Pohotovost';
-  const gridSub = !hasGrid ? 'bez měření sítě'
+  const gridSub = !hasGrid ? 'bez signálu z elektroměru'
     : gridOn ? (gridImporting ? 'odběr ze sítě' : 'přetok do sítě')
     : 'žádný odběr ani přetok';
 

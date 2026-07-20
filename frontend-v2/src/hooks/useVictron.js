@@ -92,10 +92,16 @@ export default function useVictron() {
   // stale-closure bugs and extra renders).
   const solarRef = useRef({ s1: 0, s2: 0 });
 
+  // Timestamp of the last LIVE grid-meter message. The grid meter (instance
+  // 30) goes silent when the house is disconnected from the grid, and the
+  // server keeps serving its last cached value — without this check a phantom
+  // "66 W odběr" sticks on screen forever (v1 fixed the same bug in af7cfe9).
+  const gridSeenRef = useRef(0);
+
   useEffect(() => {
     // ---- Apply ONE raw Victron (topic,value) pair into the snapshot. --------
     // Returns a partial state patch, or null if the topic isn't one we track.
-    const applyTopic = (topic, rawValue) => {
+    const applyTopic = (topic, rawValue, isLive = false) => {
       if (typeof topic !== 'string') return null;
       const value = num(rawValue);
 
@@ -119,7 +125,12 @@ export default function useVictron() {
       }
 
       // Grid power (+ import / − export). Absent on off-grid sites.
+      // LIVE messages only: the meter goes silent when the grid breaker is
+      // off, and the server cache would replay its last value (phantom
+      // "66 W odběr") — so a cached grid reading is never trusted.
       if (topic.endsWith(T.GRID)) {
+        if (!isLive) return null;
+        gridSeenRef.current = Date.now();
         return { gridW: value };
       }
 
@@ -155,9 +166,20 @@ export default function useVictron() {
     // ---- 2) Live single-topic updates. --------------------------------------
     const offLive = on('victron-data', (data) => {
       if (!data) return;
-      const patch = applyTopic(data.topic, data.value);
+      const patch = applyTopic(data.topic, data.value, true);
       if (patch) setState((prev) => ({ ...prev, ...patch }));
     });
+
+    // Stale-grid watchdog: primed cache values carry no age, so the clock
+    // starts at mount; 30 s without a live grid message → the meter is silent
+    // (grid breaker off) → gridW becomes null and the UI shows "Odpojeno".
+    const mountAt = Date.now();
+    const gridStale = setInterval(() => {
+      const lastSeen = gridSeenRef.current || mountAt;
+      if (Date.now() - lastSeen > 30_000) {
+        setState((prev) => (prev.gridW !== null ? { ...prev, gridW: null } : prev));
+      }
+    }, 5000);
 
     // ---- 3) Daily energy roll-up (already-formatted string fields). ---------
     const offDaily = on('daily-energy', (d) => {
@@ -179,6 +201,7 @@ export default function useVictron() {
       offInitial();
       offLive();
       offDaily();
+      clearInterval(gridStale);
     };
   }, []);
 
