@@ -54,6 +54,7 @@ casa-davinci-smarthome/
 - **InfluxDB** - Time-series data storage
 - **MQTT Watchdog** - alerts when a critical Victron topic goes silent >10 min (`GET /api/mqtt/watchdog`)
 - **Well pump** - Shelly Plus 1 over MQTT (`casa/pump` prefix); status + on/off control (`GET /api/pump`); see `WATER-PUMP.md`
+- **Garage door** - Shelly 1 Gen3 over MQTT (`casa/garage` prefix); 1 s button pulse (`GET /api/garage/pulse`); see `GARAGE-DOOR.md`
 
 ### Frontend (index.html)
 - Tesla Powerwall-inspired design
@@ -71,6 +72,13 @@ casa-davinci-smarthome/
 - IP `192.168.1.237`; publishes to Cerbo broker under `casa/pump` prefix
 - Cycle: 1 min / hour (Shelly local schedule + 60 s auto-off)
 - Wiring schematics in `schema/`; full docs in `WATER-PUMP.md`
+
+### Shelly 1 Gen3 — Garage Door
+- Relay closes for 1 s (auto-off on the device) = one press of the opener's button (open / stop / close)
+- Device name `GarageDoor`, IP `192.168.1.61` (DHCP), mDNS `shelly1g3-54320457e4c8.local`, FW 2.0.0; publishes under `casa/garage`
+- SW input reserved for a magnetic door-position contact (`GARAGE.doorSensor` in server.js)
+- Provisioning + config: `scripts/garage-shelly-setup.sh`; full docs in `GARAGE-DOOR.md`
+- The *pump* Shelly used to be the garage switch and was named `GarageDoor` until 2026-08-30 → now `WellPump`
 
 ## Data Flow
 
@@ -96,6 +104,15 @@ casa-davinci-smarthome/
 | `casa/pump/status/switch:0` | ← Shelly | `{"output":bool,"temperature":{tC},"timer_started_at","timer_duration"}` |
 | `casa/pump/command/switch:0` | → Shelly | `"on"` / `"off"` / `"toggle"` |
 | `casa/pump/rpc` | → Shelly | JSON-RPC; reply on `casa/pump/server/reply/rpc` |
+
+### Shelly Garage MQTT Topics (on Cerbo broker)
+| Topic | Direction | Data |
+|-------|-----------|------|
+| `casa/garage/online` | ← Shelly | `"true"` / `"false"` |
+| `casa/garage/status/switch:0` | ← Shelly | `{"output":bool,"temperature":{tC}}` — `output` true only during the 1 s pulse |
+| `casa/garage/status/input:0` | ← Shelly | `{"state":bool}` — SW input (door contact, once wired) |
+| `casa/garage/command/switch:0` | → Shelly | `"on"` (device auto-off releases after 1 s) |
+| `casa/garage/rpc` | → Shelly | JSON-RPC; reply on `casa/garage/server/reply/rpc` |
 
 ## Development Workflow
 

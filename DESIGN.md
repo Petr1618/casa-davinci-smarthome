@@ -40,7 +40,7 @@ Posunout Casa DaVinci z **monitoru energie** na **centrum pro monitoring a ovlá
 | 3 | **Energie & Historie** | 📊 | Trendy, denní/měsíční/roční, soběstačnost, předpověď, reporty | Python analytics, InfluxDB/Grafana |
 | 4 | **Dům** | 🏡 | Pokoje & klima (ESP32), výhledově světla/topení/žaluzie, půdorys | Living‑room senzor |
 | 5 | **Zahrada** | 🌿 | Čerpadlo (studna→jímka), zavlažování, venkovní čidla, bazén | Čerpadlo (dnes v Service) |
-| 6 | **Garáž** | 🚗 | Vrata, nabíjení EV, přítomnost auta | (připraveno) |
+| 6 | **Garáž** | 🚗 | Vrata, nabíjení EV, přítomnost auta | vrata hotová (Shelly 1 Gen3, impuls) |
 | 7 | **Zabezpečení** | 🔒 | Kamery, čidla dveří/oken, alarm, přítomnost | (připraveno) |
 | 8 | **Systém** | 🔧 | Diagnostika, watchdog, stav VPN/Hetzner, logy, nastavení, registr zařízení | Service (diagnostika), watchdog |
 
@@ -57,7 +57,7 @@ Posunout Casa DaVinci z **monitoru energie** na **centrum pro monitoring a ovlá
 - **Energie & Historie** — grafy den/týden/měsíc/rok, soběstačnost/self‑consumption, **předpověď výroby** (`predict_solar_yield`), **reporty** (`export_report`), **zdraví baterie** (`analyze_battery_health`).
 - **Dům** — dlaždice pokojů (teplota/vlhkost z ESP32), výhledově půdorys s živými hodnotami; ovládání světel/topení (až přijdou zařízení).
 - **Zahrada** — **vodní flow scéna čerpadla** (viz §6), nastavení automatiky (hotové), výhledově zavlažovací zóny, venkovní teplota, bazén.
-- **Garáž** — placeholder: vrata (Shelly bylo původně tady), EV nabíjení, detekce auta.
+- **Garáž** — vrata hotová (Shelly 1 Gen3, impuls 1 s, `GARAGE-DOOR.md`); zbývá čidlo polohy, EV nabíjení, detekce auta.
 - **Zabezpečení** — placeholder: kamery, dveřní/okenní čidla, režim „doma/pryč", alarm log.
 - **Systém** — watchdog stav, MQTT/Cerbo zdraví, VPN/Hetzner, logy, **registr zařízení/pokojů** (editace), zálohy.
 

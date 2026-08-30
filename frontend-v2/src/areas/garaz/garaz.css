@@ -1,0 +1,42 @@
+/* =========================================================
+   GARÁŽ — built from the shared Precision library; here live
+   only the garage scene styling + the pulse animation. The
+   running look is driven by classes on the parent `.gscene`:
+     .is-pulse  → relay closed, signal travels Shelly → opener
+     .is-open   → door drawn open (only with a wired contact)
+     .no-sensor → door position unknown (dashed door)
+   ========================================================= */
+
+.gscene .gs-wall   { fill: var(--g2); stroke: var(--line2); stroke-width: 1; }
+.gscene .gs-roof   { fill: none; stroke: var(--line3); stroke-width: 1.5; stroke-linejoin: round; }
+.gscene .gs-frame  { fill: var(--g1); stroke: var(--line2); stroke-width: 1; }
+.gscene .gs-panel  { fill: var(--g3); stroke: var(--line2); stroke-width: 1;
+                     transition: transform .6s var(--ease), opacity .6s var(--ease); }
+.gscene.no-sensor .gs-panel { stroke-dasharray: 4 4; opacity: .7; }
+.gscene .gs-ground { stroke: var(--line2); stroke-width: 1; }
+.gscene .gs-wire   { fill: none; stroke: var(--line3); stroke-width: 1.5; }
+.gscene .gs-signal { fill: none; stroke: var(--ok); stroke-width: 2; stroke-linecap: round;
+                     stroke-dasharray: 10 240; stroke-dashoffset: 250; opacity: 0; }
+.gscene .gs-node   { fill: var(--g1); stroke: var(--line3); stroke-width: 1.5; }
+.gscene .gs-motor  { fill: var(--g2); stroke: var(--line3); stroke-width: 1.5; }
+.gscene .gs-led    { fill: var(--tx3); transition: fill .2s; }
+.gscene .gs-glow   { fill: var(--ok); opacity: 0; }
+
+/* Door open: the 4 sectional panels slide up into the ceiling track. */
+.gscene.is-open .gs-panel { transform: translateY(-118px); opacity: .35; }
+
+/* Pulse: signal dash runs along the wire, node LED + motor glow flash. */
+.gscene.is-pulse .gs-signal { opacity: 1; animation: gs-run 1s linear infinite; }
+.gscene.is-pulse .gs-led    { fill: var(--ok); }
+.gscene.is-pulse .gs-glow   { animation: gs-glow 1s ease-out infinite; }
+@keyframes gs-run  { to { stroke-dashoffset: 0; } }
+@keyframes gs-glow { 0% { opacity: .55; } 100% { opacity: 0; } }
+
+.is-stale .gscene .gs-signal { animation: none; opacity: 0; }
+
+/* Big pulse button in the Ovládání card. */
+.gz-pulse { width: 100%; height: 44px; font-size: 11px; letter-spacing: .12em; }
+.gz-pulse.is-sent { color: var(--ok); border-color: rgba(86,200,120,.5); }
+.gz-msg { font-size: 10px; letter-spacing: .08em; color: var(--tx3); margin-top: 10px; min-height: 14px; }
+.gz-msg.is-ok { color: var(--ok); }
+.gz-msg.is-error { color: var(--red); }

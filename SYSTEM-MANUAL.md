@@ -104,6 +104,15 @@ Casa DaVinci is a smart home energy monitoring system that provides real-time vi
 - **Cycle:** 1 minute every hour (Shelly local schedule + 60 s auto-off)
 - **MQTT:** publishes to the Cerbo broker under prefix `casa/pump`
 - **Full docs:** see [`WATER-PUMP.md`](WATER-PUMP.md); wiring in [`schema/`](schema/)
+- **Device name:** `WellPump` (was `GarageDoor` from its previous life as the garage switch — renamed 2026-08-30)
+
+### Shelly 1 Gen3 — Garage Door
+- **Device:** S3SW-001X16EU, name `GarageDoor`, IP `192.168.1.61` (DHCP, WiFi CasaDaVinciStar), mDNS `shelly1g3-54320457e4c8.local`, FW 2.0.0, AP `Shelly1G3-54320457E4C8`
+- **Function:** relay closes for **1 s** (auto-off on the device) = one press of the opener's button → open / stop / close
+- **MQTT:** publishes to the Cerbo broker under prefix `casa/garage`
+- **SW input:** reserved for a magnetic door-position contact (not wired yet → dashboard shows "bez čidla")
+- **Setup:** `scripts/garage-shelly-setup.sh provision "<SSID>" "<pass>"` (from the Mac, joins the Shelly AP temporarily)
+- **Full docs:** see [`GARAGE-DOOR.md`](GARAGE-DOOR.md)
 
 ---
 
@@ -267,6 +276,12 @@ critical topic goes silent > 10 min (instead of a silent 0). See `GET /api/mqtt/
 3. Verify Shelly MQTT: `mosquitto_sub -h 192.168.1.210 -t "casa/pump/#" -v`
 4. WiFi signal at the pump panel is weak (~−80 dBm) — reposition / add a repeater. See `WATER-PUMP.md`.
 
+### Garage door not responding
+1. `curl http://casa-davinci.local:3000/api/garage` — check `online`; `curl .../api/garage/pulse` returns `409` while offline
+2. `./scripts/garage-shelly-setup.sh status` — MQTT section must say `"connected":true`
+3. `mosquitto_sub -h 192.168.1.210 -t "casa/garage/#" -v` — a pulse must show `output:true` then `false` ~1 s later
+4. Shelly falls back to AP mode (`Shelly1G3-…`) after a failed WiFi join → re-run `provision`. See `GARAGE-DOOR.md`.
+
 ### Battery Modules Showing Offline
 1. Verify DIP switch configuration on each pack
 2. Check CAN bus cable connections between packs
@@ -292,6 +307,7 @@ critical topic goes silent > 10 min (instead of a silent 0). See `GET /api/mqtt/
 | 2026-01-23 | 1.1 | Added 3-pack battery configuration |
 | 2026-06-07 | 1.2 | Fixed Roof MPPT (278) missing from MQTT (Cerbo reboot); added MQTT Watchdog |
 | 2026-06-07 | 1.3 | Added Shelly well-pump control (studna → jímka) over MQTT + dashboard tile; see WATER-PUMP.md |
+| 2026-08-30 | 1.4 | Added Shelly 1 Gen3 garage-door pulse control over MQTT (v1 tile + v2 Garáž area + API); pump Shelly renamed WellPump; see GARAGE-DOOR.md |
 
 ---
 

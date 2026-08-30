@@ -208,6 +208,16 @@ const latestData = {
     intervalLabel: '1 hodina',
     nextRunAt: null,      // epoch ms — next scheduled start
     lastUpdate: null      // ms
+  },
+  // Garage door (Shelly 1 Gen3) — see GARAGE section below
+  garage: {
+    online: null,         // bool — Shelly connected to broker
+    relayOn: null,        // bool — relay closed (true only during the ~1 s pulse)
+    doorOpen: null,       // bool|null — from the SW input contact; null = no sensor wired
+    sensorPresent: false, // GARAGE.doorSensor — set true once a magnetic contact is wired
+    temperature: null,    // °C — Shelly internal temperature
+    lastPulseAt: null,    // epoch ms — last pulse sent from dashboard/API
+    lastUpdate: null      // ms
   }
 };
 
@@ -417,6 +427,106 @@ async function applyPumpConfig(cfg) {
   await loadPumpConfig();
   io.emit('pump-status', latestData.pump);
   return latestData.pump;
+}
+
+// ============================================================
+// Garage door — Shelly 1 Gen3 over MQTT
+// ------------------------------------------------------------
+// The garage opener has a "button" input: closing the Shelly relay
+// for ~1 s toggles the door (open / stop / close, like the remote).
+// The pulse length lives ON THE DEVICE (auto_off = 1 s), so a lost
+// "off" message can never leave the button held down. The Shelly
+// publishes to the same Cerbo broker under prefix "casa/garage":
+//   status:  casa/garage/online            -> "true" / "false"
+//            casa/garage/status/switch:0   -> {"output":bool,"temperature":{tC},...}
+//            casa/garage/status/input:0    -> {"state":bool}   (SW terminal)
+//   control: casa/garage/command/switch:0  <- "on"  (auto-off releases it)
+//   rpc:     casa/garage/rpc               <- JSON-RPC (prime state)
+// Door position: the SW input is free for a magnetic contact. Until
+// one is wired, GARAGE.doorSensor stays false and doorOpen is null.
+// ============================================================
+const GARAGE = {
+  prefix: 'casa/garage',
+  replyTopic: 'casa/garage/server/reply',
+  pulseMs: 1000,             // mirrors the Shelly auto_off_delay (1 s)
+  minPulseGapMs: 1500,       // ignore a second click while a pulse is in flight
+  doorSensor: false,         // true once a magnetic contact is wired to SW (input:0)
+  doorOpenWhenInputOn: true  // NO contact (closed = door open) -> input true = open; flip for NC
+};
+
+function applyGarageSwitchStatus(s) {
+  if (!s) return;
+  if (typeof s.output === 'boolean') latestData.garage.relayOn = s.output;
+  if (s.temperature && typeof s.temperature.tC === 'number') {
+    latestData.garage.temperature = s.temperature.tC;
+  }
+}
+
+function applyGarageInputStatus(i) {
+  if (!i || typeof i.state !== 'boolean') return;
+  if (!GARAGE.doorSensor) return; // nothing wired — don't invent a door state
+  latestData.garage.doorOpen = GARAGE.doorOpenWhenInputOn ? i.state : !i.state;
+}
+
+function handleGarageMessage(topic, msgStr) {
+  const sub = topic.slice(GARAGE.prefix.length + 1); // strip "casa/garage/"
+  try {
+    if (sub === 'online') {
+      latestData.garage.online = (msgStr === 'true');
+    } else if (sub === 'status/switch:0') {
+      applyGarageSwitchStatus(JSON.parse(msgStr));
+    } else if (sub === 'status/input:0') {
+      applyGarageInputStatus(JSON.parse(msgStr));
+    } else if (sub === 'server/reply/rpc') {
+      // RPC replies: id 1 = Switch.GetStatus, id 2 = Input.GetStatus
+      const d = JSON.parse(msgStr);
+      const r = d.result || {};
+      if (d.id === 2 || 'state' in r) applyGarageInputStatus(r);
+      else applyGarageSwitchStatus(r);
+    } else if (sub === 'events/rpc') {
+      const d = JSON.parse(msgStr);
+      if (d.method !== 'NotifyStatus' || !d.params) return;
+      if (d.params['switch:0']) applyGarageSwitchStatus(d.params['switch:0']);
+      if (d.params['input:0']) applyGarageInputStatus(d.params['input:0']);
+      if (!d.params['switch:0'] && !d.params['input:0']) return;
+    } else {
+      return; // status/sys, status/mqtt, ...
+    }
+    latestData.garage.sensorPresent = GARAGE.doorSensor;
+    latestData.garage.lastUpdate = Date.now();
+    io.emit('garage-status', latestData.garage);
+  } catch (e) { /* non-JSON, ignore */ }
+}
+
+// Send ONE button pulse to the garage opener. Returns { ok, error? }.
+function pulseGarage(origin) {
+  const now = Date.now();
+  if (!cerboClient.connected) return { ok: false, error: 'MQTT broker nedostupný' };
+  if (latestData.garage.online !== true) return { ok: false, error: 'Shelly garáže není online' };
+  if (latestData.garage.lastPulseAt && now - latestData.garage.lastPulseAt < GARAGE.minPulseGapMs) {
+    return { ok: false, error: 'Impuls už běží' };
+  }
+  cerboClient.publish(`${GARAGE.prefix}/command/switch:0`, 'on');
+  // Belt and braces: the device auto-off releases the relay after 1 s; this
+  // explicit "off" is a no-op when that worked and a safety net when it didn't.
+  setTimeout(() => cerboClient.publish(`${GARAGE.prefix}/command/switch:0`, 'off'), GARAGE.pulseMs + 500);
+  latestData.garage.lastPulseAt = now;
+  latestData.garage.lastUpdate = now;
+  io.emit('garage-status', latestData.garage);
+  console.log(`→ Garage pulse (${origin || 'unknown'})`);
+  return { ok: true, at: now };
+}
+
+// Ask the Shelly for its current relay/input state (read-only) to prime the UI
+function primeGarageStatus() {
+  cerboClient.publish(`${GARAGE.prefix}/rpc`, JSON.stringify({
+    id: 1, src: GARAGE.replyTopic, method: 'Switch.GetStatus', params: { id: 0 }
+  }));
+  if (GARAGE.doorSensor) {
+    cerboClient.publish(`${GARAGE.prefix}/rpc`, JSON.stringify({
+      id: 2, src: GARAGE.replyTopic, method: 'Input.GetStatus', params: { id: 0 }
+    }));
+  }
 }
 
 // Seplos BMS Service Mode
@@ -654,6 +764,11 @@ cerboClient.on('connect', () => {
   // Prime current relay state once the subscription is active
   setTimeout(primePumpStatus, 1500);
 
+  // Subscribe to Shelly garage-door topics (same broker)
+  cerboClient.subscribe(`${GARAGE.prefix}/#`);
+  console.log('✓ Subscribed to Shelly garage topics (casa/garage/#)');
+  setTimeout(primeGarageStatus, 1800);
+
   // Subscribe to settings topics for control panel current values
   SETTINGS_TOPICS.forEach(topic => {
     const fullTopic = `N/${CONFIG.mqtt.cerboSerial}${topic}`;
@@ -699,6 +814,12 @@ cerboClient.on('message', (topic, message) => {
   // Handle Shelly well-pump data (casa/pump/...)
   if (topic.startsWith(`${PUMP.prefix}/`)) {
     handlePumpMessage(topic, msgStr);
+    return;
+  }
+
+  // Handle Shelly garage-door data (casa/garage/...)
+  if (topic.startsWith(`${GARAGE.prefix}/`)) {
+    handleGarageMessage(topic, msgStr);
     return;
   }
 
@@ -897,6 +1018,13 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Garage door: current status + one-shot pulse from dashboard
+  socket.emit('garage-status', latestData.garage);
+  primeGarageStatus();
+  socket.on('garage-pulse', () => {
+    socket.emit('garage-pulse-result', pulseGarage('socket ' + socket.id));
+  });
+
   // Send Seplos status and data if available
   if (seplosService) {
     socket.emit('seplos-status', seplosService.getStatus());
@@ -1016,6 +1144,9 @@ setInterval(checkWatchdog, WATCHDOG.checkIntervalMs);
 // the dashboard showing a stale state for the whole 60 s run).
 setInterval(primePumpStatus, 10000);
 
+// Re-poll the garage Shelly every 30 s (temperature / input state; online is a retained LWT)
+setInterval(primeGarageStatus, 30000);
+
 // API Endpoints
 app.get('/api/health', (req, res) => {
   res.json({
@@ -1074,6 +1205,17 @@ app.post('/api/pump/config', async (req, res) => {
     res.status(500).json({ ok: false, error: e.message });
   }
 });
+
+// Garage door — status + pulse (GET for quick curl/Shortcuts use, POST for apps)
+app.get('/api/garage', (req, res) => {
+  res.json(latestData.garage);
+});
+function garagePulseRoute(req, res) {
+  const r = pulseGarage('api ' + (req.ip || ''));
+  res.status(r.ok ? 200 : 409).json(r);
+}
+app.get('/api/garage/pulse', garagePulseRoute);
+app.post('/api/garage/pulse', garagePulseRoute);
 
 // Seplos Service Mode API endpoints
 app.get('/api/seplos/status', (req, res) => {

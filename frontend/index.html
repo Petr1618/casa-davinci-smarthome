@@ -6702,6 +6702,52 @@
         </div>
       </div>
 
+      <!-- ===== Garage door (Shelly 1 Gen3) control ===== -->
+      <style>
+        .garage-pulse-btn { padding:12px 26px; font-size:12px; letter-spacing:1px; }
+        .garage-pulse-btn.pulsing { background:var(--battery-color); border-color:var(--battery-color); color:#000; }
+        .garage-msg { font-size:12px; margin-top:12px; min-height:16px; }
+      </style>
+      <div class="service-header">
+        <div class="service-header-left">
+          <div class="service-header-title">🚗 Garážová vrata</div>
+          <div class="service-header-subtitle">Shelly 1 Gen3 · impuls 1 s přes MQTT</div>
+        </div>
+        <div class="service-header-actions">
+          <div class="service-status-indicator disconnected" id="garage-indicator">
+            <span class="service-status-dot"></span>
+            <span id="garage-online-text">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="service-connect-panel">
+        <div class="pump-h">Ovládání vrat</div>
+        <div class="pump-metrics">
+          <div>
+            <div class="pump-metric-label">Stav vrat</div>
+            <div class="pump-metric-val" id="garage-door-state" style="color:var(--text-secondary);">—</div>
+          </div>
+          <div>
+            <div class="pump-metric-label">Relé</div>
+            <div class="pump-metric-val" id="garage-relay" style="color:var(--text-secondary);">—</div>
+          </div>
+          <div>
+            <div class="pump-metric-label">Teplota Shelly</div>
+            <div class="pump-metric-val" id="garage-temp" style="color:var(--text-primary);">— °C</div>
+          </div>
+          <div class="pump-actions">
+            <button class="service-btn primary garage-pulse-btn" id="garage-pulse-btn" onclick="garagePulse()" disabled>⏻ Otevřít / zavřít vrata</button>
+          </div>
+        </div>
+        <div class="garage-msg" id="garage-msg"></div>
+        <div class="pump-timing">
+          <div id="garage-last-line" style="color:var(--text-secondary);"></div>
+        </div>
+        <div class="pump-note">
+          Jeden impuls = jedno stisknutí tlačítka pohonu (otevřít · stop · zavřít). Délka impulsu 1&nbsp;s je uložená v&nbsp;Shelly (auto-off), takže se tlačítko nikdy „nezasekne". Stav vrat se zobrazí až po připojení magnetického kontaktu na vstup SW.
+        </div>
+      </div>
+
       <!-- Header -->
       <div class="service-header">
         <div class="service-header-left">
@@ -7279,6 +7325,71 @@
     function pumpControl(on) {
       socket.emit('pump-control', { on: on });
     }
+
+    // ===== Garage door (Shelly 1 Gen3) =====
+    let garageData = null;
+    let garageTimerInterval = null;
+    socket.on('garage-status', (g) => updateGarageCard(g));
+
+    function updateGarageCard(g) {
+      if (!g) return;
+      garageData = g;
+      const ind = document.getElementById('garage-indicator');
+      const onlineText = document.getElementById('garage-online-text');
+      const doorEl = document.getElementById('garage-door-state');
+      const relayEl = document.getElementById('garage-relay');
+      const tempEl = document.getElementById('garage-temp');
+      const btn = document.getElementById('garage-pulse-btn');
+      if (onlineText) onlineText.textContent = g.online === true ? 'Online' : (g.online === false ? 'Offline' : '—');
+      if (ind) ind.className = 'service-status-indicator ' + (g.online ? 'connected' : 'disconnected');
+      if (doorEl) {
+        if (g.doorOpen === true) { doorEl.textContent = 'OTEVŘENÁ'; doorEl.style.color = 'var(--warning-color)'; }
+        else if (g.doorOpen === false) { doorEl.textContent = 'ZAVŘENÁ'; doorEl.style.color = 'var(--battery-color)'; }
+        else { doorEl.textContent = 'bez čidla'; doorEl.style.color = 'var(--text-muted)'; }
+      }
+      if (relayEl) {
+        if (g.relayOn === true) { relayEl.textContent = 'IMPULS'; relayEl.style.color = 'var(--battery-color)'; }
+        else if (g.relayOn === false) { relayEl.textContent = 'KLID'; relayEl.style.color = 'var(--text-secondary)'; }
+        else { relayEl.textContent = '—'; relayEl.style.color = 'var(--text-secondary)'; }
+      }
+      if (tempEl) tempEl.textContent = (typeof g.temperature === 'number' ? g.temperature.toFixed(1) : '—') + ' °C';
+      if (btn && !btn.classList.contains('pulsing')) btn.disabled = g.online !== true;
+      renderGarageTiming();
+      if (!garageTimerInterval) garageTimerInterval = setInterval(renderGarageTiming, 1000);
+    }
+
+    function renderGarageTiming() {
+      const line = document.getElementById('garage-last-line');
+      if (!line || !garageData) return;
+      if (garageData.lastPulseAt) {
+        const t = new Date(garageData.lastPulseAt);
+        const hhmm = t.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        line.textContent = '⏻ Poslední impuls ' + hhmm + ' (před ' + fmtPumpDur(Date.now() - garageData.lastPulseAt) + ')';
+      } else {
+        line.textContent = '⏻ Zatím žádný impuls z dashboardu';
+      }
+    }
+
+    function showGarageMsg(text, ok) {
+      const el = document.getElementById('garage-msg');
+      if (!el) return;
+      el.textContent = text;
+      el.style.color = (ok === false) ? 'var(--danger-color)' : (ok ? 'var(--battery-color)' : 'var(--text-secondary)');
+    }
+
+    function garagePulse() {
+      const btn = document.getElementById('garage-pulse-btn');
+      if (btn) { btn.disabled = true; btn.classList.add('pulsing'); }
+      showGarageMsg('Posílám impuls…');
+      socket.emit('garage-pulse');
+      setTimeout(() => {
+        if (btn) { btn.classList.remove('pulsing'); btn.disabled = !(garageData && garageData.online === true); }
+      }, 1500);
+    }
+
+    socket.on('garage-pulse-result', (r) => {
+      showGarageMsg(r && r.ok ? 'Impuls odeslán ✓ (relé sepnuto 1 s)' : ('Chyba: ' + ((r && r.error) || 'neznámá')), !!(r && r.ok));
+    });
 
     socket.on('sensor-data', (data) => {
       if (data.location === 'living_room') {

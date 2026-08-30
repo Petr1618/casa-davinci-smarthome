@@ -5,6 +5,7 @@ import ComingSoon from './areas/ComingSoon.jsx';
 import Domov from './areas/Domov.jsx';
 import Zahrada from './areas/Zahrada.jsx';
 import Elektrarna from './areas/Elektrarna.jsx';
+import Garaz from './areas/Garaz.jsx';
 
 // Map area id -> the component that renders it. Areas still marked
 // `comingSoon` fall back to the shared placeholder, so the whole 8-area
@@ -12,7 +13,8 @@ import Elektrarna from './areas/Elektrarna.jsx';
 const AREA_VIEWS = {
   domov: Domov,
   zahrada: Zahrada,
-  elektrarna: Elektrarna
+  elektrarna: Elektrarna,
+  garaz: Garaz
 };
 
 export default function App() {

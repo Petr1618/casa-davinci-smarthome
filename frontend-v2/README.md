@@ -22,15 +22,20 @@ frontend-v2/
 │   ├── lib/
 │   │   ├── socket.js       # shared socket.io connection to backend
 │   │   └── theme.jsx       # theme context (dark/light/spacex)
+│   ├── components/
+│   │   └── GaragePulseButton.jsx  # two-step garage pulse (topbar compact + Domů full)
 │   ├── shell/
 │   │   ├── areas.js        # THE 8 areas (single source of truth)
 │   │   └── AppShell.jsx    # layout + nav + theme switcher + connection dot
 │   ├── hooks/
-│   │   └── usePump.js      # pump state + actions (socket pump-status/control/config)
+│   │   ├── usePump.js      # pump state + actions (socket pump-status/control/config)
+│   │   └── useGarage.js    # garage-door state + pulse (socket garage-status/garage-pulse)
 │   └── areas/
 │       ├── ComingSoon.jsx  # placeholder for not-yet-ported areas
-│       └── Zahrada.jsx     # Garden = WaterFlow scene + PumpControls
-│           └── zahrada/    # WaterFlow.jsx, PumpControls.jsx + css
+│       ├── Zahrada.jsx     # Garden = WaterFlow scene + PumpControls
+│       │   └── zahrada/    # WaterFlow.jsx, PumpControls.jsx + css
+│       └── Garaz.jsx       # Garage = GarageScene + one-shot door pulse
+│           └── garaz/      # GarageScene.jsx + css
 ```
 
 ## Vývoj
