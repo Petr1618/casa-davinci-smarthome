@@ -79,8 +79,8 @@ Casa DaVinci is a smart home energy monitoring system that provides real-time vi
 ### Raspberry Pi 4
 - **Hostname:** casa-davinci.local
 - **User:** pi
-- **Production Path:** /opt/casa-davinci
-- **Development Path:** /home/pi/casa-davinci
+- **Production Path:** /opt/casa-davinci (flat layout — see Deployment)
+- **Legacy dev copy:** /home/pi/casa-davinci (not used by the service)
 - **Service:** systemd (casa-davinci.service)
 
 ### Solar Chargers (2× MPPT)
@@ -187,18 +187,46 @@ Tesla Powerwall-inspired dashboard featuring:
 
 ## Deployment
 
-### From Development Mac
+### Production layout on the Pi (what systemd actually runs)
 
-```bash
-cd /path/to/casa-davinci-smarthome
-./deploy.sh
+`casa-davinci.service` runs `node server.js` with `WorkingDirectory=/opt/casa-davinci`, and that
+directory is **flat** (not a copy of the repo):
+
+```
+/opt/casa-davinci/
+├── server.js               ← backend/server.js
+├── seplos-service.js       ← backend/seplos-service.js
+├── frontend/index.html     ← frontend/index.html  (v1 dashboard at /)
+├── v2/                     ← frontend-v2/dist/    (React app at /v2/)
+├── node_modules/, package.json
+└── server.js.bak.<ts>, frontend/index.html.bak.<ts>, v2.bak/   (backups from deploys)
 ```
 
-This syncs files to `/home/pi/casa-davinci`. For production, also copy to `/opt/casa-davinci`:
+`/home/pi/casa-davinci` (target of `deploy.sh`) is an **old dev copy** — production does not run from it.
+
+### Deploy from the Mac (targeted, with backups)
 
 ```bash
-ssh pi@casa-davinci.local "sudo cp -r /home/pi/casa-davinci/* /opt/casa-davinci/"
+cd ~/clawd/projekty/casa-davinci-smarthome
+TS=$(date +%Y%m%d%H%M%S)
+ssh pi@casa-davinci.local "cp /opt/casa-davinci/server.js /opt/casa-davinci/server.js.bak.$TS; \
+  cp /opt/casa-davinci/frontend/index.html /opt/casa-davinci/frontend/index.html.bak.$TS; \
+  rm -rf /opt/casa-davinci/v2.bak && cp -r /opt/casa-davinci/v2 /opt/casa-davinci/v2.bak"
+
+scp backend/server.js    pi@casa-davinci.local:/opt/casa-davinci/server.js
+scp frontend/index.html  pi@casa-davinci.local:/opt/casa-davinci/frontend/index.html
+(cd frontend-v2 && npm run build) && \
+  ssh pi@casa-davinci.local "rm -rf /opt/casa-davinci/v2/assets" && \
+  scp -r frontend-v2/dist/. pi@casa-davinci.local:/opt/casa-davinci/v2/
+
+ssh pi@casa-davinci.local "sudo systemctl restart casa-davinci"   # passwordless sudo works for pi
 ```
+
+Before deploying, check that production still matches git (nobody edited on the Pi):
+`ssh pi@casa-davinci.local md5sum /opt/casa-davinci/server.js` vs `md5 -q backend/server.js`.
+
+> The Pi never builds anything — the v2 bundle is built on the Mac (`frontend-v2/dist` is gitignored).
+> Rollback = copy the `.bak` file back and restart the service.
 
 ### Service Management
 
@@ -224,20 +252,29 @@ Open in browser: http://casa-davinci.local:3000
 ```
 casa-davinci-smarthome/
 ├── frontend/
-│   └── index.html              # Energy dashboard (single-page app)
+│   └── index.html              # v1 energy dashboard (single-page app, served at /)
+├── frontend-v2/                # v2 whole-home React app (Vite) — served at /v2/ from its dist/
+│   ├── src/areas/              # Domov, Elektrarna, Zahrada, Garaz (+ ComingSoon)
+│   ├── src/hooks/              # useVictron, usePump, useGarage, useSensors, useTopics
+│   └── README.md
 ├── backend/
-│   ├── server.js               # Main Node.js server
+│   ├── server.js               # Main Node.js server (MQTT + WebSocket + InfluxDB + Shelly)
 │   ├── seplos-service.js       # RS485 battery communication
-│   └── package.json            # Dependencies
-├── esp32/
-│   ├── living-room-sensor.ino  # ESP32 sensor firmware
-│   └── ESP32-Sensor-Documentation.txt
+│   └── package.json
+├── scripts/
+│   └── garage-shelly-setup.sh  # Provision / configure / status of the garage Shelly
+├── schema/                     # Pump panel wiring (draw.io SVG, mermaid)
+├── esp32/                      # ESP32 sensor firmware + docs
+├── python/                     # Analytics scripts (InfluxDB)
+├── grafana/                    # Dashboards
+├── wireguard/                  # Pi ↔ Hetzner VPN config
 ├── docs/                       # Credentials (NOT in git)
-│   ├── Casa-DaVinci-Credentials.txt
-│   └── Casa-DaVinci-Setup-Guide.txt
-├── deploy.sh                   # Deployment script
+├── deploy.sh                   # Legacy rsync to /home/pi (see Deployment)
 ├── CLAUDE.md                   # Development guidelines
-├── SYSTEM-MANUAL.md            # This file
+├── SYSTEM-MANUAL.md            # System manual (hardware, deploy, troubleshooting)
+├── WATER-PUMP.md               # Well-pump subsystem (Shelly Plus 1)
+├── GARAGE-DOOR.md              # Garage-door subsystem (Shelly 1 Gen3)
+├── DESIGN.md                   # v2 product/architecture rationale
 └── .gitignore
 ```
 

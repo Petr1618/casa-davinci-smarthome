@@ -22,6 +22,12 @@ přes **Shelly Plus 1** a integrované do Casa DaVinci dashboardu přes MQTT.
 
 > ⚠️ **Shelly byl původně spínač garážových vrat** (1 s pulz). Přesunut do rozvaděče
 > u čerpadla a překonfigurován. Viz schémata v `schema/`.
+> V konfiguraci mu zůstalo jméno „GarageDoor“ (mDNS `garagedoor.local` ukazovalo na čerpadlo) —
+> **30. 8. 2026 přejmenován na `WellPump`**; vrata teď spíná nový Shelly 1 Gen3 (`GARAGE-DOOR.md`).
+> Hostname `shellyplus1-78ee4ccf8130.local` a IP se nezměnily.
+>
+> ⚠️ **Nezapínat na tomto Shelly heslo (Authentication)** — `server.js` na něj volá HTTP RPC
+> (`Schedule.*`, `Switch.SetConfig`) bez autentizace; nejdřív by se musela doplnit digest auth.
 
 ### Proč stykač a ne přímo Shelly relé
 Ponorné čerpadlo je induktivní zátěž s vysokým rozběhovým proudem (40–70 A). Shelly

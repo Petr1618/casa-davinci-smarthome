@@ -29,20 +29,30 @@ Casa DaVinci is a smart home energy monitoring system that displays real-time en
 ```
 casa-davinci-smarthome/
 ├── frontend/
-│   └── index.html          # Tesla-inspired energy dashboard
+│   └── index.html              # v1 energy dashboard (single-page app, served at /)
+├── frontend-v2/                # v2 whole-home React app (Vite) — served at /v2/ from its dist/
+│   ├── src/areas/              # Domov, Elektrarna, Zahrada, Garaz (+ ComingSoon)
+│   ├── src/hooks/              # useVictron, usePump, useGarage, useSensors, useTopics
+│   └── README.md
 ├── backend/
-│   ├── server.js           # Node.js server (MQTT + WebSocket + InfluxDB)
-│   └── package.json        # Dependencies
-├── esp32/
-│   ├── living-room-sensor.ino    # ESP32 temperature/humidity sensor
-│   └── ESP32-Sensor-Documentation.txt
-├── docs/                   # Credentials (NOT in git)
-│   ├── Casa-DaVinci-Credentials.txt
-│   ├── Casa-DaVinci-Setup-Guide.txt
-│   └── Casa-DaVinci-Technical-Specification.pdf
-├── deploy.sh               # Deploy to Raspberry Pi
-├── .gitignore
-└── CLAUDE.md               # This file
+│   ├── server.js               # Main Node.js server (MQTT + WebSocket + InfluxDB + Shelly)
+│   ├── seplos-service.js       # RS485 battery communication
+│   └── package.json
+├── scripts/
+│   └── garage-shelly-setup.sh  # Provision / configure / status of the garage Shelly
+├── schema/                     # Pump panel wiring (draw.io SVG, mermaid)
+├── esp32/                      # ESP32 sensor firmware + docs
+├── python/                     # Analytics scripts (InfluxDB)
+├── grafana/                    # Dashboards
+├── wireguard/                  # Pi ↔ Hetzner VPN config
+├── docs/                       # Credentials (NOT in git)
+├── deploy.sh                   # Legacy rsync to /home/pi (see Deployment)
+├── CLAUDE.md                   # Development guidelines
+├── SYSTEM-MANUAL.md            # System manual (hardware, deploy, troubleshooting)
+├── WATER-PUMP.md               # Well-pump subsystem (Shelly Plus 1)
+├── GARAGE-DOOR.md              # Garage-door subsystem (Shelly 1 Gen3)
+├── DESIGN.md                   # v2 product/architecture rationale
+└── .gitignore
 ```
 
 ## Key Components
@@ -117,21 +127,19 @@ casa-davinci-smarthome/
 ## Development Workflow
 
 ### Local Development
-Edit files on Mac, then deploy:
-```bash
-./deploy.sh
-```
+Edit files on Mac, then deploy **directly into `/opt/casa-davinci`** (flat layout) and restart the
+service — see *SYSTEM-MANUAL.md → Deployment* for the exact commands. `deploy.sh` only rsyncs to the
+legacy `/home/pi/casa-davinci` copy, which production does not use.
 
 ### Raspberry Pi
-- **Host:** casa-davinci.local
-- **User:** pi
-- **Project path:** /home/pi/casa-davinci
+- **Host:** casa-davinci.local (192.168.1.173)
+- **User:** pi (passwordless sudo)
+- **Production path:** /opt/casa-davinci — `server.js`, `seplos-service.js`, `frontend/`, `v2/`
+- **Service:** `sudo systemctl restart casa-davinci` · logs `sudo journalctl -u casa-davinci -f`
 
-### Start Server on Pi
+### v2 frontend
 ```bash
-ssh pi@casa-davinci.local
-cd casa-davinci/backend
-node server.js
+cd frontend-v2 && npm run build     # → dist/, copy to /opt/casa-davinci/v2/ (Pi never builds)
 ```
 
 ### Access Dashboard

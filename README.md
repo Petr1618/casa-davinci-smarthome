@@ -96,6 +96,19 @@ python export_report.py --output report.pdf
 - **Sensors:** ESP32 + DHT22 (temperature/humidity)
 - **Edge Computer:** Raspberry Pi 4
 
+## Home Control (Shelly over MQTT)
+
+Both Shelly relays publish to the Cerbo GX's built-in MQTT broker; the backend mirrors their
+state to the dashboards and sends commands back. Devices stay autonomous (schedules and pulse
+timing live on the device), the Pi only orchestrates.
+
+| Subsystem | Device | Prefix | Control | Docs |
+|---|---|---|---|---|
+| Well pump (studna → jímka) | Shelly Plus 1 `WellPump`, 192.168.1.237 | `casa/pump` | on/off + schedule from dashboard, `GET /api/pump` | [`WATER-PUMP.md`](WATER-PUMP.md) |
+| Garage door | Shelly 1 Gen3 `GarageDoor`, 192.168.1.61 | `casa/garage` | 1 s button pulse, `GET /api/garage/pulse` | [`GARAGE-DOOR.md`](GARAGE-DOOR.md) |
+
+Dashboards: v1 at `/` (Service tab), v2 React app at `/v2/` (areas *Zahrada*, *Garáž*, quick actions on *Domů* and in the topbar).
+
 ## Grafana Dashboards
 
 Three dashboards available at `/grafana/`:
@@ -118,9 +131,9 @@ node server.js
 
 ## Deployment
 
-```bash
-./deploy.sh  # Syncs to Raspberry Pi via rsync
-```
+Production runs from a flat `/opt/casa-davinci` on the Pi (`server.js`, `frontend/`, `v2/`) under
+systemd — copy the files there and restart the service. Exact commands: *SYSTEM-MANUAL.md → Deployment*.
+(`./deploy.sh` only rsyncs to the legacy `/home/pi/casa-davinci` copy.)
 
 ## License
 

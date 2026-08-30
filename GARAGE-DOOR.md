@@ -96,6 +96,9 @@ Vše nastaví skript **`scripts/garage-shelly-setup.sh`** (viz níže). Uvedeno 
 ## Uvedení do provozu (nový Shelly)
 
 ```bash
+# Jak proběhlo 30. 8. 2026: WiFi přes Shelly Smart Control app (Bluetooth) → chvíli „connecting“ →
+# pak IP 192.168.1.61 → `configure` → update FW 1.2.2 → 1.3.3 → 2.0.0 → testovací impuls OK.
+#
 # 1) Shelly je v AP režimu (SSID Shelly1G3-54320457E4C8). Mac se na něj dočasně přepne,
 #    pošle WiFi údaje, vrátí se, počká na Shelly na LAN a rovnou ho nakonfiguruje:
 ./scripts/garage-shelly-setup.sh provision "<SSID>" "<heslo>"            # + volitelně "<SSID2>" "<heslo2>"
@@ -111,6 +114,23 @@ mosquitto_sub -h 192.168.1.210 -t "casa/garage/#" -v                      # prov
 # 3) Test impulsu (HÝBE VRATY, pokud je Shelly už zapojený u pohonu)
 curl http://casa-davinci.local:3000/api/garage/pulse
 ```
+
+## Zabezpečení Shelly (TODO — udělat z webového UI `http://192.168.1.61`)
+
+Pořadí: **nejdřív heslo, pak AP** (kdyby se něco nepovedlo, AP je záchranná cesta).
+
+1. **Heslo na web UI / HTTP RPC** — *Settings → Authentication → Enable* (uživatel je vždy `admin`).
+   - MQTT ovládání z dashboardu **to neovlivní** (garáž jede jen přes MQTT).
+   - `scripts/garage-shelly-setup.sh status|configure` pak potřebuje digest auth
+     (`curl --digest -u admin:<heslo>`) — do skriptu doplnit `SHELLY_PASS`.
+   - ⚠️ Na **čerpadlovém** Shelly heslo NEzapínat (backend tam volá HTTP RPC bez auth — viz `WATER-PUMP.md`).
+2. **Otevřený AP `Shelly1G3-54320457E4C8`** — dvě možnosti:
+   - **A (doporučeno):** AP nechat, ale zaheslovat — *Settings → Wi-Fi → Access Point → Set password* (≥ 8 znaků).
+     Zůstane záchranná cesta při změně domácí WiFi.
+   - **B:** AP vypnout — *Access Point → Enable* off. Při ztrátě domácí WiFi pak jen tovární reset
+     (tlačítko ~10 s, nebo 5× vypnout/zapnout napájení) a znovu `provision`.
+   - Přes RPC: `curl -X POST http://192.168.1.61/rpc -d '{"id":1,"method":"WiFi.SetConfig","params":{"config":{"ap":{"enable":true,"is_open":false,"pass":"<heslo>"}}}}'`
+3. **Statická IP** — rezervovat 192.168.1.61 na routeru (Starlink app → DHCP). Backend ji nepotřebuje (MQTT), skript ano.
 
 ## Troubleshooting
 1. `curl http://casa-davinci.local:3000/api/garage` — `online:false`? → Shelly není na WiFi/MQTT.
