@@ -4,7 +4,7 @@
 //   ┌ AKTIVNÍ ALARMY (thin green "vše v pořádku" row when quiet) ┐
 //   ├ ⚡ Energie teď (mini-flow + 3 čísla) │ 🌿 Zahrada · voda   ┤
 //   ├ 🏡 Klima domu (pokoje z ESP32)      │ 📊 Dnešní bilance   ┤
-//   └ ⚙ Rychlé akce (Spustit čerpadlo — s potvrzením)           ┘
+//   └ ⚙ Rychlé akce (Vrata garáže · Spustit čerpadlo — obě s potvrzením) ┘
 //
 // Resident-first: only outcomes here, details live in the areas — every card
 // links through to its area. Built from the shared Precision library; the
@@ -14,10 +14,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useVictron from '../hooks/useVictron.js';
 import usePump from '../hooks/usePump.js';
+import useGarage from '../hooks/useGarage.js';
 import useSensors from '../hooks/useSensors.js';
 import { useHealth, fmtClock } from '../lib/health.jsx';
 import { fmtNum, fmtW, fmt1, czStr } from '../lib/format.js';
 import Dq from '../components/Dq.jsx';
+import GaragePulseButton from '../components/GaragePulseButton.jsx';
 import './domov/domov.css';
 
 const ROOM_LABELS = { living_room: 'Obývák', bedroom: 'Ložnice', kitchen: 'Kuchyň' };
@@ -95,6 +97,7 @@ function MiniFlow({ solarW, homeW, batterySoc, batteryW }) {
 export default function Domov({ area }) {
   const victron = useVictron();
   const { pump, setPump } = usePump();
+  const { garage } = useGarage();
   const rooms = useSensors();
   const { stale, lastDataAt, silentTopics } = useHealth();
   const navigate = useNavigate();
@@ -141,6 +144,7 @@ export default function Domov({ area }) {
   if (stale) alarms.push({ sev: 'bad', text: 'Ztráta spojení s domem — viz banner a Doporučení výše.' });
   silentTopics.forEach((t) => alarms.push({ sev: 'warn', text: `Victron topik ztichl: ${t.label} (${Math.round(t.ageSeconds / 60)} min)` }));
   if (!stale && pump && !pumpOnline) alarms.push({ sev: 'warn', text: 'Čerpadlo (Shelly) je offline.' });
+  if (!stale && garage && garage.online === false) alarms.push({ sev: 'warn', text: 'Garážová vrata (Shelly) jsou offline.' });
 
   return (
     <div style={{ '--acc': area?.accent || '#d9dee3', '--acc-soft': area?.accentSoft, '--acc-glow': 'rgba(217,222,227,.2)' }}>
@@ -254,6 +258,7 @@ export default function Domov({ area }) {
       <div className="card dm-actions">
         <div className="card-h"><span className="t">Rychlé akce</span></div>
         <div className="card-b dm-actions-row">
+          <GaragePulseButton variant="full" />
           <button
             className={'btn ctl' + (confirming ? '' : ' acc')}
             style={confirming ? { borderColor: 'var(--warn)', color: 'var(--warn)' } : undefined}
@@ -262,7 +267,7 @@ export default function Domov({ area }) {
           >
             {confirming ? `Potvrdit spuštění (${pump?.runSeconds ?? 60} s)?` : `Spustit čerpadlo (${pump?.runSeconds ?? 60} s)`}
           </button>
-          <span className="kpi-sub">Další akce (vrata, světla) přibudou s novými zařízeními.</span>
+          <span className="kpi-sub">Obě akce chtějí druhé kliknutí pro potvrzení. Světla přibudou s novými zařízeními.</span>
         </div>
       </div>
     </div>

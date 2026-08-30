@@ -5,6 +5,7 @@ import AreaIcon from './AreaIcon.jsx';
 import { useTheme } from '../lib/theme.jsx';
 import { useHealth } from '../lib/health.jsx';
 import OutageBanner from '../components/OutageBanner.jsx';
+import GaragePulseButton from '../components/GaragePulseButton.jsx';
 
 // ---- Live clock (mono, tabular) ----
 function useClock() {
@@ -95,7 +96,7 @@ export default function AppShell({ children }) {
         </div>
       </nav>
 
-      {/* Topbar — rail toggle + breadcrumb + theme + connection + clock */}
+      {/* Topbar — rail toggle + breadcrumb + garage shortcut + theme + connection + clock */}
       <header className="topbar">
         <button
           className="rail-toggle"
@@ -119,6 +120,7 @@ export default function AppShell({ children }) {
           {active && <span className="crumb-meta">{active.blurb}</span>}
         </div>
         <div className="topbar-right">
+          <GaragePulseButton variant="compact" />
           <ThemeSwitcher />
           <div className={'chip' + (stale ? ' chip--bad' : ' chip--ok')}>
             <span className="chip-dot" />

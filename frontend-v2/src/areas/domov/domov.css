@@ -58,3 +58,9 @@
 /* Quick actions. */
 .dm-actions { margin-top: 16px; }
 .dm-actions-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+/* Quick-action feedback states (GaragePulseButton variant="full" + pump confirm). */
+.dm-actions-row .btn.gp-confirm { border-color: var(--warn); color: var(--warn); }
+.dm-actions-row .btn.gp-sending { color: var(--tx3); }
+.dm-actions-row .btn.gp-sent { border-color: rgba(86, 200, 120, 0.5); color: var(--ok); }
+.dm-actions-row .btn.gp-error { border-color: rgba(255, 97, 89, 0.5); color: var(--red); }
